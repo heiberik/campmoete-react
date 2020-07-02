@@ -5,9 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "runClient": "cd ./client && npm run start",
+    "runClient": "cd ./klient && npm run start",
     "runServer": "nodemon server.js",
-    "build_frontend": "rmdir /s /q build && cd ./client && npm run build && xcopy build ..\\build /s /e /y /i",
+    "build_frontend": "rmdir /s /q build && cd ./klient && npm run build && xcopy build ..\\build /s /e /y /i",
     "deploy_heroku": "git push heroku master",
     "deploy": "npm run build_frontend && git add . && git commit -m uibuild && npm run deploy_heroku"
   },
