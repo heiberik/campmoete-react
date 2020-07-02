@@ -15,7 +15,6 @@ app.use(sslRedirect([
     'production'
     ]))
 
-//HEHE 2
 const getRandomColor = () => {
     var letters = 'ABCDEF';
     var color = '#';
