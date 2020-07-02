@@ -9,7 +9,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
-//HEHE
+//HEHE 2
 const getRandomColor = () => {
     var letters = 'ABCDEF';
     var color = '#';
