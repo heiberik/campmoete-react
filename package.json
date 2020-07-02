@@ -5,11 +5,13 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "runClient": "cd ./klient && npm run start",
+    "runClient": "cd ./client && npm run start",
     "runServer": "nodemon server.js",
-    "build_frontend": "rmdir /s /q build && cd ./klient && npm run build && xcopy build ..\\build /s /e /y /i",
+    "build_frontendWin": "rmdir /s /q build && cd ./client && npm run build && xcopy build ..\\build /s /e /y /i",
+    "build_frontendMac": "rm -rf build && cd ./client && npm run build && cp -r build ../build",
     "deploy_heroku": "git push heroku master",
-    "deploy": "npm run build_frontend && git add . && git commit -m uibuild && npm run deploy_heroku"
+    "deployMac": "npm run build_frontendMac && git add . && git commit -m uibuild && npm run deploy_heroku",
+    "deployWin": "npm run build_frontendWin && git add . && git commit -m uibuild && npm run deploy_heroku"
   },
   "author": "Henrik Heiberg",
   "license": "ISC",
