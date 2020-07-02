@@ -1,4 +1,5 @@
 const express = require("express")
+const sslRedirect = require('heroku-ssl-redirect')
 const cors = require("cors")
 const app = express()
 const http = require("http")
@@ -8,6 +9,11 @@ const io = require("socket.io").listen(server)
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
+app.use(sslRedirect([
+    'other',
+    'development',
+    'production'
+    ]))
 
 //HEHE 2
 const getRandomColor = () => {
