@@ -64,6 +64,10 @@ const App = () => {
             setNotMessage("Username cannot be empty")
             setMessageText("")
         }
+        else if (messageText === "Beowulf"){
+            setNotMessage("Username cannot be a helt som dreper Grendel")
+            setMessageText("")
+        }
         else if (messageText.length > 20) {
             setNotMessage("Username cannot be over 20 characters long")
             setMessageText("")
