@@ -2,7 +2,7 @@ import React from "react"
 import char from "../images/char4.png"
 import shieldPic from "../images/shield.png"
 
-const PlayerClient = ({ user, shield }) => {
+const PlayerClient = ({ user }) => {
     
     const stylePlayer = {
         position: "absolute",
@@ -37,7 +37,7 @@ const PlayerClient = ({ user, shield }) => {
     if (!user) {
         return null
     }
-    else if (shield) {
+    else if (user.shield) {
         return (
             <div style={stylePlayer}>
                 <img style={stylePicture} src={char} alt="character" />

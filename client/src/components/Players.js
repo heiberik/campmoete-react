@@ -3,7 +3,7 @@ import PlayerClient from './PlayerClient'
 import PlayerOther from './PlayerOther'
 
 
-const Players = ({ users, user, shield }) => {
+const Players = ({ users, user }) => {
 
     return (
         <>
@@ -16,11 +16,15 @@ const Players = ({ users, user, shield }) => {
                                 user={u} />
                         )
                     }
+                    else {
+                        return (
+                            <PlayerClient
+                                key={u.id}
+                                user={u} />
+                        )
+                    }
                 })}
             </ul>
-            <PlayerClient
-                user={user}
-                shield={shield} />
         </>
     )
 }

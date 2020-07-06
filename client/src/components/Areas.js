@@ -2,16 +2,16 @@ import React from "react"
 import AreaDelete from "./AreaDelete"
 import AreaStartGame from "./AreaStartGame"
 
-const Areas = ({ users, user, msgService }) => {
+const Areas = ({ usernameChosen, numbersDeleteEvent, numbersGameEvent }) => {
 
     return (
         <div>
             <AreaDelete 
-                msgService={msgService}
-                users={users}
-                user={user} />
+                numbersDeleteEvent={numbersDeleteEvent} 
+                usernameChosen={usernameChosen} />
             <AreaStartGame 
-                users={users}/>
+                usernameChosen={usernameChosen}
+                numbersGameEvent={numbersGameEvent} />
         </div>
     )
 }

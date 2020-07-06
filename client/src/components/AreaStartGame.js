@@ -1,7 +1,7 @@
 import React from "react"
 import pig from "../images/pig.png"
 
-const AreaStartGame = ({ users }) => {
+const AreaStartGame = ({ usernameChosen, numbersGameEvent }) => {
 
     const styleText = {
         position: "absolute",
@@ -9,9 +9,9 @@ const AreaStartGame = ({ users }) => {
         fontSize: "3rem",
         fontWeight: "bold",
         fontFamily: "Arial",
-        color: "orange",
+        color: "red",
         top: "10vh",
-        left: "50vw",
+        left: "60vw",
         zIndex: "50"
     }
 
@@ -23,8 +23,15 @@ const AreaStartGame = ({ users }) => {
         right: "2rem",
     }
 
-
-    return (
+    if (numbersGameEvent[0] > 0 && usernameChosen) {
+        return (
+            <>
+                <img src={pig} style={styleImg} alt="composter" />
+                <div style={styleText}> {numbersGameEvent[0]} / {numbersGameEvent[1]}</div>
+            </>
+        )
+    }
+    else return (
         <>
             <img src={pig} style={styleImg} alt="composter" />
         </>

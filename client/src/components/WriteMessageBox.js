@@ -6,11 +6,11 @@ const WriteMessageBox = ({
     messageText,
     sendMessageHandler,
     messageTextChangedhandler,
-    user,
+    usernameChosen,
     setUsernameHandler }) => {
 
 
-    if (!user) {
+    if (!usernameChosen) {
         return (
             <form className="form" onSubmit={setUsernameHandler}>
                 <input

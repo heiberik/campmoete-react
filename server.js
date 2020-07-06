@@ -22,27 +22,46 @@ const getRandomColor = () => {
 
 let messages = []
 let users = []
-
-let usersStartedDeleteEvent = []
-let usersStartedGameEvent = []
-
+let numbersDeleteEvent = 0
+let numbersGameEvent = 0
+let updateState = false
 
 io.on("connection", (socket) => {
 
-    socket.on("sendCoords", (coords) => {
-        const user = users.find(u => u.id === socket.id)
-        const newUser = {
-            ...user,
-            playerPosX: coords.posX,
-            playerPosY: coords.posY,
+    console.log("user connected")
+
+    socket.on("getAllMessages", () => {
+        socket.emit("sendAllMessages", { messages: messages })
+    })
+
+    socket.on("sendMessage", (message) => {
+
+        let top = 0
+        let left = 0
+
+        while ((top === 0) ||
+            (top > 40 && top < 60 && (left > 25 && left < 75)) ||
+            (left > 25 && left < 75 && (top > 40 && top < 60))
+        ) {
+            top = Math.floor(Math.random() * 60) + 20
+            left = Math.floor(Math.random() * 70) + 15
         }
 
-        users = users.filter(u => u.id !== socket.id).concat(newUser)
+        const newMessage = {
+            number: messages.length,
+            message: message.message,
+            date: Date(),
+            color: getRandomColor(),
+            top: top,
+            left: left
+        }
 
-        socket.broadcast.emit("sendUsers", {users: users} )
+        messages = messages.concat(newMessage)
+        io.emit("sendAllMessages", { messages: messages })
     })
 
     socket.on("setUsername", (data) => {
+
         const newUser = {
             id: socket.id,
             username: data.username,
@@ -55,34 +74,46 @@ io.on("connection", (socket) => {
         users = users.concat(newUser)
         socket.emit("sendUser", newUser)
         io.emit("sendUsers", { users: users })
-
-        if (usersStartedDeleteEvent.length === users.length){
-            io.emit("beginDeleteEvent", { number: usersStartedDeleteEvent.length })
-        }
-        io.emit("numbersDeleteEvent", { number: usersStartedDeleteEvent.length })
     })
 
+    socket.on("playerMovement", (pm) => {
 
-    socket.on("startDeleteEvent", (data) => {
-        if (data.start){
+        const user = users.find(u => u.id === socket.id)
+        if (!user) return
+        let newPosX = user.playerPosX
+        let newPosY = user.playerPosY
 
-            usersStartedDeleteEvent.push(socket.id)
-            if (usersStartedDeleteEvent.length === users.length){
-                io.emit("beginDeleteEvent", { number: usersStartedDeleteEvent.length })
-            }
-            else {
-                io.emit("numbersDeleteEvent", { number: usersStartedDeleteEvent.length })
-            }      
+        if (pm.up && pm.left) {
+            newPosX = newPosX - .4
+            newPosY = newPosY - .4
         }
-        else {
-            usersStartedDeleteEvent = usersStartedDeleteEvent.filter(u => u !== socket.id)
-            io.emit("numbersDeleteEvent", { number: usersStartedDeleteEvent.length })
+        else if (pm.up && pm.right) {
+            newPosX = newPosX + .4
+            newPosY = newPosY - .4
         }
-    })
+        else if (pm.down && pm.left) {
+            newPosX = newPosX - .4
+            newPosY = newPosY + .4
+        }
+        else if (pm.down && pm.right) {
+            newPosX = newPosX + .4
+            newPosY = newPosY + .4
+        }
+        else if (pm.up) newPosY = newPosY - .5
+        else if (pm.down) newPosY = newPosY + .5
+        else if (pm.left) newPosX = newPosX - .5
+        else if (pm.right) newPosX = newPosX + .5
+  
+        const newPlayer = {
+            ...user,
+            shield: pm.space,
+            playerPosX: newPosX,
+            playerPosY: newPosY,
+        }
 
-    socket.on("completeDeleteEvent", (data) => {
-        messages = []
-        io.emit("messagesReset", {data : true})
+        users = users.filter(u => u.id !== socket.id)
+        users = users.concat(newPlayer)
+        updateState = true
     })
 
     socket.on("setShield", (data) => {
@@ -92,63 +123,69 @@ io.on("connection", (socket) => {
             shield: data.shield,
         }
         users = users.filter(u => u.id !== socket.id).concat(newUser)
-        socket.broadcast.emit("sendUsers", {users: users} )
+        socket.broadcast.emit("sendUsers", { users: users })
     })
 
     socket.on("disconnect", () => {
-        usersStartedDeleteEvent = usersStartedDeleteEvent.filter(u => u !== socket.id)
-        if (usersStartedDeleteEvent.length === users.length){
-            io.emit("beginDeleteEvent", { number: usersStartedDeleteEvent.length })
-        }
-        else {
-            io.emit("numbersDeleteEvent", { number: usersStartedDeleteEvent.length })
-        }
-        
-
         users = users.filter(user => user.id !== socket.id)
         io.emit("sendUsers", { users: users })
+
+        console.log("user disconnected")
+        updateState = true
     })
 })
 
+const update = () => {
 
-app.get("/api/messages", (req, res) => {
-    res.json(messages)
-})
+    if (updateState) {
 
-app.post("/api/messages", (req, res) => {
-    const body = req.body
+        //check if special event should be started
+        let usersInDeleteArea = 0
+        let usersInGameArea = 0
 
-    top = 0
-    left = 0
+        users.forEach(u => {
+            if (u.playerPosX < 8 && u.playerPosY > 88 && u.playerPosX > 0 && u.playerPosY < 100) {
+                usersInDeleteArea++
+            }
 
-    while (
-        (top === 0) ||
-        (top > 40 && top < 60 && (left > 25 && left < 75)) ||
-        (left > 25 && left < 75 && (top > 40 && top < 60))
-    ) {
-        // må være et sted mellom 20-40 og 60-80
-        top = Math.floor(Math.random() * 60) + 20
-        // må være et sted mellom 15-25 og 75-85
-        left = Math.floor(Math.random() * 70) + 15
+            if (u.playerPosX > 88 && u.playerPosY > 88 && u.playerPosX < 100 && u.playerPosY < 100) {
+                usersInGameArea++
+            }
+        })
+        if (usersInDeleteArea === users.length) {
+            messages = []
+            io.emit("sendAllMessages", { messages: messages })
+        } 
+        if (usersInGameArea === users.length) {
+            // start game event!
+        }
+
+        if (numbersDeleteEvent !== usersInDeleteArea){
+            numbersDeleteEvent = usersInDeleteArea
+        }
+
+        if (numbersGameEvent !== usersInGameArea){
+            numbersGameEvent = usersInGameArea
+        }
+    }
+}
+
+setInterval(() => {
+
+    update()
+
+    if (updateState) {
+        io.sockets.emit('gameState', { 
+            users: users,
+            numbersDeleteEvent: [numbersDeleteEvent, users.length],
+            numbersGameEvent: [numbersGameEvent, users.length],
+        })
+        console.log("updating state!")
+        updateState = false
     }
 
-    const newMessage = {
-        number: messages.length,
-        message: body.message,
-        date: Date(),
-        color: getRandomColor(),
-        top: top,
-        left: left
-    }
+}, 1000 / 60);
 
-    io.sockets.emit("broadcastMessages", newMessage)
-
-    messages = messages.concat(newMessage)
-    res.json(newMessage)
-})
-
-
-
-const port = process.env.PORT || 4000
+const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
 

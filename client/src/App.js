@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import { useState, useEffect } from 'react'
 
 import messagesService from "./services/messages"
@@ -13,19 +13,18 @@ import TooSmallScreen from './components/TooSmallScreen'
 import "./css/App.css"
 
 
-// TODO
-// ikke legge til tomme mld.
-
 const App = () => {
 
     const [messages, setMessages] = useState([])
     const [messageText, setMessageText] = useState("")
     const [user, setUser] = useState("")
     const [users, setUsers] = useState([])
+    const [shield, setShield] = useState(false)
+    const [usernameChosen, setUsernameChosen] = useState(false)
     const [notMessage, setNotMessage] = useState("")
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
-    const [shield, setShield] = useState(false)
-    const [map, setMap] = useState(new Map())
+    const [numbersDeleteEvent, setNumbersDeleteEvent] = useState(0)
+    const [numbersGameEvent, setNumbersGameEvent] = useState(0)
 
     useEffect(() => {
         window.addEventListener("resize", () => {
@@ -36,16 +35,8 @@ const App = () => {
     const sendMessageHandler = (event) => {
         event.preventDefault()
         if (messageText.replace(/\s+/g, '') !== "") {
-            const newMessage = {
-                message: messageText
-            }
-
-            messagesService
-                .sendMessage(newMessage)
-                .then((msg) => {
-                    setMessages(messages.concat(msg))
-                    setMessageText("")
-                })
+            messagesService.sendMessage(messageText)
+            setMessageText("")
         }
         else {
             setNotMessage("Message cannot be empty")
@@ -64,7 +55,7 @@ const App = () => {
             setNotMessage("Username cannot be empty")
             setMessageText("")
         }
-        else if (messageText === "Beowulf"){
+        else if (messageText === "Beowulf") {
             setNotMessage("Username cannot be a helt som dreper Grendel")
             setMessageText("")
         }
@@ -73,95 +64,59 @@ const App = () => {
             setMessageText("")
         }
         else {
-            messagesService
-                .getAllMessages()
-                .then((msgs) => setMessages(msgs))
-
-            messagesService
-                .connectSocket((message) => {
-                    setMessages(msgs => {
-                        const check = msgs.find(msg => msg.number === message.number)
-                        if (!check) return msgs.concat(message)
-                        return msgs
-                    })
-                })
-
-            messagesService
-                .getUsers((users) => setUsers(users))
-
-            messagesService
-                .getUser((user) => setUser(user))
-
-            messagesService
-                .listenMessagesReset(() => setMessages([]))
-
-            messagesService
-                .sendUsername(messageText)
-            setMessageText("")
-
-            window.addEventListener('keydown', (event) => {
-    
-                if (event.target.tagName.toUpperCase() === 'INPUT') return
-                if (![65, 83, 87, 68, 32].includes(event.keyCode)) return
-                
-                let newMap = map
-                setMap(m => {
-                    newMap = new Map(m)
-                    newMap.set(event.keyCode, true)
-                    return newMap
-                })
-    
-                if (newMap.get(32)) { // Space
-                    setShield(() => {
-                        messagesService.setShield(true)
-                        return true
-                    })
-                }
-                else {
-                    setUser(u => {
-        
-                        let pos = [u.playerPosX, u.playerPosY]
-                        let newPos = [u.playerPosX, u.playerPosY]
-    
-                        if (newMap.get(65) && newMap.get(83)) newPos = [pos[0] - 1, pos[1] + 1]
-                        else if (newMap.get(87) && newMap.get(65)) newPos = [pos[0] - 1, pos[1] - 1]
-                        else if (newMap.get(87) && newMap.get(68)) newPos = [pos[0] + 1, pos[1] - 1]
-                        else if (newMap.get(83) && newMap.get(68)) newPos = [pos[0] + 1, pos[1] + 1]
-                        else if (newMap.get(87)) newPos = [pos[0], pos[1] - 2]
-                        else if (newMap.get(65)) newPos = [pos[0] - 2, pos[1]]
-                        else if (newMap.get(83)) newPos = [pos[0], pos[1] + 2]
-                        else if (newMap.get(68)) newPos = [pos[0] + 2, pos[1]]
-                        messagesService.sendCoords(newPos)
-    
-                        const newUser = {
-                            ...u,
-                            playerPosX: newPos[0],
-                            playerPosY: newPos[1],
-                        }
-
-                        return newUser
-                    })
-                }
+            messagesService.getUser((u) => {
+                setMessageText("")
+                setUsernameChosen(true)
+                setUser(u)
             })
-    
-            window.addEventListener('keyup', (event) => {
-    
-                if (![65, 83, 87, 68, 32].includes(event.keyCode)) return
-    
-                let newMap = map
-                setMap(m => {
-                    newMap = new Map(m)
-                    newMap.set(event.keyCode, false)
-                    return newMap    
+            messagesService.getAllMessages((msgs) => setMessages(msgs))
+            messagesService.getUsers((usrs) => setUsers(usrs))
+            messagesService.sendUsername(messageText)
+
+            messagesService
+                .getGameState((gameState) => {
+                    setUsers(gameState.users)
+                    setNumbersDeleteEvent(gameState.numbersDeleteEvent)
+                    setNumbersGameEvent(gameState.numbersGameEvent)
                 })
 
-                if (!newMap.get(32)) { // Space
-                    setShield(() => {
-                        messagesService.setShield(false)
-                        return false
-                    })
+            const pm = {
+                up: false,
+                down: false,
+                left: false,
+                right: false,
+                space: false
+            }
+
+            const keyDownHandler = (e) => {
+                if (e.target.tagName.toUpperCase() === "INPUT") return
+                if (e.keyCode == 68) pm.right = true
+                else if (e.keyCode == 65) pm.left = true
+                else if (e.keyCode == 87) pm.up = true
+                else if (e.keyCode == 83) pm.down = true
+                else if (e.keyCode == 32) pm.space = true
+            }
+
+            let setFalse = false
+            const keyUpHandler = (e) => {
+                if (e.target.tagName.toUpperCase() === "INPUT") return
+                if (e.keyCode == 68) pm.right = false
+                else if (e.keyCode == 65) pm.left = false
+                else if (e.keyCode == 87) pm.up = false
+                else if (e.keyCode == 83) pm.down = false
+                else if (e.keyCode == 32) pm.space = false
+                setFalse = true
+            }
+
+            document.addEventListener('keydown', keyDownHandler, false)
+            document.addEventListener('keyup', keyUpHandler, false)
+
+            setInterval(() => {
+                if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse) {
+                    messagesService.sendPlayerMovement(pm)
+                    setFalse = false
                 }
-            })
+            }, 1000 / 60);
         }
     }
 
@@ -184,17 +139,16 @@ const App = () => {
                 messageText={messageText}
                 sendMessageHandler={sendMessageHandler}
                 messageTextChangedhandler={messageTextChangedhandler}
-                user={user}
+                usernameChosen={usernameChosen}
                 setUsernameHandler={setUsernameHandler} />
             <Campfire messages={messages} />
             <Players
                 users={users}
-                user={user}
-                shield={shield} />
-            <Areas
-                msgService={messagesService}
-                users={users}
                 user={user} />
+            <Areas
+                usernameChosen={usernameChosen}
+                numbersDeleteEvent={numbersDeleteEvent}
+                numbersGameEvent={numbersGameEvent} />
             <Notification
                 message={notMessage}
                 messageHandler={setNotMessage} />
