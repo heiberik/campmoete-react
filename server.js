@@ -84,25 +84,25 @@ io.on("connection", (socket) => {
         let newPosY = user.playerPosY
 
         if (pm.up && pm.left) {
-            newPosX = newPosX - .4
-            newPosY = newPosY - .4
+            newPosX = newPosX - .5
+            newPosY = newPosY - .5
         }
         else if (pm.up && pm.right) {
-            newPosX = newPosX + .4
-            newPosY = newPosY - .4
+            newPosX = newPosX + .5
+            newPosY = newPosY - .5
         }
         else if (pm.down && pm.left) {
-            newPosX = newPosX - .4
-            newPosY = newPosY + .4
+            newPosX = newPosX - .5
+            newPosY = newPosY + .5
         }
         else if (pm.down && pm.right) {
-            newPosX = newPosX + .4
-            newPosY = newPosY + .4
+            newPosX = newPosX + .5
+            newPosY = newPosY + .5
         }
-        else if (pm.up) newPosY = newPosY - .5
-        else if (pm.down) newPosY = newPosY + .5
-        else if (pm.left) newPosX = newPosX - .5
-        else if (pm.right) newPosX = newPosX + .5
+        else if (pm.up) newPosY = newPosY - 1
+        else if (pm.down) newPosY = newPosY + 1
+        else if (pm.left) newPosX = newPosX - 1
+        else if (pm.right) newPosX = newPosX + 1
   
         const newPlayer = {
             ...user,
