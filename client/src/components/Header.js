@@ -13,6 +13,7 @@ const Header = ({ text }) => {
         fontSize: "2rem",
         fontWeight: "bold",
         cursor: "auto",
+        zIndex: "50000",
     }
 
     return (

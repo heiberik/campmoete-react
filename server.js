@@ -22,9 +22,12 @@ const getRandomColor = () => {
 
 let messages = []
 let users = []
+let pillars = []
 let numbersDeleteEvent = 0
 let numbersGameEvent = 0
 let updateState = false
+
+
 
 io.on("connection", (socket) => {
 
@@ -65,8 +68,8 @@ io.on("connection", (socket) => {
         const newUser = {
             id: socket.id,
             username: data.username,
-            playerPosX: 14,
-            playerPosY: 10 + (users.length * 2),
+            playerPosX: 50,
+            playerPosY: 50 + (users.length * 2),
             color: getRandomColor(),
             shield: false,
         }
@@ -84,26 +87,26 @@ io.on("connection", (socket) => {
         let newPosY = user.playerPosY
 
         if (pm.up && pm.left) {
-            newPosX = newPosX - .5
-            newPosY = newPosY - .5
+            newPosX = newPosX - .25
+            newPosY = newPosY - .25
         }
         else if (pm.up && pm.right) {
-            newPosX = newPosX + .5
-            newPosY = newPosY - .5
+            newPosX = newPosX + .25
+            newPosY = newPosY - .25
         }
         else if (pm.down && pm.left) {
-            newPosX = newPosX - .5
-            newPosY = newPosY + .5
+            newPosX = newPosX - .25
+            newPosY = newPosY + .25
         }
         else if (pm.down && pm.right) {
-            newPosX = newPosX + .5
-            newPosY = newPosY + .5
+            newPosX = newPosX + .25
+            newPosY = newPosY + .25
         }
-        else if (pm.up) newPosY = newPosY - 1
-        else if (pm.down) newPosY = newPosY + 1
-        else if (pm.left) newPosX = newPosX - 1
-        else if (pm.right) newPosX = newPosX + 1
-  
+        else if (pm.up) newPosY = newPosY - .5
+        else if (pm.down) newPosY = newPosY + .5
+        else if (pm.left) newPosX = newPosX - .5
+        else if (pm.right) newPosX = newPosX + .5
+
         const newPlayer = {
             ...user,
             shield: pm.space,
@@ -135,38 +138,140 @@ io.on("connection", (socket) => {
     })
 })
 
+
+let startOverDelete = false
+let startOverGame = false
+let gameInProgress = false
+let progressTick = 0
+let countDownStarted = false
+let highscore = 0
+let currentScore = 0
+
+const makePillar = () => {
+
+    const randomNumber1 = Math.floor(Math.random() * 60) + 20
+    const randomNumber2 = Math.floor(Math.random() * 2) + 2
+
+    const newPillar = {
+        top: randomNumber1-8,
+        bottom: randomNumber1+8,
+        color: getRandomColor(),
+        posX: 100.0,
+    }
+
+    pillars = pillars.concat(newPillar)    
+}
+
+const movePillars = () => {
+
+    pillars.forEach(p => {p.posX = p.posX - .4})
+    pillars = pillars.filter(p => {
+        if (p.posX >= -2.0) return true
+        else {
+            currentScore++
+            io.emit("sendCurrentscore", {currentscore: currentScore})
+            return false
+        }            
+    })
+}
+
+const checkCollissions = () => {
+    let usersDead = []
+
+    users.forEach(u => {
+        
+        const x = u.playerPosX
+        const y = u.playerPosY
+
+        pillars.forEach(p => {
+
+            if (p.posX >= x && p.posX <= x+1){
+                if (y >= p.bottom-2 || y <= p.top+3){
+                    /*
+                    console.log("COLISSION!!")
+
+                    console.log("Player: Y: ", y)
+                    console.log("Pillar: Ytop: ", p.top, " - Ybot: ", p.bottom)
+                    */
+                    usersDead = usersDead.concat(u.username)
+                }
+            }
+        })
+    })
+
+    return usersDead
+}
+
 const update = () => {
 
-    if (updateState) {
+    if (updateState && !gameInProgress) {
 
-        //check if special event should be started
         let usersInDeleteArea = 0
         let usersInGameArea = 0
 
         users.forEach(u => {
             if (u.playerPosX < 8 && u.playerPosY > 88 && u.playerPosX > 0 && u.playerPosY < 100) {
                 usersInDeleteArea++
-            }
+            } else startOverDelete = false
 
             if (u.playerPosX > 88 && u.playerPosY > 88 && u.playerPosX < 100 && u.playerPosY < 100) {
                 usersInGameArea++
-            }
+            } else startOverGame = false
         })
-        if (usersInDeleteArea === users.length) {
+
+        if (usersInDeleteArea > 0 && usersInDeleteArea === users.length && !startOverDelete) {
             messages = []
             io.emit("sendAllMessages", { messages: messages })
-        } 
-        if (usersInGameArea === users.length) {
-            // start game event!
+            startOverDelete = true
+        }
+        if (usersInGameArea > 0 && usersInGameArea === users.length && !startOverGame && !gameInProgress && !countDownStarted) {
+            countDownStarted = true
+            startOverGame = true
+            const countDown = (count) => {
+                if (count < -1) {
+                    gameInProgress = true
+                    countDownStarted = false
+                    makePillar()
+                }
+                else {
+                    io.emit("startCountDown", { count: count })
+                    setTimeout(() => countDown(count-1), 1000);
+                }
+            }
+            countDown(5)
         }
 
-        if (numbersDeleteEvent !== usersInDeleteArea){
+        if (numbersDeleteEvent !== usersInDeleteArea) {
             numbersDeleteEvent = usersInDeleteArea
-        }
-
-        if (numbersGameEvent !== usersInGameArea){
+        }   
+        if (numbersGameEvent !== usersInGameArea) {
             numbersGameEvent = usersInGameArea
         }
+    }
+
+    if (gameInProgress) {
+
+        progressTick++
+
+        if (progressTick % 100 === 0) makePillar()
+        movePillars()
+
+        const usersDead = checkCollissions()
+        if (usersDead.length > 0) {
+            gameInProgress = false
+            startOver = false
+            progressTick = 0
+            pillars = []
+            io.emit("stopGameEvent", { usersDead: usersDead })
+            if (currentScore > highscore){
+                highscore = currentScore
+                io.emit("sendHighscore", { highscore: highscore })
+                currentScore = 0
+                io.emit("sendCurrentscore", {currentscore: currentScore})
+            }   
+        }
+
+        updateState = true
     }
 }
 
@@ -175,16 +280,16 @@ setInterval(() => {
     update()
 
     if (updateState) {
-        io.sockets.emit('gameState', { 
+        io.sockets.emit('gameState', {
             users: users,
+            pillars: pillars,
             numbersDeleteEvent: [numbersDeleteEvent, users.length],
             numbersGameEvent: [numbersGameEvent, users.length],
         })
-        console.log("updating state!")
         updateState = false
     }
 
-}, 1000 / 30);
+}, 1000 / 50);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))

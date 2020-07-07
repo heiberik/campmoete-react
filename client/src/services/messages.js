@@ -25,6 +25,30 @@ const setShield = (shield) => {
     socket.emit("setShield", {shield: shield})
 }
 
+const getHighscore = (callback) => {
+    socket.on("sendHighscore", (data) => {
+        callback(data.highscore)
+    })
+}
+
+const getCurrentscore = (callback) => {
+    socket.on("sendCurrentscore", (data) => {
+        callback(data.currentscore)
+    })
+}
+
+const getStopGameEvent = (callback) => {
+    socket.on("stopGameEvent", (data) => {
+        callback(data.usersDead)
+    })
+}
+
+const getCountDown = (callback) => {
+    socket.on("startCountDown", (data) => {
+        callback(data.count)
+    })
+}
+
 const getUser = (callback) => {
     socket.on("sendUser", (data) => {
         callback(data)
@@ -52,5 +76,9 @@ export default {
     getUser: getUser,
     setShield: setShield,
     sendPlayerMovement: sendPlayerMovement,
-    getGameState: getGameState
+    getGameState: getGameState,
+    getStopGameEvent: getStopGameEvent,
+    getCountDown: getCountDown,
+    getHighscore: getHighscore,
+    getCurrentscore: getCurrentscore,
 }

@@ -6,17 +6,19 @@ const PlayerClient = ({ user }) => {
     
     const stylePlayer = {
         position: "absolute",
-        transform: "translateX(-50%)",
+        transform: "translate(-50%, -50%)",
         top: user.playerPosY + "vh",
         left: user.playerPosX + "vw",
         padding: "0px",
         margin: "0px",
         zIndex: "9999999999999",
+        width: "8vh",
+        height: "8vh",
     }
 
     const stylePicture = {
-        width: "3rem",
-        height: "3rem",
+        width: "6vh",
+        height: "6vh",
         padding: "0px",
         margin: "auto",
         display: "block",
@@ -27,10 +29,10 @@ const PlayerClient = ({ user }) => {
 
     const styleShield = {
         position: "relative",
-        width: "4rem",
-        height: "4rem",
-        top: "-3rem",
-        left: "1.5rem",
+        width: "7vh",
+        height: "7vh",
+        top: "-5vh",
+        left: "3vh",
         zIndex: "999999999999",
     }
 

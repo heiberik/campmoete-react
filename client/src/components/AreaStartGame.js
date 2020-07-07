@@ -6,12 +6,12 @@ const AreaStartGame = ({ usernameChosen, numbersGameEvent }) => {
     const styleText = {
         position: "absolute",
         transform: "translateX(-50%)",
-        fontSize: "3rem",
+        fontSize: "1rem",
         fontWeight: "bold",
         fontFamily: "Arial",
-        color: "red",
-        top: "10vh",
-        left: "60vw",
+        color: "white",
+        bottom: "10vh",
+        left: "95vw",
         zIndex: "50"
     }
 

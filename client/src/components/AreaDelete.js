@@ -6,12 +6,12 @@ const AreaDelete = ({ usernameChosen, numbersDeleteEvent }) => {
     const styleText = {
         position: "absolute",
         transform: "translateX(-50%)",
-        fontSize: "3rem",
+        fontSize: "1rem",
         fontWeight: "bold",
         fontFamily: "Arial",
-        color: "orange",
-        top: "10vh",
-        left: "40vw",
+        color: "white",
+        bottom: "10vh",
+        left: "4vw",
         zIndex: "50"
     }
 

@@ -10,6 +10,7 @@ import Players from './components/Players'
 import Notification from './components/Notification'
 import Areas from './components/Areas'
 import TooSmallScreen from './components/TooSmallScreen'
+import Pillars from "./components/Pillars"
 import "./css/App.css"
 
 
@@ -19,12 +20,17 @@ const App = () => {
     const [messageText, setMessageText] = useState("")
     const [user, setUser] = useState("")
     const [users, setUsers] = useState([])
-    const [shield, setShield] = useState(false)
     const [usernameChosen, setUsernameChosen] = useState(false)
     const [notMessage, setNotMessage] = useState("")
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
     const [numbersDeleteEvent, setNumbersDeleteEvent] = useState(0)
     const [numbersGameEvent, setNumbersGameEvent] = useState(0)
+    const [countDown, setCountDown] = useState(-1)
+    const [usersDead, setUsersDead] = useState([])
+    const [pillars, setPillars] = useState([])
+    const [currentscore, setCurrentscore] = useState(0)
+    const [highscore, setHighscore] = useState(0)
+    const [newHighscore, setNewHighscore] = useState(false)
 
     useEffect(() => {
         window.addEventListener("resize", () => {
@@ -72,12 +78,24 @@ const App = () => {
             messagesService.getAllMessages((msgs) => setMessages(msgs))
             messagesService.getUsers((usrs) => setUsers(usrs))
             messagesService.sendUsername(messageText)
-
+            messagesService.getCountDown((count) => setCountDown(count))
+            messagesService.getStopGameEvent((usrs) => {
+                setTimeout(() => setUsersDead([]), 5000)
+                setPillars([])
+                setUsersDead(usrs)
+            })
+            messagesService.getCurrentscore((cs) => setCurrentscore(cs))
+            messagesService.getHighscore((hs) => {
+                setHighscore(hs)
+                setTimeout(() => setNewHighscore(false), 5000)
+                setNewHighscore(true)
+            })
             messagesService
                 .getGameState((gameState) => {
                     setUsers(gameState.users)
                     setNumbersDeleteEvent(gameState.numbersDeleteEvent)
                     setNumbersGameEvent(gameState.numbersGameEvent)
+                    setPillars(gameState.pillars)
                 })
 
             const pm = {
@@ -90,33 +108,34 @@ const App = () => {
 
             const keyDownHandler = (e) => {
                 if (e.target.tagName.toUpperCase() === "INPUT") return
-                if (e.keyCode == 68) pm.right = true
-                else if (e.keyCode == 65) pm.left = true
-                else if (e.keyCode == 87) pm.up = true
-                else if (e.keyCode == 83) pm.down = true
-                else if (e.keyCode == 32) pm.space = true
+                if (e.keyCode === 68) pm.right = true
+                else if (e.keyCode === 65) pm.left = true
+                else if (e.keyCode === 87) pm.up = true
+                else if (e.keyCode === 83) pm.down = true
+                else if (e.keyCode === 32) pm.space = true
             }
 
             let setFalse = false
             const keyUpHandler = (e) => {
                 if (e.target.tagName.toUpperCase() === "INPUT") return
-                if (e.keyCode == 68) pm.right = false
-                else if (e.keyCode == 65) pm.left = false
-                else if (e.keyCode == 87) pm.up = false
-                else if (e.keyCode == 83) pm.down = false
-                else if (e.keyCode == 32) pm.space = false
+                if (e.keyCode === 68) pm.right = false
+                else if (e.keyCode === 65) pm.left = false
+                else if (e.keyCode === 87) pm.up = false
+                else if (e.keyCode === 83) pm.down = false
+                else if (e.keyCode === 32) pm.space = false
                 setFalse = true
             }
 
             document.addEventListener('keydown', keyDownHandler, false)
             document.addEventListener('keyup', keyUpHandler, false)
 
+
             setInterval(() => {
                 if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse) {
                     messagesService.sendPlayerMovement(pm)
                     setFalse = false
                 }
-            }, 1000 / 30);
+            }, 1000 / 50);
         }
     }
 
@@ -146,9 +165,16 @@ const App = () => {
                 users={users}
                 user={user} />
             <Areas
+                currentscore={currentscore}
+                newHighscore={newHighscore}
+                highscore={highscore}
+                usersDead={usersDead}
+                countDown={countDown}
                 usernameChosen={usernameChosen}
                 numbersDeleteEvent={numbersDeleteEvent}
                 numbersGameEvent={numbersGameEvent} />
+            <Pillars 
+                pillars={pillars} />
             <Notification
                 message={notMessage}
                 messageHandler={setNotMessage} />
