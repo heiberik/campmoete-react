@@ -66,6 +66,7 @@ const Areas = ({
         zIndex: "9999"
     }
 
+    if (!usernameChosen) return null
 
     if (newHighscore) {
         return (
