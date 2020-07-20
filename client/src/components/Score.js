@@ -1,21 +1,25 @@
 import React from "react"
 import { useState, useEffect } from 'react'
 
-const Score = ({ highscore, currentscore, usernameChosen, }) => {
+const Score = ({ highscore, currentscore, usernameChosen }) => {
 
     const [newHighScore, setNewHighScore] = useState(false)
-    const [highscoreCheck, setHighscoreCheck] = useState(0)
+    const [highscoreCheck, setHighscoreCheck] = useState(-1)
 
     useEffect(() => {
         setHighscoreCheck(hs => {
-            if (highscore > hs) {
+            if (!usernameChosen) return -1
+            else if (hs === -1){
+                return highscore
+            }
+            else if (highscore > hs) {
                 setTimeout(() => setNewHighScore(false), 6000)
                 setNewHighScore(true)
                 return highscore
             }
             else return hs
         })
-    }, [highscore])
+    }, [highscore, usernameChosen])
 
     const scoreStyle = {
         textAlign: "center",
@@ -50,13 +54,13 @@ const Score = ({ highscore, currentscore, usernameChosen, }) => {
         return (
             <>
                 <div style={newHighScoreStyle}> NEW HIGHSCORE!</div>
-                <div style={scoreStyle}> Current Score: {currentscore} - High Score: {highscoreCheck}</div>
+                <div style={scoreStyle}> Current Score: {currentscore} &emsp;&emsp;&emsp;&emsp; Highest Score: {highscoreCheck}</div>
             </>
         )
     }
     else {
         return (
-            <div style={scoreStyle}> Current Score: {currentscore} - High Score: {highscoreCheck}</div>
+            <div style={scoreStyle}> Current Score: {currentscore} &emsp;&emsp;&emsp;&emsp; Highest Score: {highscoreCheck}</div>
         )
     }
 }

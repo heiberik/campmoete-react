@@ -17,8 +17,8 @@ const PlayerOther = ({ user }) => {
     }
 
     const stylePicture = {
-        width: "5vh",
-        height: "5vh",
+        width: "2.5rem",
+        height: "2.5rem",
         padding: "0px",
         margin: "auto",
         display: "block",
@@ -29,10 +29,10 @@ const PlayerOther = ({ user }) => {
 
     const styleShield = {
         position: "relative",
-        width: "6vh",
-        height: "6vh",
-        top: "-5vh",
-        left: "3vh",
+        width: "3rem",
+        height: "3rem",
+        top: "-2.2rem",
+        left: "3.5rem",
         zIndex: "999999999999",
     }
 
