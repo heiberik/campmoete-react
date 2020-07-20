@@ -9,12 +9,11 @@ const Pillars = ({ pillars }) => {
                 return (
                     <Pillar
                         pillar={p}
-                        key={p} />
+                        key={p.posX} />
                 )
             })}
         </ul>
     )
-
 }
 
 export default Pillars

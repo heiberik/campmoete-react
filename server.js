@@ -23,19 +23,23 @@ const getRandomColor = () => {
 let messages = []
 let users = []
 let pillars = []
+let usersDead = []
+
 let numbersDeleteEvent = 0
 let numbersGameEvent = 0
 let updateState = false
-
-
+let startOverDelete = false
+let startOverGame = false
+let gameInProgress = false
+let progressTick = 0
+let countDownStarted = false
+let countDownNumber = -1
+let highscore = 0
+let currentScore = 0
 
 io.on("connection", (socket) => {
 
     console.log("user connected")
-
-    socket.on("getAllMessages", () => {
-        socket.emit("sendAllMessages", { messages: messages })
-    })
 
     socket.on("sendMessage", (message) => {
 
@@ -60,7 +64,7 @@ io.on("connection", (socket) => {
         }
 
         messages = messages.concat(newMessage)
-        io.emit("sendAllMessages", { messages: messages })
+        updateState = true
     })
 
     socket.on("setUsername", (data) => {
@@ -76,7 +80,7 @@ io.on("connection", (socket) => {
 
         users = users.concat(newUser)
         socket.emit("sendUser", newUser)
-        io.emit("sendUsers", { users: users })
+        updateState = true
     })
 
     socket.on("playerMovement", (pm) => {
@@ -119,15 +123,6 @@ io.on("connection", (socket) => {
         updateState = true
     })
 
-    socket.on("setShield", (data) => {
-        const user = users.find(u => u.id === socket.id)
-        const newUser = {
-            ...user,
-            shield: data.shield,
-        }
-        users = users.filter(u => u.id !== socket.id).concat(newUser)
-        socket.broadcast.emit("sendUsers", { users: users })
-    })
 
     socket.on("disconnect", () => {
         users = users.filter(user => user.id !== socket.id)
@@ -139,18 +134,9 @@ io.on("connection", (socket) => {
 })
 
 
-let startOverDelete = false
-let startOverGame = false
-let gameInProgress = false
-let progressTick = 0
-let countDownStarted = false
-let highscore = 0
-let currentScore = 0
-
 const makePillar = () => {
 
     const randomNumber1 = Math.floor(Math.random() * 60) + 20
-    const randomNumber2 = Math.floor(Math.random() * 2) + 2
 
     const newPillar = {
         top: randomNumber1-8,
@@ -169,14 +155,13 @@ const movePillars = () => {
         if (p.posX >= -2.0) return true
         else {
             currentScore++
-            io.emit("sendCurrentscore", {currentscore: currentScore})
             return false
         }            
     })
 }
 
 const checkCollissions = () => {
-    let usersDead = []
+    let ud = []
 
     users.forEach(u => {
         
@@ -187,19 +172,14 @@ const checkCollissions = () => {
 
             if (p.posX >= x && p.posX <= x+1){
                 if (y >= p.bottom-2 || y <= p.top+3){
-                    /*
-                    console.log("COLISSION!!")
-
-                    console.log("Player: Y: ", y)
-                    console.log("Pillar: Ytop: ", p.top, " - Ybot: ", p.bottom)
-                    */
-                    usersDead = usersDead.concat(u.username)
+                
+                    ud = ud.concat(u.username)
                 }
             }
         })
     })
 
-    return usersDead
+    return ud
 }
 
 const update = () => {
@@ -221,7 +201,6 @@ const update = () => {
 
         if (usersInDeleteArea > 0 && usersInDeleteArea === users.length && !startOverDelete) {
             messages = []
-            io.emit("sendAllMessages", { messages: messages })
             startOverDelete = true
         }
         if (usersInGameArea > 0 && usersInGameArea === users.length && !startOverGame && !gameInProgress && !countDownStarted) {
@@ -234,9 +213,9 @@ const update = () => {
                     makePillar()
                 }
                 else {
-                    io.emit("startCountDown", { count: count })
                     setTimeout(() => countDown(count-1), 1000);
                 }
+                countDownNumber = count
             }
             countDown(5)
         }
@@ -256,21 +235,21 @@ const update = () => {
         if (progressTick % 100 === 0) makePillar()
         movePillars()
 
-        const usersDead = checkCollissions()
+        usersDead = checkCollissions()
         if (usersDead.length > 0) {
             gameInProgress = false
             startOver = false
             progressTick = 0
             pillars = []
-            io.emit("stopGameEvent", { usersDead: usersDead })
+            setTimeout(() => {
+                usersDead = []
+                updateState = true
+            }, 5000)
             if (currentScore > highscore){
                 highscore = currentScore
-                io.emit("sendHighscore", { highscore: highscore })
                 currentScore = 0
-                io.emit("sendCurrentscore", {currentscore: currentScore})
             }   
         }
-
         updateState = true
     }
 }
@@ -282,14 +261,19 @@ setInterval(() => {
     if (updateState) {
         io.sockets.emit('gameState', {
             users: users,
+            messages: messages,
             pillars: pillars,
             numbersDeleteEvent: [numbersDeleteEvent, users.length],
             numbersGameEvent: [numbersGameEvent, users.length],
+            highScore: highscore,
+            currentScore: currentScore,
+            deadUsers: usersDead,
+            countDown: countDownNumber,
         })
         updateState = false
     }
 
-}, 1000 / 50);
+}, 1000 / 60);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))

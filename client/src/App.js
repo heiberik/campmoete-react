@@ -16,13 +16,16 @@ import "./css/App.css"
 
 const App = () => {
 
-    const [messages, setMessages] = useState([])
+
     const [messageText, setMessageText] = useState("")
     const [user, setUser] = useState("")
-    const [users, setUsers] = useState([])
     const [usernameChosen, setUsernameChosen] = useState(false)
     const [notMessage, setNotMessage] = useState("")
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
+
+    /*
+    const [messages, setMessages] = useState([])
+    const [users, setUsers] = useState([])
     const [numbersDeleteEvent, setNumbersDeleteEvent] = useState(0)
     const [numbersGameEvent, setNumbersGameEvent] = useState(0)
     const [countDown, setCountDown] = useState(-1)
@@ -31,6 +34,21 @@ const App = () => {
     const [currentscore, setCurrentscore] = useState(0)
     const [highscore, setHighscore] = useState(0)
     const [newHighscore, setNewHighscore] = useState(false)
+    */
+
+    const [gamestate, setGamestate] = useState({
+        messages: [],
+        users: [],
+        numbersDeleteEvent: [],
+        numbersGameEvent: [],
+        countDown: -1,
+        usersDead: [],
+        pillars: [],
+        currentScore: 0,
+        highScore: 0,
+    })
+
+    console.log("render")
 
     useEffect(() => {
         window.addEventListener("resize", () => {
@@ -75,27 +93,24 @@ const App = () => {
                 setUsernameChosen(true)
                 setUser(u)
             })
-            messagesService.getAllMessages((msgs) => setMessages(msgs))
-            messagesService.getUsers((usrs) => setUsers(usrs))
             messagesService.sendUsername(messageText)
-            messagesService.getCountDown((count) => setCountDown(count))
-            messagesService.getStopGameEvent((usrs) => {
-                setTimeout(() => setUsersDead([]), 5000)
-                setPillars([])
-                setUsersDead(usrs)
-            })
-            messagesService.getCurrentscore((cs) => setCurrentscore(cs))
-            messagesService.getHighscore((hs) => {
-                setHighscore(hs)
-                setTimeout(() => setNewHighscore(false), 5000)
-                setNewHighscore(true)
-            })
+
             messagesService
                 .getGameState((gameState) => {
-                    setUsers(gameState.users)
-                    setNumbersDeleteEvent(gameState.numbersDeleteEvent)
-                    setNumbersGameEvent(gameState.numbersGameEvent)
-                    setPillars(gameState.pillars)
+
+
+
+                    setGamestate({
+                        messages: gameState.messages,
+                        users: gameState.users,
+                        numbersDeleteEvent: gameState.numbersDeleteEvent,
+                        numbersGameEvent: gameState.numbersGameEvent,
+                        countDown: gameState.countDown,
+                        usersDead: gameState.deadUsers,
+                        pillars: gameState.pillars,
+                        currentScore: gameState.currentScore,
+                        highScore: gameState.highScore,
+                    })
                 })
 
             const pm = {
@@ -129,13 +144,51 @@ const App = () => {
             document.addEventListener('keydown', keyDownHandler, false)
             document.addEventListener('keyup', keyUpHandler, false)
 
-
             setInterval(() => {
                 if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse) {
                     messagesService.sendPlayerMovement(pm)
+
+                    /*
+                    setUser(u => {
+
+                        let newPosX = u.playerPosX
+                        let newPosY = u.playerPosY
+
+                        if (pm.up && pm.left) {
+                            newPosX = newPosX - .25
+                            newPosY = newPosY - .25
+                        }
+                        else if (pm.up && pm.right) {
+                            newPosX = newPosX + .25
+                            newPosY = newPosY - .25
+                        }
+                        else if (pm.down && pm.left) {
+                            newPosX = newPosX - .25
+                            newPosY = newPosY + .25
+                        }
+                        else if (pm.down && pm.right) {
+                            newPosX = newPosX + .25
+                            newPosY = newPosY + .25
+                        }
+                        else if (pm.up) newPosY = newPosY - .5
+                        else if (pm.down) newPosY = newPosY + .5
+                        else if (pm.left) newPosX = newPosX - .5
+                        else if (pm.right) newPosX = newPosX + .5
+
+                        const newUser = {
+                            ...u,
+                            shield: pm.space,
+                            playerPosX: newPosX,
+                            playerPosY: newPosY,
+                        }
+
+                        return newUser
+                    })
+                    */
+
                     setFalse = false
                 }
-            }, 1000 / 50);
+            }, 1000 / 60);
         }
     }
 
@@ -152,29 +205,29 @@ const App = () => {
         <div style={style}>
             <Header text="CAMPMØTE" />
             <MessagesList
-                list={messages}
-                users={users} />
+                list={gamestate.messages}
+                users={gamestate.users} />
             <WriteMessageBox
                 messageText={messageText}
                 sendMessageHandler={sendMessageHandler}
                 messageTextChangedhandler={messageTextChangedhandler}
                 usernameChosen={usernameChosen}
                 setUsernameHandler={setUsernameHandler} />
-            <Campfire messages={messages} />
+            <Campfire messages={gamestate.messages} />
             <Players
-                users={users}
+                users={gamestate.users}
                 user={user} />
             <Areas
-                currentscore={currentscore}
-                newHighscore={newHighscore}
-                highscore={highscore}
-                usersDead={usersDead}
-                countDown={countDown}
+                currentscore={gamestate.currentscore}
+                newHighscore={gamestate.newHighscore}
+                highscore={gamestate.highscore}
+                usersDead={gamestate.usersDead}
+                countDown={gamestate.countDown}
                 usernameChosen={usernameChosen}
-                numbersDeleteEvent={numbersDeleteEvent}
-                numbersGameEvent={numbersGameEvent} />
-            <Pillars 
-                pillars={pillars} />
+                numbersDeleteEvent={gamestate.numbersDeleteEvent}
+                numbersGameEvent={gamestate.numbersGameEvent} />
+            <Pillars
+                pillars={gamestate.pillars} />
             <Notification
                 message={notMessage}
                 messageHandler={setNotMessage} />
