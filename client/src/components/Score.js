@@ -56,7 +56,7 @@ const Score = ({ highscore, currentscore, usernameChosen, }) => {
     }
     else {
         return (
-            <div style={scoreStyle}> Current score: {currentscore} - High score: {highscoreCheck}</div>
+            <div style={scoreStyle}> Current Score: {currentscore} - High Score: {highscoreCheck}</div>
         )
     }
 }

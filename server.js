@@ -215,6 +215,7 @@ const update = () => {
                 else {
                     setTimeout(() => countDown(count-1), 1000);
                 }
+                updateState = true
                 countDownNumber = count
             }
             countDown(5)
@@ -273,7 +274,7 @@ setInterval(() => {
         updateState = false
     }
 
-}, 1000 / 50);
+}, 1000 / 40);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
