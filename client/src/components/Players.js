@@ -1,12 +1,14 @@
 import React from "react"
 import PlayerClient from './PlayerClient'
 import PlayerOther from './PlayerOther'
+import Users from "./Users"
 
 
 const Players = ({ users, user }) => {
 
     return (
         <>
+            <Users users={users} />
             <ul>
                 {users.map(u => {
                     if (u.id !== user.id) {

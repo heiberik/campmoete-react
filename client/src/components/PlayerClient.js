@@ -17,8 +17,8 @@ const PlayerClient = ({ user }) => {
     }
 
     const stylePicture = {
-        width: "6vh",
-        height: "6vh",
+        width: "5vh",
+        height: "5vh",
         padding: "0px",
         margin: "auto",
         display: "block",
@@ -29,8 +29,8 @@ const PlayerClient = ({ user }) => {
 
     const styleShield = {
         position: "relative",
-        width: "7vh",
-        height: "7vh",
+        width: "6vh",
+        height: "6vh",
         top: "-5vh",
         left: "3vh",
         zIndex: "999999999999",

@@ -10,16 +10,16 @@ const AreaStartGame = ({ usernameChosen, numbersGameEvent }) => {
         fontWeight: "bold",
         fontFamily: "Arial",
         color: "white",
-        bottom: "10vh",
-        left: "95vw",
-        zIndex: "50"
+        bottom: "6rem",
+        right: "1.7rem",
+        zIndex: "99999999999999999"
     }
 
     const styleImg = {
         zIndex: "999999999",
         position: "absolute",
-        height: "3rem",
-        bottom: ".8rem",
+        height: "2.2rem",
+        bottom: "1.2rem",
         right: "2rem",
     }
 

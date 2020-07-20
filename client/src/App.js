@@ -11,11 +11,15 @@ import Notification from './components/Notification'
 import Areas from './components/Areas'
 import TooSmallScreen from './components/TooSmallScreen'
 import Pillars from "./components/Pillars"
+import CountDown from "./components/CountDown"
+import DeadUsers from "./components/DeadUsers"
+import Score from "./components/Score"
+import Background from "./components/Background"
+
 import "./css/App.css"
 
 
 const App = () => {
-
 
     const [messageText, setMessageText] = useState("")
     const [user, setUser] = useState("")
@@ -23,32 +27,17 @@ const App = () => {
     const [notMessage, setNotMessage] = useState("")
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
 
-    /*
-    const [messages, setMessages] = useState([])
-    const [users, setUsers] = useState([])
-    const [numbersDeleteEvent, setNumbersDeleteEvent] = useState(0)
-    const [numbersGameEvent, setNumbersGameEvent] = useState(0)
-    const [countDown, setCountDown] = useState(-1)
-    const [usersDead, setUsersDead] = useState([])
-    const [pillars, setPillars] = useState([])
-    const [currentscore, setCurrentscore] = useState(0)
-    const [highscore, setHighscore] = useState(0)
-    const [newHighscore, setNewHighscore] = useState(false)
-    */
-
     const [gamestate, setGamestate] = useState({
         messages: [],
         users: [],
         numbersDeleteEvent: [],
         numbersGameEvent: [],
         countDown: -1,
-        usersDead: [],
+        deadUsers: [],
         pillars: [],
         currentScore: 0,
         highScore: 0,
     })
-
-    console.log("render")
 
     useEffect(() => {
         window.addEventListener("resize", () => {
@@ -96,17 +85,14 @@ const App = () => {
             messagesService.sendUsername(messageText)
 
             messagesService
-                .getGameState((gameState) => {
-
-
-
+                .getGameState((gameState) => {                    
                     setGamestate({
                         messages: gameState.messages,
                         users: gameState.users,
                         numbersDeleteEvent: gameState.numbersDeleteEvent,
                         numbersGameEvent: gameState.numbersGameEvent,
                         countDown: gameState.countDown,
-                        usersDead: gameState.deadUsers,
+                        deadUsers: gameState.deadUsers,
                         pillars: gameState.pillars,
                         currentScore: gameState.currentScore,
                         highScore: gameState.highScore,
@@ -147,48 +133,9 @@ const App = () => {
             setInterval(() => {
                 if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse) {
                     messagesService.sendPlayerMovement(pm)
-
-                    /*
-                    setUser(u => {
-
-                        let newPosX = u.playerPosX
-                        let newPosY = u.playerPosY
-
-                        if (pm.up && pm.left) {
-                            newPosX = newPosX - .25
-                            newPosY = newPosY - .25
-                        }
-                        else if (pm.up && pm.right) {
-                            newPosX = newPosX + .25
-                            newPosY = newPosY - .25
-                        }
-                        else if (pm.down && pm.left) {
-                            newPosX = newPosX - .25
-                            newPosY = newPosY + .25
-                        }
-                        else if (pm.down && pm.right) {
-                            newPosX = newPosX + .25
-                            newPosY = newPosY + .25
-                        }
-                        else if (pm.up) newPosY = newPosY - .5
-                        else if (pm.down) newPosY = newPosY + .5
-                        else if (pm.left) newPosX = newPosX - .5
-                        else if (pm.right) newPosX = newPosX + .5
-
-                        const newUser = {
-                            ...u,
-                            shield: pm.space,
-                            playerPosX: newPosX,
-                            playerPosY: newPosY,
-                        }
-
-                        return newUser
-                    })
-                    */
-
                     setFalse = false
                 }
-            }, 1000 / 40);
+            }, 1000 / 50);
         }
     }
 
@@ -203,26 +150,25 @@ const App = () => {
 
     return (
         <div style={style}>
-            <Header text="CAMPMØTE" />
+            <Header
+                text="CAMPMØTE" />
+            <Background
+                color1="#e66465"
+                color2="purple" />
             <MessagesList
-                list={gamestate.messages}
-                users={gamestate.users} />
+                list={gamestate.messages} />
             <WriteMessageBox
                 messageText={messageText}
                 sendMessageHandler={sendMessageHandler}
                 messageTextChangedhandler={messageTextChangedhandler}
                 usernameChosen={usernameChosen}
                 setUsernameHandler={setUsernameHandler} />
-            <Campfire messages={gamestate.messages} />
+            <Campfire
+                messages={gamestate.messages} />
             <Players
                 users={gamestate.users}
                 user={user} />
             <Areas
-                currentscore={gamestate.currentscore}
-                newHighscore={gamestate.newHighscore}
-                highscore={gamestate.highscore}
-                usersDead={gamestate.usersDead}
-                countDown={gamestate.countDown}
                 usernameChosen={usernameChosen}
                 numbersDeleteEvent={gamestate.numbersDeleteEvent}
                 numbersGameEvent={gamestate.numbersGameEvent} />
@@ -231,7 +177,16 @@ const App = () => {
             <Notification
                 message={notMessage}
                 messageHandler={setNotMessage} />
-            <TooSmallScreen size={windowSize} />
+            <CountDown
+                countDown={gamestate.countDown} />
+            <DeadUsers
+                deadUsers={gamestate.deadUsers} />
+            <Score
+                highscore={gamestate.highScore}
+                currentscore={gamestate.currentScore}
+                usernameChosen={usernameChosen} />
+            <TooSmallScreen
+                size={windowSize} />
         </div>
     )
 }

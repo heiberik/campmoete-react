@@ -232,7 +232,7 @@ const update = () => {
 
         progressTick++
 
-        if (progressTick % 100 === 0) makePillar()
+        if (progressTick % 120 === 0) makePillar()
         movePillars()
 
         usersDead = checkCollissions()
@@ -247,8 +247,8 @@ const update = () => {
             }, 5000)
             if (currentScore > highscore){
                 highscore = currentScore
-                currentScore = 0
-            }   
+            }  
+            currentScore = 0 
         }
         updateState = true
     }
@@ -273,7 +273,7 @@ setInterval(() => {
         updateState = false
     }
 
-}, 1000 / 40);
+}, 1000 / 50);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
