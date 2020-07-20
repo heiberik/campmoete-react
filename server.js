@@ -273,7 +273,7 @@ setInterval(() => {
         updateState = false
     }
 
-}, 1000 / 60);
+}, 1000 / 40);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
