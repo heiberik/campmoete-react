@@ -36,12 +36,24 @@ let progressTick = 0
 let countDownStarted = false
 let countDownNumber = -2
 
+let freezeGame = false
+let freezeGameChanged = false
+
 
 const getRandomColor = () => {
     var letters = 'ABCDEF';
     var color = '#';
     for (var i = 0; i < 6; i++) {
         color += letters[Math.floor(Math.random() * 6)];
+    }
+    return color;
+}
+
+const getRandomColorDark = () => {
+    var letters = '3456789A';
+    var color = '#';
+    for (var i = 0; i < 8; i++) {
+        color += letters[Math.floor(Math.random() * 8)];
     }
     return color;
 }
@@ -80,7 +92,7 @@ io.on("connection", (socket) => {
     socket.on("setUsername", (data) => {
 
         const check = users.filter(u => u.username.toLowerCase() === data.username.toLowerCase())
-        if (check.length > 0){
+        if (check.length > 0) {
             const newUser = {
                 id: "usernameTaken"
             }
@@ -90,12 +102,12 @@ io.on("connection", (socket) => {
             const newUser = {
                 id: socket.id,
                 username: data.username,
-                playerPosX: 50,
-                playerPosY: 50 + (users.length * 2),
+                playerPosX: 90,
+                playerPosY: 90 + (users.length * 2),
                 color: getRandomColor(),
                 shield: false,
             }
-    
+
             users = users.concat(newUser)
             socket.emit("sendUser", newUser)
             updateState = true
@@ -104,46 +116,46 @@ io.on("connection", (socket) => {
     })
 
     socket.on("playerMovement", (pm) => {
+        if (!freezeGame) {
+            const user = users.find(u => u.id === socket.id)
+            if (!user) return
+            let newPosX = user.playerPosX
+            let newPosY = user.playerPosY
 
-        const user = users.find(u => u.id === socket.id)
-        if (!user) return
-        let newPosX = user.playerPosX
-        let newPosY = user.playerPosY
+            if (pm.up && pm.left) {
+                newPosX = newPosX - .25
+                newPosY = newPosY - .25
+            }
+            else if (pm.up && pm.right) {
+                newPosX = newPosX + .25
+                newPosY = newPosY - .25
+            }
+            else if (pm.down && pm.left) {
+                newPosX = newPosX - .25
+                newPosY = newPosY + .25
+            }
+            else if (pm.down && pm.right) {
+                newPosX = newPosX + .25
+                newPosY = newPosY + .25
+            }
+            else if (pm.up) newPosY = newPosY - .5
+            else if (pm.down) newPosY = newPosY + .5
+            else if (pm.left) newPosX = newPosX - .5
+            else if (pm.right) newPosX = newPosX + .5
 
-        if (pm.up && pm.left) {
-            newPosX = newPosX - .25
-            newPosY = newPosY - .25
-        }
-        else if (pm.up && pm.right) {
-            newPosX = newPosX + .25
-            newPosY = newPosY - .25
-        }
-        else if (pm.down && pm.left) {
-            newPosX = newPosX - .25
-            newPosY = newPosY + .25
-        }
-        else if (pm.down && pm.right) {
-            newPosX = newPosX + .25
-            newPosY = newPosY + .25
-        }
-        else if (pm.up) newPosY = newPosY - .5
-        else if (pm.down) newPosY = newPosY + .5
-        else if (pm.left) newPosX = newPosX - .5
-        else if (pm.right) newPosX = newPosX + .5
+            const newPlayer = {
+                ...user,
+                shield: pm.space,
+                playerPosX: newPosX,
+                playerPosY: newPosY,
+            }
 
-        const newPlayer = {
-            ...user,
-            shield: pm.space,
-            playerPosX: newPosX,
-            playerPosY: newPosY,
+            users = users.filter(u => u.id !== socket.id)
+            users = users.concat(newPlayer)
+            updateState = true
+            usersChanged = true
         }
-
-        users = users.filter(u => u.id !== socket.id)
-        users = users.concat(newPlayer)
-        updateState = true
-        usersChanged = true
     })
-
 
     socket.on("disconnect", () => {
         users = users.filter(user => user.id !== socket.id)
@@ -159,25 +171,25 @@ const makePillar = () => {
     const randomNumber1 = Math.floor(Math.random() * 60) + 20
 
     const newPillar = {
-        top: randomNumber1-7,
-        bottom: randomNumber1+7,
+        top: randomNumber1 - 7,
+        bottom: randomNumber1 + 7,
         color: getRandomColor(),
-        posX: 102.0,
+        posX: 105.0,
     }
 
-    pillars = pillars.concat(newPillar)    
+    pillars = pillars.concat(newPillar)
 }
 
 const movePillars = () => {
 
-    pillars.forEach(p => {p.posX = p.posX - .4})
+    pillars.forEach(p => { p.posX = p.posX - .4 })
     pillars = pillars.filter(p => {
-        if (p.posX >= -2.0) return true
+        if (p.posX >= -5.0) return true
         else {
             scoreChanged = true
             currentScore++
             return false
-        }            
+        }
     })
 }
 
@@ -185,15 +197,15 @@ const checkCollissions = () => {
     let ud = []
 
     users.forEach(u => {
-        
+
         const x = u.playerPosX
         const y = u.playerPosY
 
-        pillars.forEach(p => {
+        if (x > 104 || x < -4) ud = ud.concat(u.username)
 
-            if (p.posX >= x && p.posX <= x+1){
-                if (y >= p.bottom-2 || y <= p.top+3){
-                
+        pillars.forEach(p => {
+            if (p.posX >= x - 2.8 && p.posX <= x + 2.8) {
+                if (y >= p.bottom - 2.3 || y <= p.top + 1.9) {
                     ud = ud.concat(u.username)
                 }
             }
@@ -231,12 +243,13 @@ const update = () => {
             const countDown = (count) => {
                 if (count < -1) {
                     gameInProgress = true
+                    usersDead = []
                     countDownStarted = false
                     countDownNumber = -2
                     makePillar()
                 }
                 else {
-                    setTimeout(() => countDown(count-1), 1000);
+                    setTimeout(() => countDown(count - 1), 1000);
                 }
                 updateState = true
                 countDownNumber = count
@@ -246,7 +259,7 @@ const update = () => {
 
         if (numbersDeleteEvent !== usersInDeleteArea) {
             numbersDeleteEvent = usersInDeleteArea
-        }   
+        }
         if (numbersGameEvent !== usersInGameArea) {
             numbersGameEvent = usersInGameArea
         }
@@ -272,11 +285,28 @@ const update = () => {
                 usersDeadChanged = true
                 updateState = true
             }, 5000)
-            if (currentScore > highscore){
+            if (currentScore > highscore) {
                 highscore = currentScore
-            }  
-            currentScore = 0 
+            }
+            currentScore = 0
             scoreChanged = true
+            freezeGame = true
+            freezeGameChanged = true
+
+            setTimeout(() => {
+                users.forEach(u => {
+                    const user = users.find(us => us.id === u.id)
+                    if (user) {
+                        u.playerPosX = 93
+                        u.playerPosY = 85
+                    }
+                })
+                freezeGame = false
+                freezeGameChanged = true
+                usersChanged = true
+                updateState = true
+            }, 3000)
+            usersChanged = true
         }
 
         pillarsChanged = true
@@ -284,19 +314,59 @@ const update = () => {
     }
 }
 
+
+const getMessages = () => {
+    if (newMessages) return messages
+    else return null
+}
+
+const getUsers = () => {
+    if (usersChanged) return users
+    else return null
+}
+
+const getPillars = () => {
+    if (pillarsChanged) return pillars
+    else return null
+}
+
 setInterval(() => {
 
     update()
 
-    if (updateState) {
+    if (freezeGame) {
         io.sockets.emit('gameState', {
+            freezeGameChanged: freezeGameChanged,
+            freezeGame: freezeGame,
             newMessages: newMessages,
-            messages: messages,
+            messages: getMessages(),
             usersChanged: usersChanged,
-            users: users,
+            users: getUsers(),
+            countDown: countDownNumber,
+            pillarsChanged: false,
+            usersDeadChanged: true,
+            deadUsers: usersDead,
+            scoreChanged: scoreChanged,
+            highScore: highscore,
+            currentScore: currentScore,
+            numbersAreaChanged: startOverGame || startOverDelete || numbersAreaChanged,
+            numbersDeleteEvent: [numbersDeleteEvent, users.length],
+            numbersGameEvent: [numbersGameEvent, users.length],
+        })
+        pillarsChanged = true
+        freezeGameChanged = false
+    }
+    else if (updateState && !freezeGame) {
+        io.sockets.emit('gameState', {
+            freezeGameChanged: freezeGameChanged,
+            freezeGame: freezeGame,
+            newMessages: newMessages,
+            messages: getMessages(),
+            usersChanged: usersChanged,
+            users: getUsers(),
             countDown: countDownNumber,
             pillarsChanged: pillarsChanged,
-            pillars: pillars,
+            pillars: getPillars(),
             usersDeadChanged: usersDeadChanged,
             deadUsers: usersDead,
             scoreChanged: scoreChanged,
@@ -304,7 +374,7 @@ setInterval(() => {
             currentScore: currentScore,
             numbersAreaChanged: startOverGame || startOverDelete || numbersAreaChanged,
             numbersDeleteEvent: [numbersDeleteEvent, users.length],
-            numbersGameEvent: [numbersGameEvent, users.length],    
+            numbersGameEvent: [numbersGameEvent, users.length],
         })
 
         numbersAreaChanged = false
@@ -313,6 +383,7 @@ setInterval(() => {
         pillarsChanged = false
         updateState = false
         newMessages = false
+        freezeGameChanged = false
         usersChanged = false
     }
 }, 1000 / 50);

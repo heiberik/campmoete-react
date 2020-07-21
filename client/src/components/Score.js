@@ -17,20 +17,22 @@ const Score = ({ score, usernameChosen }) => {
                 return score[1]
             }
         })
-    }, [score, usernameChosen])
+    }, [score[1], usernameChosen])
 
     const scoreStyle = {
         textAlign: "center",
         position: "absolute",
         transform: "translateX(-50%)",
-        fontSize: ".7rem",
+        fontSize: ".6rem",
         width: "100%",
+        background: "purple",
         fontWeight: "bold",
         fontFamily: "Arial",
         color: "white",
-        top: "6rem",
+        top: "4rem",
         left: "50vw",
-        zIndex: "9999"
+        zIndex: "9999",
+        padding: ".3rem"
     }
 
     const newHighScoreStyle = {
@@ -47,7 +49,13 @@ const Score = ({ score, usernameChosen }) => {
         zIndex: "9999"
     }
 
-    if (!usernameChosen) return null
+    if (!usernameChosen) {
+        return (
+            <>
+                <div style={scoreStyle}> &emsp; </div>
+            </>
+        )
+    }
     else if (newHighScore) {
         return (
             <>

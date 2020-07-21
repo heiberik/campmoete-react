@@ -35,8 +35,7 @@ const DeadUsers = ({ deadUsers }) => {
         if (deadUsers.length > 0) {
             return (
                 <div>
-                    <div style={usersDeadStyle1}> Game Over </div>
-                    <div style={usersDeadStyle2}> {deadUsers} </div>
+                    
                 </div>
             )
         }

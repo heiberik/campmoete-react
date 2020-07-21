@@ -15,6 +15,7 @@ import CountDown from "./components/CountDown"
 import DeadUsers from "./components/DeadUsers"
 import Score from "./components/Score"
 import Background from "./components/Background"
+import Skammekroken from "./components/Skammekroken"
 
 import "./css/App.css"
 
@@ -34,6 +35,7 @@ const App = () => {
     const [deadUsers, setDeadUsers] = useState([])
     const [pillars, setPillars] = useState([])
     const [scoreCurrentHigh, setScoreCurrentHigh] = useState([0, 0])
+    const [showSkammekroken, setShowSkammekroken] = useState(false)
 
     useEffect(() => {
         window.addEventListener("resize", () => {
@@ -95,6 +97,17 @@ const App = () => {
                         if (!chosen) {
                             messagesService
                                 .getGameState((gameState) => {
+
+                                    if (gameState.freezeGameChanged){
+                                        if (gameState.freezeGame){
+                                            setShowSkammekroken(gameState.freezeGame)
+                                        }
+                                        else {
+                                            setTimeout(() => {
+                                                setShowSkammekroken(gameState.freezeGame)
+                                            }, 3000)
+                                        }
+                                    }
 
                                     if (gameState.newMessages) {
                                         setMessages(gameState.messages)
@@ -217,6 +230,8 @@ const App = () => {
             <Score
                 score={scoreCurrentHigh}
                 usernameChosen={usernameChosen} />
+            <Skammekroken 
+                showSkammekroken={showSkammekroken}/>
             <TooSmallScreen
                 size={windowSize}
                 color1="#e66465"
