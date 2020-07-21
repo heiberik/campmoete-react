@@ -33,6 +33,7 @@ let startOverDelete = false
 let startOverGame = false
 let gameInProgress = false
 let progressTick = 0
+let progressTickSpeed = 200
 let countDownStarted = false
 let countDownNumber = -2
 
@@ -102,8 +103,8 @@ io.on("connection", (socket) => {
             const newUser = {
                 id: socket.id,
                 username: data.username,
-                playerPosX: 90,
-                playerPosY: 90 + (users.length * 2),
+                playerPosX: 50,
+                playerPosY: 50 + (users.length * 2),
                 color: getRandomColor(),
                 shield: false,
             }
@@ -142,6 +143,11 @@ io.on("connection", (socket) => {
             else if (pm.down) newPosY = newPosY + .5
             else if (pm.left) newPosX = newPosX - .5
             else if (pm.right) newPosX = newPosX + .5
+
+            if (newPosX > 101) newPosX = newPosX - .5
+            if (newPosX < -1) newPosX = newPosX + .5
+            if (newPosY > 101) newPosY = newPosY - .5
+            if (newPosY < -1) newPosY = newPosY + .5
 
             const newPlayer = {
                 ...user,
@@ -201,8 +207,6 @@ const checkCollissions = () => {
         const x = u.playerPosX
         const y = u.playerPosY
 
-        if (x > 104 || x < -4) ud = ud.concat(u.username)
-
         pillars.forEach(p => {
             if (p.posX >= x - 2.8 && p.posX <= x + 2.8) {
                 if (y >= p.bottom - 2.3 || y <= p.top + 1.9) {
@@ -243,6 +247,7 @@ const update = () => {
             const countDown = (count) => {
                 if (count < -1) {
                     gameInProgress = true
+                    progressTickSpeed = 180
                     usersDead = []
                     countDownStarted = false
                     countDownNumber = -2
@@ -270,7 +275,14 @@ const update = () => {
 
         progressTick++
 
-        if (progressTick % 120 === 0) makePillar()
+        if (progressTick % progressTickSpeed === 0) {
+            makePillar()
+            if (progressTickSpeed > 90){
+                progressTickSpeed-=4
+            }
+        }
+
+        
         movePillars()
 
         usersDead = checkCollissions()
