@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
 
     socket.on("setUsername", (data) => {
 
-        const check = users.filter(u => u.username === data.username)
+        const check = users.filter(u => u.username.toLowerCase() === data.username.toLowerCase())
         if (check.length > 0){
             const newUser = {
                 id: "usernameTaken"
@@ -147,8 +147,6 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
         users = users.filter(user => user.id !== socket.id)
-        io.emit("sendUsers", { users: users })
-
         console.log("user disconnected")
         updateState = true
         usersChanged = true
@@ -161,10 +159,10 @@ const makePillar = () => {
     const randomNumber1 = Math.floor(Math.random() * 60) + 20
 
     const newPillar = {
-        top: randomNumber1-8,
-        bottom: randomNumber1+8,
+        top: randomNumber1-7,
+        bottom: randomNumber1+7,
         color: getRandomColor(),
-        posX: 100.0,
+        posX: 102.0,
     }
 
     pillars = pillars.concat(newPillar)    
@@ -213,11 +211,11 @@ const update = () => {
         let usersInGameArea = 0
 
         users.forEach(u => {
-            if (u.playerPosX < 8 && u.playerPosY > 88 && u.playerPosX > 0 && u.playerPosY < 100) {
+            if (u.playerPosX < 6 && u.playerPosY > 92 && u.playerPosX > 2 && u.playerPosY < 99) {
                 usersInDeleteArea++
             } else startOverDelete = false
 
-            if (u.playerPosX > 88 && u.playerPosY > 88 && u.playerPosX < 100 && u.playerPosY < 100) {
+            if (u.playerPosX > 94 && u.playerPosY > 92 && u.playerPosX < 98 && u.playerPosY < 99) {
                 usersInGameArea++
             } else startOverGame = false
         })
