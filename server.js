@@ -19,6 +19,9 @@ let usersChanged = false
 let pillars = []
 let pillarsChanged = false
 
+let playerMovementQueue = {}
+let messagesQueue = []
+
 let usersDead = []
 let usersDeadChanged = false
 
@@ -64,30 +67,7 @@ io.on("connection", (socket) => {
     console.log("user connected")
 
     socket.on("sendMessage", (message) => {
-
-        let top = 0
-        let left = 0
-
-        while ((top === 0) ||
-            (top > 40 && top < 60 && (left > 25 && left < 75)) ||
-            (left > 25 && left < 75 && (top > 40 && top < 60))
-        ) {
-            top = Math.floor(Math.random() * 60) + 20
-            left = Math.floor(Math.random() * 70) + 15
-        }
-
-        const newMessage = {
-            number: messages.length,
-            message: message.message,
-            date: Date(),
-            color: getRandomColor(),
-            top: top,
-            left: left
-        }
-
-        messages = messages.concat(newMessage)
-        newMessages = true
-        updateState = true
+        messagesQueue.push(message)
     })
 
     socket.on("setUsername", (data) => {
@@ -109,6 +89,8 @@ io.on("connection", (socket) => {
                 shield: false,
             }
 
+            playerMovementQueue[socket.id] = []
+
             users = users.concat(newUser)
             socket.emit("sendUser", newUser)
             updateState = true
@@ -117,8 +99,63 @@ io.on("connection", (socket) => {
     })
 
     socket.on("playerMovement", (pm) => {
+        playerMovementQueue[socket.id].push({ pm: pm, id: socket.id })
+    })
+
+    socket.on("disconnect", () => {
+        users = users.filter(user => user.id !== socket.id)
+        console.log("user disconnected")
+        updateState = true
+        usersChanged = true
+        delete playerMovementQueue[socket.id]
+    })
+})
+
+
+const handleMessageQueue = () => {
+
+    messagesQueue.forEach(m => {
+        let top = 0
+        let left = 0
+
+        while ((top === 0) ||
+            (top > 40 && top < 60 && (left > 25 && left < 75)) ||
+            (left > 25 && left < 75 && (top > 40 && top < 60))
+        ) {
+            top = Math.floor(Math.random() * 60) + 20
+            left = Math.floor(Math.random() * 70) + 15
+        }
+
+        const newMessage = {
+            number: m.length,
+            message: m.message,
+            date: Date(),
+            color: getRandomColor(),
+            top: top,
+            left: left
+        }
+
+        messages = messages.concat(newMessage)
+        newMessages = true
+        updateState = true
+    })
+
+    messagesQueue = []
+}
+
+const handlePlayerMovementQueue = () => {
+
+    for (var key in playerMovementQueue) {
+        if (!playerMovementQueue.hasOwnProperty(key)) continue;
+        
+        var obj = playerMovementQueue[key];
+       
+        const firstMove = obj.shift()
+        if (!firstMove) return
+        const pm = firstMove.pm
+
         if (!freezeGame) {
-            const user = users.find(u => u.id === socket.id)
+            const user = users.find(u => u.id === firstMove.id)
             if (!user) return
             let newPosX = user.playerPosX
             let newPosY = user.playerPosY
@@ -156,7 +193,7 @@ io.on("connection", (socket) => {
                 playerPosY: newPosY,
             }
 
-            users = users.filter(u => u.id !== socket.id)
+            users = users.filter(u => u.id !== firstMove.id)
             users = users.concat(newPlayer)
             updateState = true
             usersChanged = true
@@ -165,46 +202,40 @@ io.on("connection", (socket) => {
 
                 const messageX = m.left
                 const messageY = m.top
-    
-    
+
+
                 users.forEach(u => {
-    
+
                     const x = u.playerPosX
                     const y = u.playerPosY
-                    
+
                     // fra venstre
-                    if (x >= messageX - 2.75 && x <= messageX-2.25 && y >= messageY - 2.5 && y <= messageY+9) {
+                    if (x >= messageX - 2.75 && x <= messageX - 2.25 && y >= messageY - 2.5 && y <= messageY + 9) {
                         m.left = m.left + .5
                         newMessages = true
                     }
                     //fra høyre
-                    else if (x <= messageX + 18.75 && x >= messageX+18.25 && y >= messageY - 2.5 && y <= messageY+9) {
+                    else if (x <= messageX + 18.75 && x >= messageX + 18.25 && y >= messageY - 2.5 && y <= messageY + 9) {
                         m.left = m.left - .5
                         newMessages = true
-                    } 
+                    }
                     //fra top
-                    else if (x >= messageX - 1.5 && x <= messageX + 18.5 && y >= messageY - 2.75 && y <= messageY-2.25) {
+                    else if (x >= messageX - 1.5 && x <= messageX + 18.5 && y >= messageY - 2.75 && y <= messageY - 2.25) {
                         m.top = m.top + .5
                         newMessages = true
-                    }   
+                    }
                     //fra bot
-                    else if (x >= messageX - 1.5 && x <= messageX + 18.5 && y >= messageY + 8.25 && y <= messageY+8.75) {
+                    else if (x >= messageX - 1.5 && x <= messageX + 18.5 && y >= messageY + 8.25 && y <= messageY + 8.75) {
                         m.top = m.top - .5
                         newMessages = true
-                    }                   
+                    }
                 })
-                
             })
         }
-    })
+    }
+}
 
-    socket.on("disconnect", () => {
-        users = users.filter(user => user.id !== socket.id)
-        console.log("user disconnected")
-        updateState = true
-        usersChanged = true
-    })
-})
+
 
 
 const makePillar = () => {
@@ -312,12 +343,12 @@ const update = () => {
 
         if (progressTick % progressTickSpeed === 0) {
             makePillar()
-            if (progressTickSpeed > 90){
-                progressTickSpeed-=4
+            if (progressTickSpeed > 90) {
+                progressTickSpeed -= 4
             }
         }
 
-        
+
         movePillars()
 
         usersDead = checkCollissions()
@@ -360,11 +391,11 @@ const update = () => {
         updateState = true
     }
 
-    if (updateState){
+    if (updateState) {
 
-        
 
-        
+
+
     }
 }
 
@@ -386,6 +417,8 @@ const getPillars = () => {
 
 setInterval(() => {
 
+    handleMessageQueue()
+    handlePlayerMovementQueue()
     update()
 
     if (freezeGame) {
