@@ -148,17 +148,17 @@ const handlePlayerMovementQueue = () => {
 
     for (var key in playerMovementQueue) {
 
-        if (!playerMovementQueue.hasOwnProperty(key)) continue;
+        if (!playerMovementQueue.hasOwnProperty(key)) continue
         
         var queue = playerMovementQueue[key];
         const firstMove = queue.shift()
-        if (!firstMove) return
+        if (!firstMove) continue
 
         const pm = firstMove.pm
 
         if (!freezeGame) {
             const user = users.find(u => u.id === firstMove.id)
-            if (!user) return
+            if (!user) continue
             let newPosX = user.playerPosX
             let newPosY = user.playerPosY
 
