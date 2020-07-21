@@ -17,12 +17,12 @@ const PlayerOther = ({ user }) => {
     }
 
     const stylePicture = {
-        width: "4vh",
+        width: "3vw",
         height: "4vh",
         padding: "0px",
         margin: "auto",
         display: "block",
-        border: ".3rem solid",
+        border: ".5vh solid",
         zIndex: "9999999999",
         borderColor: user.color,
     }
@@ -35,7 +35,6 @@ const PlayerOther = ({ user }) => {
         left: "1.4rem",
         zIndex: "999999999999",
     }
-
 
     if (!user) {
         return null

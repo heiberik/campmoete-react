@@ -66,11 +66,11 @@ io.on("connection", (socket) => {
 
     console.log("user connected")
 
-    socket.on("sendMessage", (message) => {
+    socket.on("sendMessage", async (message) => {
         messagesQueue.push(message)
     })
 
-    socket.on("setUsername", (data) => {
+    socket.on("setUsername", async (data) => {
 
         const check = users.filter(u => u.username.toLowerCase() === data.username.toLowerCase())
         if (check.length > 0) {
@@ -98,12 +98,12 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("playerMovement", (pm) => {
+    socket.on("playerMovement", async (pm) => {
         if (!playerMovementQueue[socket.id]) return
         playerMovementQueue[socket.id].push({ pm: pm, id: socket.id })
     })
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
         users = users.filter(user => user.id !== socket.id)
         console.log("user disconnected")
         updateState = true
@@ -120,11 +120,11 @@ const handleMessageQueue = () => {
         let left = 0
 
         while ((top === 0) ||
-            (top > 40 && top < 60 && (left > 25 && left < 75)) ||
-            (left > 25 && left < 75 && (top > 40 && top < 60))
+            (top > 35 && top < 60 && (left > 25 && left < 75)) ||
+            (left > 25 && left < 75 && (top > 35 && top < 60))
         ) {
-            top = Math.floor(Math.random() * 60) + 20
-            left = Math.floor(Math.random() * 70) + 15
+            top = Math.floor(Math.random() * 70) + 15
+            left = Math.floor(Math.random() * 80) + 5
         }
 
         const newMessage = {
