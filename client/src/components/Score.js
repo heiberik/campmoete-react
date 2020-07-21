@@ -8,7 +8,7 @@ const Score = ({ score, usernameChosen }) => {
 
     useEffect(() => {
         setHighscoreCheck(hs => {
-            if (!usernameChosen) return -1
+            if (!usernameChosen) return highscoreCheck
             else if (usernameChosen && score[1] === 0) return 0
             else if (usernameChosen && score[1] > 0 && hs === 0) return score[1]
             else {
@@ -17,7 +17,7 @@ const Score = ({ score, usernameChosen }) => {
                 return score[1]
             }
         })
-    }, [score[1], usernameChosen])
+    }, [score, highscoreCheck, usernameChosen])
 
     const scoreStyle = {
         textAlign: "center",

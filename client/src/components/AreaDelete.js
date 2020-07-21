@@ -10,17 +10,17 @@ const AreaDelete = ({ usernameChosen, numbersDeleteEvent }) => {
         fontWeight: "bold",
         fontFamily: "Arial",
         color: "white",
-        bottom: "6rem",
-        left: "3.7rem",
+        bottom: "5rem",
+        left: "4.5vw",
         zIndex: "99999999999999999"
     }
 
     const styleImg = {
-        zIndex: "999999999",
         position: "absolute",
         height: "2.5rem",
-        bottom: "1rem",
-        left: "2rem",
+        bottom: "0.8rem",
+        left: "3vw",
+        zIndex: "99999999999999999"
     }
 
     if (numbersDeleteEvent[0] > 0 && usernameChosen) {

@@ -16,6 +16,8 @@ import DeadUsers from "./components/DeadUsers"
 import Score from "./components/Score"
 import Background from "./components/Background"
 import Skammekroken from "./components/Skammekroken"
+import Bullets from "./components/Bullets"
+
 
 import "./css/App.css"
 
@@ -29,8 +31,10 @@ const App = () => {
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
     const [messages, setMessages] = useState([])
     const [users, setUsers] = useState([])
+    const [bullets, setBullets] = useState([])
     const [numbersDeleteEvent, setNumbersDeleteEvent] = useState([])
     const [numbersGameEvent, setNumbersGameEvent] = useState([])
+    const [numbersGunGameEvent, setNumbersGunGameEvent] = useState([])
     const [countDown, setCountDown] = useState([])
     const [deadUsers, setDeadUsers] = useState([])
     const [pillars, setPillars] = useState([])
@@ -136,6 +140,11 @@ const App = () => {
                                     if (gameState.numbersAreaChanged) {
                                         setNumbersGameEvent(gameState.numbersGameEvent)
                                         setNumbersDeleteEvent(gameState.numbersDeleteEvent)
+                                        setNumbersGunGameEvent(gameState.numbersGunGameEvent)
+                                    }
+
+                                    if (gameState.bulletsChanged){
+                                        setBullets(gameState.bullets)
                                     }
                                 })
 
@@ -144,7 +153,8 @@ const App = () => {
                                 down: false,
                                 left: false,
                                 right: false,
-                                space: false
+                                space: false,
+                                shoot: null,
                             }
 
                             const keyDownHandler = (e) => {
@@ -167,12 +177,21 @@ const App = () => {
                                 setFalse = true
                             }
 
+                            const mouseClickHandler = (e) => {
+                                if (e.target.tagName.toUpperCase() === "INPUT") return
+                                const x = (e.clientX / window.innerWidth) * 100
+                                const y = (e.clientY / window.innerHeight) * 100
+                                pm.shoot = [x, y]
+                            }
+
                             document.addEventListener('keydown', keyDownHandler, false)
                             document.addEventListener('keyup', keyUpHandler, false)
+                            document.addEventListener('click', mouseClickHandler, false)
 
                             setInterval(() => {
-                                if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse) {
+                                if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
                                     messagesService.sendPlayerMovement(pm)
+                                    pm.shoot = null
                                     setFalse = false
                                 }
                             }, 1000 / 60);
@@ -217,7 +236,8 @@ const App = () => {
             <Areas
                 usernameChosen={usernameChosen}
                 numbersDeleteEvent={numbersDeleteEvent}
-                numbersGameEvent={numbersGameEvent} />
+                numbersGameEvent={numbersGameEvent} 
+                numbersGunGameEvent={numbersGunGameEvent} />
             <Pillars
                 pillars={pillars} />
             <Notification
@@ -232,6 +252,9 @@ const App = () => {
                 usernameChosen={usernameChosen} />
             <Skammekroken 
                 showSkammekroken={showSkammekroken}/>
+            <Bullets 
+                bullets={bullets} 
+                usernameChosen={usernameChosen} />
             <TooSmallScreen
                 size={windowSize}
                 color1="#e66465"

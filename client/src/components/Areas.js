@@ -1,10 +1,12 @@
 import React from "react"
 import AreaDelete from "./AreaDelete"
 import AreaStartGame from "./AreaStartGame"
+import AreaStartGunGame from "./AreaStartGunGame"
 
 const Areas = ({
     usernameChosen,
     numbersDeleteEvent,
+    numbersGunGameEvent,
     numbersGameEvent }) => {
 
     if (!usernameChosen) return null
@@ -16,6 +18,9 @@ const Areas = ({
             <AreaStartGame
                 usernameChosen={usernameChosen}
                 numbersGameEvent={numbersGameEvent} />
+            <AreaStartGunGame
+                usernameChosen={usernameChosen}
+                numbersGunGameEvent={numbersGunGameEvent} />
         </div>
     )
 }

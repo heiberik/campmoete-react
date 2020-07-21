@@ -2,6 +2,7 @@ import React from "react"
 
 const DeadUsers = ({ deadUsers }) => {
 
+        /*
         const usersDeadStyle1 = {
             textAlign: "center",
             position: "absolute",
@@ -30,12 +31,12 @@ const DeadUsers = ({ deadUsers }) => {
             textShadow: "1px 1px black",
             zIndex: "9999"
         }
-
+        */
 
         if (deadUsers.length > 0) {
             return (
                 <div>
-                    
+
                 </div>
             )
         }

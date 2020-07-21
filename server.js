@@ -29,12 +29,19 @@ let scoreChanged = false
 let highscore = 0
 let currentScore = 0
 
+let playersShootCooldown = {}
+let bullets = []
+let bulletsChanged = false
+
 let numbersDeleteEvent = 0
 let numbersGameEvent = 0
+let numbersGunGameEvent = 0
 let updateState = false
 let startOverDelete = false
 let startOverGame = false
+let startOverGunGame = false
 let gameInProgress = false
+let gunGameInProgress = false
 let progressTick = 0
 let progressTickSpeed = 200
 let countDownStarted = false
@@ -94,11 +101,13 @@ io.on("connection", (socket) => {
             }
 
             playerMovementQueue[socket.id] = []
+            playersShootCooldown[socket.id] = false
 
             users = users.concat(newUser)
             socket.emit("sendUser", newUser)
             updateState = true
             usersChanged = true
+            newMessages = true
         }
     })
 
@@ -113,6 +122,7 @@ io.on("connection", (socket) => {
         updateState = true
         usersChanged = true
         delete playerMovementQueue[socket.id]
+        delete playersShootCooldown[socket.id]
     })
 })
 
@@ -148,12 +158,54 @@ const handleMessageQueue = () => {
     messagesQueue = []
 }
 
+const shootBullet = (shot, id) => {
+
+    var cd = playersShootCooldown[id]
+
+    if (!cd) {
+
+        const x = shot[0]
+        const y = shot[1]
+
+        const user = users.find(u => u.id === id)
+        let dirX = x - user.playerPosX
+        let dirY = y - user.playerPosY
+
+        const len = Math.sqrt(dirX * dirX + dirY * dirY)
+
+        dirX /= len
+        dirY /= len
+
+        console.log(dirX)
+        console.log(dirY)
+
+        const bullet = {
+            id: Math.floor(Math.random() * 999999999) + user.id,
+            owner: user.id,
+            posX: user.playerPosX,
+            posY: user.playerPosY,
+            dirX: dirX,
+            dirY: dirY,
+            color: getRandomColor(),
+        }
+
+        bullets = bullets.concat(bullet)
+
+        playersShootCooldown[id] = true
+        bulletsChanged = true
+
+        setTimeout(() => {
+            playersShootCooldown[id] = false
+        }, 1000)
+    }
+}
+
 const handlePlayerMovementQueue = () => {
 
     for (var key in playerMovementQueue) {
 
         if (!playerMovementQueue.hasOwnProperty(key)) continue
-        
+
         var queue = playerMovementQueue[key];
         const firstMove = queue.shift()
         if (!firstMove) continue
@@ -191,6 +243,12 @@ const handlePlayerMovementQueue = () => {
             if (newPosX < -1) newPosX = newPosX + moveSpeed1
             if (newPosY > 101) newPosY = newPosY - moveSpeed1
             if (newPosY < -1) newPosY = newPosY + moveSpeed1
+
+            if (gunGameInProgress) {
+                if (pm.shoot) {
+                    shootBullet(pm.shoot, firstMove.id)
+                }
+            }
 
             const newPlayer = {
                 ...user,
@@ -240,7 +298,6 @@ const handlePlayerMovementQueue = () => {
     })
 }
 
-
 const makePillar = () => {
 
     const randomNumber1 = Math.floor(Math.random() * 60) + 20
@@ -288,12 +345,40 @@ const checkCollissions = () => {
     return ud
 }
 
+const checkBulletCollission = () => {
+
+    let dead = []
+    bullets.forEach(b => {
+
+    })
+
+    return dead
+}
+
+const moveBullets = () => {
+    console.log(bullets)
+    bullets.forEach(b => {
+
+        b.posX = b.posX + b.dirX/2
+        b.posY = b.posY + b.dirY/2
+        
+    })
+
+    bulletsChanged = true    
+    bullets = bullets.filter(b => {
+        return b.posX < 102 && b.posX > -2 && b.posY < 102 && b.posY > -2
+    })
+    
+    
+}
+
 const update = () => {
 
     if (!gameInProgress && updateState) {
 
         let usersInDeleteArea = 0
         let usersInGameArea = 0
+        let usersInGunGameArea = 0
 
         users.forEach(u => {
             if (u.playerPosX < 8 && u.playerPosY > 92 && u.playerPosX > 1 && u.playerPosY < 99) {
@@ -303,6 +388,10 @@ const update = () => {
             if (u.playerPosX > 92 && u.playerPosY > 92 && u.playerPosX < 99 && u.playerPosY < 99) {
                 usersInGameArea++
             } else startOverGame = false
+
+            if (u.playerPosX > 80 && u.playerPosY > 92 && u.playerPosX < 87 && u.playerPosY < 99) {
+                usersInGunGameArea++
+            } else startOverGunGame = false
         })
 
         if (usersInDeleteArea > 0 && usersInDeleteArea === users.length && !startOverDelete) {
@@ -330,12 +419,33 @@ const update = () => {
             }
             countDown(5)
         }
+        if (usersInGunGameArea > 0 && usersInGunGameArea === users.length && !startOverGunGame && !gunGameInProgress && !countDownStarted) {
+            countDownStarted = true
+            startOverGunGame = true
+            const countDown = (count) => {
+                if (count < -1) {
+                    gunGameInProgress = true
+                    usersDead = []
+                    countDownStarted = false
+                    countDownNumber = -2
+                }
+                else {
+                    setTimeout(() => countDown(count - 1), 1000);
+                }
+                updateState = true
+                countDownNumber = count
+            }
+            countDown(5)
+        }
 
         if (numbersDeleteEvent !== usersInDeleteArea) {
             numbersDeleteEvent = usersInDeleteArea
         }
         if (numbersGameEvent !== usersInGameArea) {
             numbersGameEvent = usersInGameArea
+        }
+        if (numbersGunGameEvent !== usersInGunGameArea) {
+            numbersGunGameEvent = usersInGunGameArea
         }
         numbersAreaChanged = true
     }
@@ -394,11 +504,9 @@ const update = () => {
         updateState = true
     }
 
-    if (updateState) {
-
-
-
-
+    if (gunGameInProgress) {
+        moveBullets()
+        const check = checkBulletCollission()
     }
 }
 
@@ -421,11 +529,14 @@ const emitGameState = () => {
             numbersAreaChanged: startOverGame || startOverDelete || numbersAreaChanged,
             numbersDeleteEvent: [numbersDeleteEvent, users.length],
             numbersGameEvent: [numbersGameEvent, users.length],
+            numbersGunGameEvent: [numbersGunGameEvent, users.length],
+            bulletsChanged: bulletsChanged,
+            bullets: bullets,
         })
         pillarsChanged = true
         freezeGameChanged = false
     }
-    else if (updateState && !freezeGame) {
+    else if (updateState && !freezeGame || gunGameInProgress) {
         io.sockets.emit('gameState', {
             freezeGameChanged: freezeGameChanged,
             freezeGame: freezeGame,
@@ -444,6 +555,9 @@ const emitGameState = () => {
             numbersAreaChanged: startOverGame || startOverDelete || numbersAreaChanged,
             numbersDeleteEvent: [numbersDeleteEvent, users.length],
             numbersGameEvent: [numbersGameEvent, users.length],
+            numbersGunGameEvent: [numbersGunGameEvent, users.length],
+            bulletsChanged: bulletsChanged,
+            bullets: bullets,
         })
 
         numbersAreaChanged = false
@@ -454,6 +568,7 @@ const emitGameState = () => {
         newMessages = false
         freezeGameChanged = false
         usersChanged = false
+        bulletsChanged = false
     }
 }
 

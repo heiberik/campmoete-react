@@ -1,7 +1,7 @@
 import React from "react"
-import pig from "../images/pig.png"
+import pig from "../images/pig2.png"
 
-const AreaStartGame = ({ usernameChosen, numbersGameEvent }) => {
+const AreaStartGunGame = ({ usernameChosen, numbersGunGameEvent }) => {
 
     const styleText = {
         position: "absolute",
@@ -11,7 +11,7 @@ const AreaStartGame = ({ usernameChosen, numbersGameEvent }) => {
         fontFamily: "Arial",
         color: "white",
         bottom: "5rem",
-        right: "2.8vw",
+        right: "14.5vw",
         zIndex: "99999999999999999"
     }
 
@@ -19,19 +19,19 @@ const AreaStartGame = ({ usernameChosen, numbersGameEvent }) => {
         position: "absolute",
         height: "2.2rem",
         bottom: "1.2rem",
-        right: "3vw",
+        right: "15vw",
         zIndex: "99999999999999999"
     }
 
-    if (numbersGameEvent[0] > 0 && usernameChosen) {
+    if (numbersGunGameEvent[0] > 0 && usernameChosen) {
         return (
             <>
                 <img src={pig} style={styleImg} alt="composter" />
-                <div style={styleText}> {numbersGameEvent[0]} / {numbersGameEvent[1]}</div>
+                <div style={styleText}> {numbersGunGameEvent[0]} / {numbersGunGameEvent[1]}</div>
             </>
         )
     }
     else return null 
 }
 
-export default AreaStartGame
+export default AreaStartGunGame
