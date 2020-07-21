@@ -175,7 +175,7 @@ const App = () => {
                                     messagesService.sendPlayerMovement(pm)
                                     setFalse = false
                                 }
-                            }, 1000 / 45);
+                            }, 1000 / 58);
                         }
                         return true
                     })
