@@ -99,6 +99,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on("playerMovement", (pm) => {
+        if (!playerMovementQueue[socket.id]) return
         playerMovementQueue[socket.id].push({ pm: pm, id: socket.id })
     })
 
@@ -146,12 +147,13 @@ const handleMessageQueue = () => {
 const handlePlayerMovementQueue = () => {
 
     for (var key in playerMovementQueue) {
+
         if (!playerMovementQueue.hasOwnProperty(key)) continue;
         
-        var obj = playerMovementQueue[key];
-       
-        const firstMove = obj.shift()
+        var queue = playerMovementQueue[key];
+        const firstMove = queue.shift()
         if (!firstMove) return
+
         const pm = firstMove.pm
 
         if (!freezeGame) {
@@ -197,45 +199,42 @@ const handlePlayerMovementQueue = () => {
             users = users.concat(newPlayer)
             updateState = true
             usersChanged = true
-
-            messages.forEach(m => {
-
-                const messageX = m.left
-                const messageY = m.top
-
-
-                users.forEach(u => {
-
-                    const x = u.playerPosX
-                    const y = u.playerPosY
-
-                    // fra venstre
-                    if (x >= messageX - 2.75 && x <= messageX - 2.25 && y >= messageY - 2.5 && y <= messageY + 9) {
-                        m.left = m.left + .5
-                        newMessages = true
-                    }
-                    //fra høyre
-                    else if (x <= messageX + 18.75 && x >= messageX + 18.25 && y >= messageY - 2.5 && y <= messageY + 9) {
-                        m.left = m.left - .5
-                        newMessages = true
-                    }
-                    //fra top
-                    else if (x >= messageX - 1.5 && x <= messageX + 18.5 && y >= messageY - 2.75 && y <= messageY - 2.25) {
-                        m.top = m.top + .5
-                        newMessages = true
-                    }
-                    //fra bot
-                    else if (x >= messageX - 1.5 && x <= messageX + 18.5 && y >= messageY + 8.25 && y <= messageY + 8.75) {
-                        m.top = m.top - .5
-                        newMessages = true
-                    }
-                })
-            })
         }
     }
+
+    messages.forEach(m => {
+
+        const messageX = m.left
+        const messageY = m.top
+
+        users.forEach(u => {
+
+            const x = u.playerPosX
+            const y = u.playerPosY
+
+            // fra venstre
+            if (x >= messageX - 2.0 && x <= messageX - 1.5 && y >= messageY - 2.5 && y <= messageY + 7.75) {
+                m.left = m.left + .5
+                newMessages = true
+            }
+            //fra høyre
+            else if (x <= messageX + 12.75 && x >= messageX + 12.25 && y >= messageY - 2.5 && y <= messageY + 7.75) {
+                m.left = m.left - .5
+                newMessages = true
+            }
+            //fra top
+            else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY - 2.75 && y <= messageY - 2.25) {
+                m.top = m.top + .5
+                newMessages = true
+            }
+            //fra bot
+            else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY + 7.25 && y <= messageY + 7.75) {
+                m.top = m.top - .5
+                newMessages = true
+            }
+        })
+    })
 }
-
-
 
 
 const makePillar = () => {

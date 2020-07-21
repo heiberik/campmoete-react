@@ -8,7 +8,7 @@ const PlayerClient = ({ user }) => {
         position: "absolute",
         transform: "translate(-50%, -50%)",
         top: user.playerPosY + "vh",
-        left: user.playerPosX + "vh",
+        left: user.playerPosX + "vw",
         padding: "0px",
         margin: "0px",
         zIndex: "9999999999999",
@@ -17,7 +17,7 @@ const PlayerClient = ({ user }) => {
     }
 
     const stylePicture = {
-        width: "4vh",
+        width: "3vw",
         height: "4vh",
         padding: "0px",
         margin: "auto",
