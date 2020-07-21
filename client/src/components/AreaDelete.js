@@ -31,11 +31,7 @@ const AreaDelete = ({ usernameChosen, numbersDeleteEvent }) => {
             </>
         )
     }
-    else return (
-        <>
-            <img src={comp} style={styleImg} alt="composter" />
-        </>
-    )
+    else return null 
 }
 
 export default AreaDelete

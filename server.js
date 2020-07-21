@@ -223,11 +223,11 @@ const update = () => {
         let usersInGameArea = 0
 
         users.forEach(u => {
-            if (u.playerPosX < 6 && u.playerPosY > 92 && u.playerPosX > 2 && u.playerPosY < 99) {
+            if (u.playerPosX < 8 && u.playerPosY > 92 && u.playerPosX > 1 && u.playerPosY < 99) {
                 usersInDeleteArea++
             } else startOverDelete = false
 
-            if (u.playerPosX > 94 && u.playerPosY > 92 && u.playerPosX < 98 && u.playerPosY < 99) {
+            if (u.playerPosX > 92 && u.playerPosY > 92 && u.playerPosX < 99 && u.playerPosY < 99) {
                 usersInGameArea++
             } else startOverGame = false
         })

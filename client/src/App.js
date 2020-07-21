@@ -149,20 +149,20 @@ const App = () => {
 
                             const keyDownHandler = (e) => {
                                 if (e.target.tagName.toUpperCase() === "INPUT") return
-                                if (e.keyCode === 68) pm.right = true
-                                else if (e.keyCode === 65) pm.left = true
-                                else if (e.keyCode === 87) pm.up = true
-                                else if (e.keyCode === 83) pm.down = true
+                                if (e.keyCode === 68  || e.keyCode === 38) pm.right = true
+                                else if (e.keyCode === 65  || e.keyCode === 37) pm.left = true
+                                else if (e.keyCode === 87  || e.keyCode === 39) pm.up = true
+                                else if (e.keyCode === 83  || e.keyCode === 40) pm.down = true
                                 else if (e.keyCode === 32) pm.space = true
                             }
 
                             let setFalse = false
                             const keyUpHandler = (e) => {
                                 if (e.target.tagName.toUpperCase() === "INPUT") return
-                                if (e.keyCode === 68) pm.right = false
-                                else if (e.keyCode === 65) pm.left = false
-                                else if (e.keyCode === 87) pm.up = false
-                                else if (e.keyCode === 83) pm.down = false
+                                if (e.keyCode === 68  || e.keyCode === 38) pm.right = false
+                                else if (e.keyCode === 65 || e.keyCode === 37) pm.left = false
+                                else if (e.keyCode === 87  || e.keyCode === 39) pm.up = false
+                                else if (e.keyCode === 83  || e.keyCode === 40) pm.down = false
                                 else if (e.keyCode === 32) pm.space = false
                                 setFalse = true
                             }

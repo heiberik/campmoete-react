@@ -31,12 +31,7 @@ const AreaStartGame = ({ usernameChosen, numbersGameEvent }) => {
             </>
         )
     }
-    else return (
-        <>
-            <img src={pig} style={styleImg} alt="composter" />
-        </>
-    )
-
+    else return null 
 }
 
 export default AreaStartGame
