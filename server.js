@@ -44,7 +44,7 @@ let freezeGame = false
 let freezeGameChanged = false
 
 let moveSpeed1 = .24
-let movespeed2 = .12
+let moveSpeed2 = .12
 let pillarSpeed = .20
 
 
