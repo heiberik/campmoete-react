@@ -3,8 +3,6 @@ import Bullet from "./Bullet"
 
 const Bullets = ({ bullets, usernameChosen }) => {
 
-    console.log(bullets)
-
     if (!usernameChosen) return null
     else return (
         <ul>

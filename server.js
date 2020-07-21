@@ -176,9 +176,6 @@ const shootBullet = (shot, id) => {
         dirX /= len
         dirY /= len
 
-        console.log(dirX)
-        console.log(dirY)
-
         const bullet = {
             id: Math.floor(Math.random() * 999999999) + user.id,
             owner: user.id,
@@ -356,15 +353,13 @@ const checkBulletCollission = () => {
 }
 
 const moveBullets = () => {
-    console.log(bullets)
-    bullets.forEach(b => {
 
+    bullets.forEach(b => {
         b.posX = b.posX + b.dirX/2
         b.posY = b.posY + b.dirY/2
-        
+        bulletsChanged = true  
     })
-
-    bulletsChanged = true    
+      
     bullets = bullets.filter(b => {
         return b.posX < 102 && b.posX > -2 && b.posY < 102 && b.posY > -2
     })
@@ -428,6 +423,11 @@ const update = () => {
                     usersDead = []
                     countDownStarted = false
                     countDownNumber = -2
+                    setTimeout(() => {
+                        gunGameInProgress = false
+                        bullets = []
+                        bulletsChanged = true
+                    }, 20000);
                 }
                 else {
                     setTimeout(() => countDown(count - 1), 1000);
