@@ -11,19 +11,20 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
-const getRandomColor = () => {
-    var letters = 'ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 6)];
-    }
-    return color;
-}
 
 let messages = []
+let newMessages = false
 let users = []
+let usersChanged = false
 let pillars = []
+let pillarsChanged = false
+
 let usersDead = []
+let usersDeadChanged = false
+
+let scoreChanged = false
+let highscore = 0
+let currentScore = 0
 
 let numbersDeleteEvent = 0
 let numbersGameEvent = 0
@@ -33,9 +34,17 @@ let startOverGame = false
 let gameInProgress = false
 let progressTick = 0
 let countDownStarted = false
-let countDownNumber = -1
-let highscore = 0
-let currentScore = 0
+let countDownNumber = -2
+
+
+const getRandomColor = () => {
+    var letters = 'ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 6)];
+    }
+    return color;
+}
 
 io.on("connection", (socket) => {
 
@@ -64,23 +73,34 @@ io.on("connection", (socket) => {
         }
 
         messages = messages.concat(newMessage)
+        newMessages = true
         updateState = true
     })
 
     socket.on("setUsername", (data) => {
 
-        const newUser = {
-            id: socket.id,
-            username: data.username,
-            playerPosX: 50,
-            playerPosY: 50 + (users.length * 2),
-            color: getRandomColor(),
-            shield: false,
+        const check = users.filter(u => u.username === data.username)
+        if (check.length > 0){
+            const newUser = {
+                id: "usernameTaken"
+            }
+            socket.emit("sendUser", newUser)
         }
-
-        users = users.concat(newUser)
-        socket.emit("sendUser", newUser)
-        updateState = true
+        else {
+            const newUser = {
+                id: socket.id,
+                username: data.username,
+                playerPosX: 50,
+                playerPosY: 50 + (users.length * 2),
+                color: getRandomColor(),
+                shield: false,
+            }
+    
+            users = users.concat(newUser)
+            socket.emit("sendUser", newUser)
+            updateState = true
+            usersChanged = true
+        }
     })
 
     socket.on("playerMovement", (pm) => {
@@ -121,6 +141,7 @@ io.on("connection", (socket) => {
         users = users.filter(u => u.id !== socket.id)
         users = users.concat(newPlayer)
         updateState = true
+        usersChanged = true
     })
 
 
@@ -130,6 +151,7 @@ io.on("connection", (socket) => {
 
         console.log("user disconnected")
         updateState = true
+        usersChanged = true
     })
 })
 
@@ -154,6 +176,7 @@ const movePillars = () => {
     pillars = pillars.filter(p => {
         if (p.posX >= -2.0) return true
         else {
+            scoreChanged = true
             currentScore++
             return false
         }            
@@ -184,7 +207,7 @@ const checkCollissions = () => {
 
 const update = () => {
 
-    if (updateState && !gameInProgress) {
+    if (!gameInProgress && updateState) {
 
         let usersInDeleteArea = 0
         let usersInGameArea = 0
@@ -202,6 +225,7 @@ const update = () => {
         if (usersInDeleteArea > 0 && usersInDeleteArea === users.length && !startOverDelete) {
             messages = []
             startOverDelete = true
+            newMessages = true
         }
         if (usersInGameArea > 0 && usersInGameArea === users.length && !startOverGame && !gameInProgress && !countDownStarted) {
             countDownStarted = true
@@ -210,6 +234,7 @@ const update = () => {
                 if (count < -1) {
                     gameInProgress = true
                     countDownStarted = false
+                    countDownNumber = -2
                     makePillar()
                 }
                 else {
@@ -227,6 +252,7 @@ const update = () => {
         if (numbersGameEvent !== usersInGameArea) {
             numbersGameEvent = usersInGameArea
         }
+        numbersAreaChanged = true
     }
 
     if (gameInProgress) {
@@ -238,19 +264,24 @@ const update = () => {
 
         usersDead = checkCollissions()
         if (usersDead.length > 0) {
+            usersDeadChanged = true
             gameInProgress = false
             startOver = false
             progressTick = 0
             pillars = []
             setTimeout(() => {
                 usersDead = []
+                usersDeadChanged = true
                 updateState = true
             }, 5000)
             if (currentScore > highscore){
                 highscore = currentScore
             }  
             currentScore = 0 
+            scoreChanged = true
         }
+
+        pillarsChanged = true
         updateState = true
     }
 }
@@ -261,20 +292,32 @@ setInterval(() => {
 
     if (updateState) {
         io.sockets.emit('gameState', {
-            users: users,
+            newMessages: newMessages,
             messages: messages,
+            usersChanged: usersChanged,
+            users: users,
+            countDown: countDownNumber,
+            pillarsChanged: pillarsChanged,
             pillars: pillars,
-            numbersDeleteEvent: [numbersDeleteEvent, users.length],
-            numbersGameEvent: [numbersGameEvent, users.length],
+            usersDeadChanged: usersDeadChanged,
+            deadUsers: usersDead,
+            scoreChanged: scoreChanged,
             highScore: highscore,
             currentScore: currentScore,
-            deadUsers: usersDead,
-            countDown: countDownNumber,
+            numbersAreaChanged: startOverGame || startOverDelete || numbersAreaChanged,
+            numbersDeleteEvent: [numbersDeleteEvent, users.length],
+            numbersGameEvent: [numbersGameEvent, users.length],    
         })
-        updateState = false
-    }
 
-}, 1000 / 60);
+        numbersAreaChanged = false
+        scoreChanged = false
+        usersDeadChanged = false
+        pillarsChanged = false
+        updateState = false
+        newMessages = false
+        usersChanged = false
+    }
+}, 1000 / 50);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))

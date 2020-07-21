@@ -10,7 +10,7 @@ const Header = ({ text }) => {
         padding: "1rem",
         margin: "0px",
         fontFamily: "Arial",
-        fontSize: "2rem",
+        fontSize: "1.7rem",
         fontWeight: "bold",
         cursor: "auto",
         zIndex: "50000",

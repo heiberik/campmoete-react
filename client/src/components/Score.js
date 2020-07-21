@@ -1,7 +1,7 @@
 import React from "react"
 import { useState, useEffect } from 'react'
 
-const Score = ({ highscore, currentscore, usernameChosen }) => {
+const Score = ({ score, usernameChosen }) => {
 
     const [newHighScore, setNewHighScore] = useState(false)
     const [highscoreCheck, setHighscoreCheck] = useState(-1)
@@ -9,23 +9,21 @@ const Score = ({ highscore, currentscore, usernameChosen }) => {
     useEffect(() => {
         setHighscoreCheck(hs => {
             if (!usernameChosen) return -1
-            else if (hs === -1){
-                return highscore
-            }
-            else if (highscore > hs) {
-                setTimeout(() => setNewHighScore(false), 6000)
+            else if (usernameChosen && score[1] === 0) return 0
+            else if (usernameChosen && score[1] > 0 && hs === 0) return score[1]
+            else {
+                setTimeout(() => setNewHighScore(false), 2000)
                 setNewHighScore(true)
-                return highscore
+                return score[1]
             }
-            else return hs
         })
-    }, [highscore, usernameChosen])
+    }, [score, usernameChosen])
 
     const scoreStyle = {
         textAlign: "center",
         position: "absolute",
         transform: "translateX(-50%)",
-        fontSize: ".8rem",
+        fontSize: ".7rem",
         width: "100%",
         fontWeight: "bold",
         fontFamily: "Arial",
@@ -54,13 +52,13 @@ const Score = ({ highscore, currentscore, usernameChosen }) => {
         return (
             <>
                 <div style={newHighScoreStyle}> NEW HIGHSCORE!</div>
-                <div style={scoreStyle}> Current Score: {currentscore} &emsp;&emsp;&emsp;&emsp; Highest Score: {highscoreCheck}</div>
+                <div style={scoreStyle}> Current Score: {score[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {score[1]}</div>
             </>
         )
     }
     else {
         return (
-            <div style={scoreStyle}> Current Score: {currentscore} &emsp;&emsp;&emsp;&emsp; Highest Score: {highscoreCheck}</div>
+            <div style={scoreStyle}> Current Score: {score[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {score[1]}</div>
         )
     }
 }

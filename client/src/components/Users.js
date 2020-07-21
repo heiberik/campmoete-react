@@ -1,7 +1,21 @@
 import React from "react"
+import { useState, useEffect } from 'react'
 import User from "./User"
 
 const Users = ({ users }) => {
+
+    const [usersSorted, setUsersSorted] = useState([])
+
+    useEffect(() => {
+        setUsersSorted(usersS => {
+            if (usersS.length === users.length){
+                return usersS
+            }
+            else {
+                return users.sort((a, b) => a.username.localeCompare(b.username))
+            }
+        })
+    }, [users])
 
     const style = {
         position: "absolute",
@@ -23,7 +37,7 @@ const Users = ({ users }) => {
     else return (
         <div style={style}>
             <ul style={styleList}>
-                {users.map(user => <User key={user.id} user={user} />)}
+                {usersSorted.map(user => <User key={user.id} user={user} />)}
             </ul>
         </div>
 

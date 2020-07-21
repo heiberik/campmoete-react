@@ -12,13 +12,13 @@ const PlayerOther = ({ user }) => {
         padding: "0px",
         margin: "0px",
         zIndex: "9999999999",
-        width: "8vh",
-        height: "8vh",
+        width: "2.5rem",
+        height: "2.5rem",
     }
 
     const stylePicture = {
-        width: "2.5rem",
-        height: "2.5rem",
+        width: "4vh",
+        height: "4vh",
         padding: "0px",
         margin: "auto",
         display: "block",
@@ -32,7 +32,7 @@ const PlayerOther = ({ user }) => {
         width: "3rem",
         height: "3rem",
         top: "-2.2rem",
-        left: "3.5rem",
+        left: "1.4rem",
         zIndex: "999999999999",
     }
 

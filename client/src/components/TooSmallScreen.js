@@ -1,14 +1,14 @@
 import React from "react"
 import Header from "./Header"
 
-const TooSmallScreen = ({ size }) => {
+const TooSmallScreen = ({ size, color1, color2 }) => {
 
     const style = {
         height: "100%",
         width: "100%",
         position: "absolute",
         zIndex: "9999999999999999",
-        background: "radial-gradient(#e66465, #9198e5)",
+        background: "radial-gradient("+color1+", "+color2+")",
     }
 
     const styleBox = {

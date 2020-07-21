@@ -26,24 +26,26 @@ const App = () => {
     const [usernameChosen, setUsernameChosen] = useState(false)
     const [notMessage, setNotMessage] = useState("")
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
-
-    const [gamestate, setGamestate] = useState({
-        messages: [],
-        users: [],
-        numbersDeleteEvent: [],
-        numbersGameEvent: [],
-        countDown: -1,
-        deadUsers: [],
-        pillars: [],
-        currentScore: 0,
-        highScore: 0,
-    })
+    const [messages, setMessages] = useState([])
+    const [users, setUsers] = useState([])
+    const [numbersDeleteEvent, setNumbersDeleteEvent] = useState([])
+    const [numbersGameEvent, setNumbersGameEvent] = useState([])
+    const [countDown, setCountDown] = useState([])
+    const [deadUsers, setDeadUsers] = useState([])
+    const [pillars, setPillars] = useState([])
+    const [scoreCurrentHigh, setScoreCurrentHigh] = useState([0, 0])
 
     useEffect(() => {
         window.addEventListener("resize", () => {
             setWindowSize([window.innerWidth, window.innerHeight])
         })
     }, [])
+
+    useEffect(() => {
+        if (usernameChosen) document.getElementsByClassName("form_input")[0].blur();
+        else document.getElementsByClassName("form_input")[0].focus();
+    }, [usernameChosen])
+
 
     const sendMessageHandler = (event) => {
         event.preventDefault()
@@ -76,66 +78,97 @@ const App = () => {
             setNotMessage("Username cannot be over 20 characters long")
             setMessageText("")
         }
+        else if (messageText.length < 3) {
+            setNotMessage("Username must be at least 3 characters long")
+            setMessageText("")
+        }
         else {
             messagesService.getUser((u) => {
-                setMessageText("")
-                setUsernameChosen(true)
-                setUser(u)
+                if (u.id === "usernameTaken") {
+                    setNotMessage("Username taken!")
+                    setMessageText("")
+                }
+                else {
+                    setMessageText("")
+                    setUser(u)
+                    setUsernameChosen(chosen => {
+                        if (!chosen) {
+                            messagesService
+                                .getGameState((gameState) => {
+
+                                    if (gameState.newMessages) {
+                                        setMessages(gameState.messages)
+                                    }
+
+                                    if (gameState.usersChanged) {
+                                        setUsers(gameState.users)
+                                    }
+
+                                    if (gameState.countDown > -2) {
+                                        setCountDown(gameState.countDown)
+                                    }
+
+                                    if (gameState.pillarsChanged) {
+                                        setPillars(gameState.pillars)
+                                    }
+
+                                    if (gameState.usersDeadChanged) {
+                                        setDeadUsers(gameState.deadUsers)
+                                    }
+
+                                    if (gameState.scoreChanged) {
+                                        setScoreCurrentHigh([gameState.currentScore, gameState.highScore])
+                                    }
+
+                                    if (gameState.numbersAreaChanged) {
+                                        setNumbersGameEvent(gameState.numbersGameEvent)
+                                        setNumbersDeleteEvent(gameState.numbersDeleteEvent)
+                                    }
+                                })
+
+                            const pm = {
+                                up: false,
+                                down: false,
+                                left: false,
+                                right: false,
+                                space: false
+                            }
+
+                            const keyDownHandler = (e) => {
+                                if (e.target.tagName.toUpperCase() === "INPUT") return
+                                if (e.keyCode === 68) pm.right = true
+                                else if (e.keyCode === 65) pm.left = true
+                                else if (e.keyCode === 87) pm.up = true
+                                else if (e.keyCode === 83) pm.down = true
+                                else if (e.keyCode === 32) pm.space = true
+                            }
+
+                            let setFalse = false
+                            const keyUpHandler = (e) => {
+                                if (e.target.tagName.toUpperCase() === "INPUT") return
+                                if (e.keyCode === 68) pm.right = false
+                                else if (e.keyCode === 65) pm.left = false
+                                else if (e.keyCode === 87) pm.up = false
+                                else if (e.keyCode === 83) pm.down = false
+                                else if (e.keyCode === 32) pm.space = false
+                                setFalse = true
+                            }
+
+                            document.addEventListener('keydown', keyDownHandler, false)
+                            document.addEventListener('keyup', keyUpHandler, false)
+
+                            setInterval(() => {
+                                if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse) {
+                                    messagesService.sendPlayerMovement(pm)
+                                    setFalse = false
+                                }
+                            }, 1000 / 50);
+                        }
+                        return true
+                    })
+                }
             })
             messagesService.sendUsername(messageText)
-
-            messagesService
-                .getGameState((gameState) => {                    
-                    setGamestate({
-                        messages: gameState.messages,
-                        users: gameState.users,
-                        numbersDeleteEvent: gameState.numbersDeleteEvent,
-                        numbersGameEvent: gameState.numbersGameEvent,
-                        countDown: gameState.countDown,
-                        deadUsers: gameState.deadUsers,
-                        pillars: gameState.pillars,
-                        currentScore: gameState.currentScore,
-                        highScore: gameState.highScore,
-                    })
-                })
-
-            const pm = {
-                up: false,
-                down: false,
-                left: false,
-                right: false,
-                space: false
-            }
-
-            const keyDownHandler = (e) => {
-                if (e.target.tagName.toUpperCase() === "INPUT") return
-                if (e.keyCode === 68) pm.right = true
-                else if (e.keyCode === 65) pm.left = true
-                else if (e.keyCode === 87) pm.up = true
-                else if (e.keyCode === 83) pm.down = true
-                else if (e.keyCode === 32) pm.space = true
-            }
-
-            let setFalse = false
-            const keyUpHandler = (e) => {
-                if (e.target.tagName.toUpperCase() === "INPUT") return
-                if (e.keyCode === 68) pm.right = false
-                else if (e.keyCode === 65) pm.left = false
-                else if (e.keyCode === 87) pm.up = false
-                else if (e.keyCode === 83) pm.down = false
-                else if (e.keyCode === 32) pm.space = false
-                setFalse = true
-            }
-
-            document.addEventListener('keydown', keyDownHandler, false)
-            document.addEventListener('keyup', keyUpHandler, false)
-
-            setInterval(() => {
-                if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse) {
-                    messagesService.sendPlayerMovement(pm)
-                    setFalse = false
-                }
-            }, 1000 / 60);
         }
     }
 
@@ -156,7 +189,7 @@ const App = () => {
                 color1="#e66465"
                 color2="purple" />
             <MessagesList
-                list={gamestate.messages} />
+                list={messages} />
             <WriteMessageBox
                 messageText={messageText}
                 sendMessageHandler={sendMessageHandler}
@@ -164,29 +197,30 @@ const App = () => {
                 usernameChosen={usernameChosen}
                 setUsernameHandler={setUsernameHandler} />
             <Campfire
-                messages={gamestate.messages} />
+                messages={messages} />
             <Players
-                users={gamestate.users}
+                users={users}
                 user={user} />
             <Areas
                 usernameChosen={usernameChosen}
-                numbersDeleteEvent={gamestate.numbersDeleteEvent}
-                numbersGameEvent={gamestate.numbersGameEvent} />
+                numbersDeleteEvent={numbersDeleteEvent}
+                numbersGameEvent={numbersGameEvent} />
             <Pillars
-                pillars={gamestate.pillars} />
+                pillars={pillars} />
             <Notification
                 message={notMessage}
                 messageHandler={setNotMessage} />
             <CountDown
-                countDown={gamestate.countDown} />
+                countDown={countDown} />
             <DeadUsers
-                deadUsers={gamestate.deadUsers} />
+                deadUsers={deadUsers} />
             <Score
-                highscore={gamestate.highScore}
-                currentscore={gamestate.currentScore}
+                score={scoreCurrentHigh}
                 usernameChosen={usernameChosen} />
             <TooSmallScreen
-                size={windowSize} />
+                size={windowSize}
+                color1="#e66465"
+                color2="purple" />
         </div>
     )
 }
