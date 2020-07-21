@@ -43,9 +43,9 @@ let countDownNumber = -2
 let freezeGame = false
 let freezeGameChanged = false
 
-let moveSpeed1 = .24
-let moveSpeed2 = .12
-let pillarSpeed = .20
+let moveSpeed1 = .5
+let moveSpeed2 = .25
+let pillarSpeed = .4
 
 
 const getRandomColor = () => {
