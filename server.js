@@ -43,6 +43,10 @@ let countDownNumber = -2
 let freezeGame = false
 let freezeGameChanged = false
 
+let moveSpeed1 = .24
+let movespeed2 = .12
+let pillarSpeed = .20
+
 
 const getRandomColor = () => {
     var letters = 'ABCDEF';
@@ -163,30 +167,30 @@ const handlePlayerMovementQueue = () => {
             let newPosY = user.playerPosY
 
             if (pm.up && pm.left) {
-                newPosX = newPosX - .25
-                newPosY = newPosY - .25
+                newPosX = newPosX - moveSpeed2
+                newPosY = newPosY - moveSpeed2
             }
             else if (pm.up && pm.right) {
-                newPosX = newPosX + .25
-                newPosY = newPosY - .25
+                newPosX = newPosX + moveSpeed2
+                newPosY = newPosY - moveSpeed2
             }
             else if (pm.down && pm.left) {
-                newPosX = newPosX - .25
-                newPosY = newPosY + .25
+                newPosX = newPosX - moveSpeed2
+                newPosY = newPosY + moveSpeed2
             }
             else if (pm.down && pm.right) {
-                newPosX = newPosX + .25
-                newPosY = newPosY + .25
+                newPosX = newPosX + moveSpeed2
+                newPosY = newPosY + moveSpeed2
             }
-            else if (pm.up) newPosY = newPosY - .5
-            else if (pm.down) newPosY = newPosY + .5
-            else if (pm.left) newPosX = newPosX - .5
-            else if (pm.right) newPosX = newPosX + .5
+            else if (pm.up) newPosY = newPosY - moveSpeed1
+            else if (pm.down) newPosY = newPosY + moveSpeed1
+            else if (pm.left) newPosX = newPosX - moveSpeed1
+            else if (pm.right) newPosX = newPosX + moveSpeed1
 
-            if (newPosX > 101) newPosX = newPosX - .5
-            if (newPosX < -1) newPosX = newPosX + .5
-            if (newPosY > 101) newPosY = newPosY - .5
-            if (newPosY < -1) newPosY = newPosY + .5
+            if (newPosX > 101) newPosX = newPosX - moveSpeed1
+            if (newPosX < -1) newPosX = newPosX + moveSpeed1
+            if (newPosY > 101) newPosY = newPosY - moveSpeed1
+            if (newPosY < -1) newPosY = newPosY + moveSpeed1
 
             const newPlayer = {
                 ...user,
@@ -214,22 +218,22 @@ const handlePlayerMovementQueue = () => {
 
             // fra venstre
             if (x >= messageX - 2.0 && x <= messageX - 1.5 && y >= messageY - 2.5 && y <= messageY + 7.75) {
-                m.left = m.left + .5
+                m.left = m.left + moveSpeed1
                 newMessages = true
             }
             //fra høyre
             else if (x <= messageX + 12.75 && x >= messageX + 12.25 && y >= messageY - 2.5 && y <= messageY + 7.75) {
-                m.left = m.left - .5
+                m.left = m.left - moveSpeed1
                 newMessages = true
             }
             //fra top
             else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY - 2.75 && y <= messageY - 2.25) {
-                m.top = m.top + .5
+                m.top = m.top + moveSpeed1
                 newMessages = true
             }
             //fra bot
             else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY + 7.25 && y <= messageY + 7.75) {
-                m.top = m.top - .5
+                m.top = m.top - moveSpeed1
                 newMessages = true
             }
         })
@@ -253,7 +257,7 @@ const makePillar = () => {
 
 const movePillars = () => {
 
-    pillars.forEach(p => { p.posX = p.posX - .4 })
+    pillars.forEach(p => { p.posX = p.posX - pillarSpeed })
     pillars = pillars.filter(p => {
         if (p.posX >= -5.0) return true
         else {
@@ -398,28 +402,7 @@ const update = () => {
     }
 }
 
-
-const getMessages = () => {
-    if (newMessages) return messages
-    else return null
-}
-
-const getUsers = () => {
-    if (usersChanged) return users
-    else return null
-}
-
-const getPillars = () => {
-    if (pillarsChanged) return pillars
-    else return null
-}
-
-setInterval(() => {
-
-    handleMessageQueue()
-    handlePlayerMovementQueue()
-    update()
-
+const emitGameState = () => {
     if (freezeGame) {
         io.sockets.emit('gameState', {
             freezeGameChanged: freezeGameChanged,
@@ -472,7 +455,31 @@ setInterval(() => {
         freezeGameChanged = false
         usersChanged = false
     }
-}, 1000 / 50);
+}
+
+const getMessages = () => {
+    if (newMessages) return messages
+    else return null
+}
+
+const getUsers = () => {
+    if (usersChanged) return users
+    else return null
+}
+
+const getPillars = () => {
+    if (pillarsChanged) return pillars
+    else return null
+}
+
+setInterval(() => {
+
+    handleMessageQueue()
+    handlePlayerMovementQueue()
+    update()
+    emitGameState()
+
+}, 1000 / 60);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
