@@ -22,7 +22,7 @@ const PlayerClient = ({ user }) => {
         padding: "0px",
         margin: "auto",
         display: "block",
-        border: ".3rem solid",
+        border: ".5vh solid",
         zIndex: "999999999999",
         borderColor: user.color,
     }

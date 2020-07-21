@@ -160,6 +160,41 @@ io.on("connection", (socket) => {
             users = users.concat(newPlayer)
             updateState = true
             usersChanged = true
+
+            messages.forEach(m => {
+
+                const messageX = m.left
+                const messageY = m.top
+    
+    
+                users.forEach(u => {
+    
+                    const x = u.playerPosX
+                    const y = u.playerPosY
+                    
+                    // fra venstre
+                    if (x >= messageX - 2 && x <= messageX-1 && y >= messageY - 3 && y <= messageY+9) {
+                        m.left = m.left + .5
+                        newMessages = true
+                    }
+                    //fra høyre
+                    else if (x <= messageX + 14 && x >= messageX+13 && y >= messageY - 3 && y <= messageY+9) {
+                        m.left = m.left - .5
+                        newMessages = true
+                    } 
+                    //fra top
+                    else if (x >= messageX - 2 && x <= messageX + 14 && y >= messageY - 3 && y <= messageY-2) {
+                        m.top = m.top + .5
+                        newMessages = true
+                    }   
+                    //fra bot
+                    else if (x >= messageX - 2 && x <= messageX + 14 && y >= messageY + 8 && y <= messageY+9) {
+                        m.top = m.top - .5
+                        newMessages = true
+                    }                   
+                })
+                
+            })
         }
     })
 
@@ -323,6 +358,13 @@ const update = () => {
 
         pillarsChanged = true
         updateState = true
+    }
+
+    if (updateState){
+
+        
+
+        
     }
 }
 
