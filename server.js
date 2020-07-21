@@ -259,7 +259,7 @@ const movePillars = () => {
 
     pillars.forEach(p => { p.posX = p.posX - pillarSpeed })
     pillars = pillars.filter(p => {
-        if (p.posX >= -5.0) return true
+        if (p.posX >= -4.0) return true
         else {
             scoreChanged = true
             currentScore++
