@@ -4,8 +4,8 @@ const Message = ({ message }) => {
 
     const style = {
         position: "absolute",
-        top: message.top + "%",
-        left: message.left + "%",
+        top: message.top + "vh",
+        left: message.left + "vh",
         zIndex: message.number,
         padding: "1vh",
         width: "15vh",

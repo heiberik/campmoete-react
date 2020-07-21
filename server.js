@@ -173,22 +173,22 @@ io.on("connection", (socket) => {
                     const y = u.playerPosY
                     
                     // fra venstre
-                    if (x >= messageX - 2 && x <= messageX-1 && y >= messageY - 3 && y <= messageY+9) {
+                    if (x >= messageX - 2.75 && x <= messageX-1.75 && y >= messageY - 3 && y <= messageY+9.5) {
                         m.left = m.left + .5
                         newMessages = true
                     }
                     //fra høyre
-                    else if (x <= messageX + 14 && x >= messageX+13 && y >= messageY - 3 && y <= messageY+9) {
+                    else if (x <= messageX + 18.75 && x >= messageX+17.75 && y >= messageY - 3 && y <= messageY+9.5) {
                         m.left = m.left - .5
                         newMessages = true
                     } 
                     //fra top
-                    else if (x >= messageX - 2 && x <= messageX + 14 && y >= messageY - 3 && y <= messageY-2) {
+                    else if (x >= messageX - 2 && x <= messageX + 19 && y >= messageY - 2.75 && y <= messageY-1.75) {
                         m.top = m.top + .5
                         newMessages = true
                     }   
                     //fra bot
-                    else if (x >= messageX - 2 && x <= messageX + 14 && y >= messageY + 8 && y <= messageY+9) {
+                    else if (x >= messageX - 2 && x <= messageX + 19 && y >= messageY + 7.75 && y <= messageY+8.75) {
                         m.top = m.top - .5
                         newMessages = true
                     }                   

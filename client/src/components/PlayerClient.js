@@ -8,7 +8,7 @@ const PlayerClient = ({ user }) => {
         position: "absolute",
         transform: "translate(-50%, -50%)",
         top: user.playerPosY + "vh",
-        left: user.playerPosX + "vw",
+        left: user.playerPosX + "vh",
         padding: "0px",
         margin: "0px",
         zIndex: "9999999999999",
