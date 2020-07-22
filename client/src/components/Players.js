@@ -24,7 +24,7 @@ const Players = ({ messagesService, user }) => {
             if (movequeue[0]){
                 setUsers(movequeue.shift())
             }
-        }, 1000 / 30)
+        }, 1000 / 60)
     }, [messagesService])
 
     return (
