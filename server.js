@@ -97,7 +97,6 @@ io.on("connection", (socket) => {
             users = users.concat(newUser)
             socket.emit("sendUser", newUser)
 
-            console.log(newUser)
             updateState = true
             usersChanged = true
             newMessages = true

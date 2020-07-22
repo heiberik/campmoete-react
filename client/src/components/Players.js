@@ -54,20 +54,32 @@ const Players = ({ messagesService, userOriginal }) => {
                 pm.shoot = [x, y]
             }
 
+            const mouseUpHandler = (e) => {
+                if (e.target.tagName.toUpperCase() === "INPUT") return
+                pm.shoot = null
+                setFalse = true
+            }
+
+            const mouseOverHandler = (e) => {
+                if (e.target.tagName.toUpperCase() === "INPUT") return
+                if (!pm.shoot) return
+                const x = (e.clientX / window.innerWidth) * 100
+                const y = (e.clientY / window.innerHeight) * 100
+                pm.shoot = [x, y]
+            }
+
             document.addEventListener('keydown', keyDownHandler, false)
             document.addEventListener('keyup', keyUpHandler, false)
-            document.addEventListener('click', mouseClickHandler, false)
-
-            const moveSpeed1 = .5
-            const moveSpeed2 = .25
+            document.addEventListener('mousedown', mouseClickHandler, false)
+            document.addEventListener('mouseup', mouseUpHandler, false)
+            document.addEventListener('mousemove', mouseOverHandler, false)
 
             const loop = () => {
                 if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
-                    messagesService.sendPlayerMovement(pm)
-                    pm.shoot = null
-                    setFalse = false
+                    messagesService.sendPlayerMovement(pm)                    
                 }
             }
+            
             setInterval(() => {
                 window.requestAnimationFrame(loop)
             }, 1000 / 60);
