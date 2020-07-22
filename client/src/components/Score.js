@@ -5,6 +5,7 @@ const Score = ({ messagesService }) => {
 
     const [newHighScore, setNewHighScore] = useState(false)
     const [scoreCurrentHigh, setScoreCurrentHigh] = useState([0, 0])
+    const [pillarGameInProgress, setPillarGameInProgress] = useState(false)
 
     useEffect(() => {
         messagesService.getGameState((gameState) => {
@@ -17,6 +18,11 @@ const Score = ({ messagesService }) => {
                     }, 3000)
                 }
             }
+
+            if (gameState.gameInProgress){
+                setPillarGameInProgress(true)
+            }
+            else setPillarGameInProgress(false)
         })
     }, [messagesService])
 
@@ -45,7 +51,7 @@ const Score = ({ messagesService }) => {
         width: "100%",
         fontWeight: "bold",
         fontFamily: "Arial",
-        color: "white",
+        color: "red",
         top: "10rem",
         left: "50vw",
         zIndex: "9999"
@@ -59,11 +65,12 @@ const Score = ({ messagesService }) => {
             </>
         )
     }
-    else {
+    else if (pillarGameInProgress) {
         return (
             <div style={scoreStyle}> Current Score: {scoreCurrentHigh[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {scoreCurrentHigh[1]}</div>
         )
     }
+    else return <div style={scoreStyle}> &emsp; </div>
 }
 
 export default Score

@@ -43,7 +43,7 @@ const Skammekroken = ({ messagesService }) => {
     if (!showSkammekroken) return null
     else return (
         <div style={styleSkam}>
-            Corner of Shame
+            Krok of Skam
         </div>
     )
 }
