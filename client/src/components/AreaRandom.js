@@ -1,6 +1,6 @@
 import React from "react"
 
-const AreaDelete = ({ numbersDeleteEvent }) => {
+const AreaRandom = ({  }) => {
 
     const styleText = {
         position: "absolute",
@@ -17,21 +17,22 @@ const AreaDelete = ({ numbersDeleteEvent }) => {
 
     const coloredBall = {
         borderRadius: "1.5rem",
-        border: "solid 1rem yellow",
+        border: "solid 1rem red",
         color: "black",
-        background: "yellow",
+        background: "red",
         fontWeight: "bold",
         fontFamily: "Arial",
         zIndex: "99999999999999999",
         position: "absolute",
         bottom: ".9rem",
-        left: "3vw",
+        left: "15vw",
         fontSize: "10px",
         padding: "0px",
-        opacity: numbersDeleteEvent[0] / numbersDeleteEvent[1] + .2,
+        opacity: .2,
     }
+
 
     return <div style={coloredBall}> </div>
 }
 
-export default AreaDelete
+export default AreaRandom

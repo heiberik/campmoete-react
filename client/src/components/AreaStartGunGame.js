@@ -1,5 +1,4 @@
 import React from "react"
-import pig from "../images/pig2.png"
 
 const AreaStartGunGame = ({ numbersGunGameEvent }) => {
 
@@ -16,23 +15,23 @@ const AreaStartGunGame = ({ numbersGunGameEvent }) => {
         cursor: "default",
     }
 
-    const styleImg = {
+    const coloredBall = {
+        borderRadius: "1.5rem",
+        border: "solid 1rem green",
+        color: "black",
+        background: "green",
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        zIndex: "99999999999999999",
         position: "absolute",
-        height: "2.2rem",
-        bottom: "1.2rem",
+        bottom: ".9rem",
         right: "15vw",
-        zIndex: "99999999999999999"
+        fontSize: "10px",
+        padding: "0px",
+        opacity: numbersGunGameEvent[0] / numbersGunGameEvent[1] + .2,
     }
 
-    if (numbersGunGameEvent[0] > 0) {
-        return (
-            <>
-                <img src={pig} style={styleImg} alt="composter" />
-                <div style={styleText}> {numbersGunGameEvent[0]} / {numbersGunGameEvent[1]}</div>
-            </>
-        )
-    }
-    else return null 
+    return <div style={coloredBall}> </div>
 }
 
 export default AreaStartGunGame

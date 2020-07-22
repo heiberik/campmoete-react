@@ -16,23 +16,24 @@ const AreaStartGame = ({ numbersGameEvent }) => {
         cursor: "default",
     }
 
-    const styleImg = {
+    const coloredBall = {
+        borderRadius: "1.5rem",
+        border: "solid 1rem orange",
+        color: "black",
+        background: "orange",
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        zIndex: "99999999999999999",
         position: "absolute",
-        height: "2.2rem",
-        bottom: "1.2rem",
+        bottom: ".9rem",
         right: "3vw",
-        zIndex: "99999999999999999"
+        fontSize: "10px",
+        padding: "0px",
+        opacity: numbersGameEvent[0] / numbersGameEvent[1] + .2,
     }
 
-    if (numbersGameEvent[0] > 0) {
-        return (
-            <>
-                <img src={pig} style={styleImg} alt="composter" />
-                <div style={styleText}> {numbersGameEvent[0]} / {numbersGameEvent[1]}</div>
-            </>
-        )
-    }
-    else return null 
+    return <div style={coloredBall}> </div>
+    
 }
 
 export default AreaStartGame

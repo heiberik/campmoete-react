@@ -109,6 +109,7 @@ const App = () => {
             <div style={style}>
                 <Header text="CAMPMØTE" />
                 <Background color1="#e66465" color2="purple" />
+                <Notification message={notMessage} messageHandler={setNotMessage} />
                 <WriteMessageBox
                     messageText={messageText}
                     sendMessageHandler={sendMessageHandler}

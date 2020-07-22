@@ -101,6 +101,7 @@ io.on("connection", (socket) => {
             usersChanged = true
             newMessages = true
             scoreChanged = true
+            numbersAreaChanged = true
         }
     })
 

@@ -2,6 +2,7 @@ import React from "react"
 import AreaDelete from "./AreaDelete"
 import AreaStartGame from "./AreaStartGame"
 import AreaStartGunGame from "./AreaStartGunGame"
+import AreaRandom from "./AreaRandom"
 import { useState, useEffect } from 'react'
 
 const Areas = ({ messagesService }) => {
@@ -26,6 +27,7 @@ const Areas = ({ messagesService }) => {
             <AreaDelete numbersDeleteEvent={numbersDeleteEvent} />
             <AreaStartGame numbersGameEvent={numbersGameEvent} />
             <AreaStartGunGame numbersGunGameEvent={numbersGunGameEvent} />
+            <AreaRandom />
         </div>
     )
 }
