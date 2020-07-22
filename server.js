@@ -185,7 +185,7 @@ const shootBullet = (shot, id) => {
         updateState = true
         setTimeout(() => {
             playersShootCooldown[id] = false
-        }, 1000)
+        }, 100)
     }
 }
 
@@ -359,8 +359,8 @@ const checkBulletCollission = () => {
 const moveBullets = () => {
 
     bullets.forEach(b => {
-        b.posX = b.posX + b.dirX / 1.5
-        b.posY = b.posY + b.dirY / 1.5
+        b.posX = b.posX + b.dirX
+        b.posY = b.posY + b.dirY
         bulletsChanged = true
     })
 

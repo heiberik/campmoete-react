@@ -9,7 +9,6 @@ const Bullet = ({ bullet }) => {
         border: "solid 0.4rem black",
         borderRadius: "0.4rem",
         borderColor: bullet.color,
-
     }
 
     return (
