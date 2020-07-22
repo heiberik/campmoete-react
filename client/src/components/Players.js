@@ -8,7 +8,6 @@ import { useState, useEffect } from 'react'
 const Players = ({ messagesService, userOriginal }) => {
 
     const [users, setUsers] = useState([])
-    const [user, setUser] = useState(userOriginal)
 
     useEffect(() => {
         messagesService.getGameState((gameState) => {
@@ -84,7 +83,7 @@ const Players = ({ messagesService, userOriginal }) => {
             <Users users={users} />
             <ul>
                 {users.map(u => {
-                    if (u.id !== user.id) {
+                    if (u.id !== userOriginal.id) {
                         return (
                             <PlayerOther
                                 key={u.id}
