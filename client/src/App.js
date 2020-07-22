@@ -21,8 +21,6 @@ import "./css/App.css"
 
 const App = () => {
 
-    console.log("render APP")
-
     const [messageText, setMessageText] = useState("")
     const [user, setUser] = useState("")
     const [usernameChosen, setUsernameChosen] = useState(false)

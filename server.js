@@ -324,7 +324,7 @@ const checkCollissions = () => {
 
         pillars.forEach(p => {
             if (p.posX >= x - 2.8 && p.posX <= x + 2.8) {
-                if (y >= p.bottom - 2.3 || y <= p.top + 1.9) {
+                if (y >= p.bottom - 2.5 || y <= p.top + 1.9) {
                     ud = ud.concat(u.username)
                 }
             }
@@ -450,7 +450,7 @@ const updateGames = () => {
         progressTick++
         if (progressTick % progressTickSpeed === 0) {
             makePillar()
-            if (progressTickSpeed > 90) {
+            if (progressTickSpeed > 120) {
                 progressTickSpeed -= 4
             }
         }

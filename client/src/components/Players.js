@@ -10,11 +10,21 @@ const Players = ({ messagesService, user }) => {
     const [users, setUsers] = useState([])
 
     useEffect(() => {
+
+        const movequeue = []
+
         messagesService.getGameState((gameState) => {
             if (gameState.usersChanged) {
-                setUsers(gameState.users)
+                movequeue.push(gameState.users)
+                
             }
         })
+
+        setInterval(() => {
+            if (movequeue[0]){
+                setUsers(movequeue.shift())
+            }
+        }, 1000 / 55)
     }, [messagesService])
 
     return (
