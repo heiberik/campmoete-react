@@ -9,7 +9,7 @@ const Bullets = ({ messagesService }) => {
     useEffect(() => {
         messagesService.getGameState((gameState) => {
             if (gameState.bulletsChanged) {
-                setBullets(gameState.bullets)
+                window.requestAnimationFrame(() => setBullets(gameState.bullets))  
             }
         })
     }, [messagesService])

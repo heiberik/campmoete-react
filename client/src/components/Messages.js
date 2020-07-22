@@ -11,7 +11,7 @@ const Messages = ({ messagesService }) => {
     useEffect(() => {
         messagesService.getGameState((gameState) => {
             if (gameState.newMessages) {
-                setMessages(gameState.messages)
+                window.requestAnimationFrame(() => setMessages(gameState.messages))
             }
         })
     }, [messagesService])

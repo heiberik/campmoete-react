@@ -9,7 +9,7 @@ const Pillars = ({ messagesService }) => {
     useEffect(() => {
         messagesService.getGameState((gameState) => {
             if (gameState.pillarsChanged) {
-                setPillars(gameState.pillars)
+                window.requestAnimationFrame(() => setPillars(gameState.pillars))
             }
         })
     }, [messagesService])

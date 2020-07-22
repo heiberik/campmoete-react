@@ -12,7 +12,7 @@ const Players = ({ messagesService, userOriginal }) => {
     useEffect(() => {
         messagesService.getGameState((gameState) => {
             if (gameState.usersChanged) {
-                setUsers(gameState.users)
+                window.requestAnimationFrame(() => setUsers(gameState.users))
             }
         })
 
