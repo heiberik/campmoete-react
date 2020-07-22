@@ -85,9 +85,10 @@ io.on("connection", (socket) => {
             const newUser = {
                 id: socket.id,
                 username: data.username,
-                playerPosX: 50,
-                playerPosY: 50 + (users.length * 2),
+                playerPosX: 85,
+                playerPosY: 85 + (users.length * 2),
                 color: getRandomColor(),
+                hit: false,
                 shield: false,
             }
 
@@ -95,6 +96,8 @@ io.on("connection", (socket) => {
 
             users = users.concat(newUser)
             socket.emit("sendUser", newUser)
+
+            console.log(newUser)
             updateState = true
             usersChanged = true
             newMessages = true
@@ -171,6 +174,7 @@ const shootBullet = (shot, id) => {
             posY: user.playerPosY,
             dirX: dirX,
             dirY: dirY,
+            hit: false,
             color: getRandomColor(),
         }
 
@@ -178,7 +182,7 @@ const shootBullet = (shot, id) => {
 
         playersShootCooldown[id] = true
         bulletsChanged = true
-
+        updateState = true
         setTimeout(() => {
             playersShootCooldown[id] = false
         }, 1000)
@@ -311,7 +315,7 @@ const checkCollissions = () => {
 
         pillars.forEach(p => {
             if (p.posX >= x - 2.8 && p.posX <= x + 2.8) {
-                if (y >= p.bottom - 2.5 || y <= p.top + 1.9) {
+                if (y >= p.bottom - 2.8 || y <= p.top + 1.9) {
                     ud = ud.concat(u.username)
                 }
             }
@@ -323,11 +327,32 @@ const checkCollissions = () => {
 
 const checkBulletCollission = () => {
 
+    bullets = bullets.filter(b => {return b.hit === false})
+
     let dead = []
     bullets.forEach(b => {
 
-    })
+        const x = b.posX
+        const y = b.posY
 
+        users.forEach(u => {
+            if (u.id === b.owner) return 
+
+            const px = u.playerPosX
+            const py = u.playerPosY
+
+            if (x < px + 2 && x > px - 2 && y < py + 2 && y > py - 2){
+                dead.push(u)
+                b.hit = true
+                u.hit = true
+                bulletsChanged = true
+                updateState = true
+                usersChanged = true
+                u.playerPosX = 93
+                u.playerPosY = 85
+            }
+        })
+    })
     return dead
 }
 
@@ -343,7 +368,7 @@ const moveBullets = () => {
         return b.posX < 102 && b.posX > -2 && b.posY < 102 && b.posY > -2
     })
 
-
+    updateState = true
 }
 
 const updateNumberAreas = () => {
@@ -405,7 +430,7 @@ const updateNumberAreas = () => {
                         gunGameInProgress = false
                         bullets = []
                         bulletsChanged = true
-                    }, 20000);
+                    }, 40000000);
                 }
                 else {
                     setTimeout(() => countDown(count - 1), 1000);
@@ -488,6 +513,10 @@ const updateGames = () => {
     if (gunGameInProgress) {
         moveBullets()
         const check = checkBulletCollission()
+        if (check.length > 0){
+            console.log("DEAD PLAYER!")
+        }
+        updateState = true
     }
 }
 
