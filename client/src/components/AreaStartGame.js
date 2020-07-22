@@ -12,7 +12,8 @@ const AreaStartGame = ({ numbersGameEvent }) => {
         color: "white",
         bottom: "5rem",
         right: "2.8vw",
-        zIndex: "99999999999999999"
+        zIndex: "99999999999999999",
+        cursor: "default",
     }
 
     const styleImg = {

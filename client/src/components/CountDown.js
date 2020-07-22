@@ -22,7 +22,8 @@ const CountDown = ({ messagesService }) => {
         color: "black",
         top: "20vh",
         left: "50vw",
-        zIndex: "9999"
+        zIndex: "9999",
+        cursor: "default",
     }
 
     if (countDown > -1) {

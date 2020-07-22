@@ -25,6 +25,7 @@ const App = () => {
     const [user, setUser] = useState("")
     const [usernameChosen, setUsernameChosen] = useState(false)
     const [notMessage, setNotMessage] = useState("")
+    const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
 
     useEffect(() => {
         if (usernameChosen) {
@@ -34,6 +35,12 @@ const App = () => {
             document.getElementsByClassName("form_input")[0].focus();
         }
     }, [usernameChosen])
+
+    useEffect(() => {
+        window.addEventListener("resize", () => {
+            setWindowSize([window.innerWidth, window.innerHeight])
+        })
+    }, [])
 
     
 
@@ -108,7 +115,7 @@ const App = () => {
                     messageTextChangedhandler={messageTextChangedhandler}
                     usernameChosen={usernameChosen}
                     setUsernameHandler={setUsernameHandler} />
-                <TooSmallScreen color1="#e66465" color2="purple" />
+                <TooSmallScreen windowSize={windowSize} color1="#e66465" color2="purple" />
             </div>
         )
     }
@@ -132,7 +139,7 @@ const App = () => {
             <Score messagesService={messagesService} />
             <Skammekroken messagesService={messagesService} />
             <Bullets messagesService={messagesService} />
-            <TooSmallScreen color1="#e66465" color2="purple" />
+            <TooSmallScreen windowSize={windowSize} color1="#e66465" color2="purple" />
         </div>
     )
 }

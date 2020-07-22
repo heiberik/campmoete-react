@@ -25,7 +25,8 @@ const DeadUsers = ({ messagesService }) => {
         color: "red",
         top: "15rem",
         left: "50vw",
-        zIndex: "9999"
+        zIndex: "9999",
+        cursor: "default",
     }
  
     const usersDeadStyle2 = {
@@ -40,7 +41,8 @@ const DeadUsers = ({ messagesService }) => {
         top: "20rem",
         left: "50vw",
         textShadow: "1px 1px black",
-        zIndex: "9999"
+        zIndex: "9999",
+        cursor: "default",
     }
     */
 

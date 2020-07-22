@@ -3,7 +3,7 @@ import char from "../images/char.png"
 import shieldPic from "../images/shield.png"
 
 const PlayerClient = ({ user }) => {
-    
+
     const stylePlayer = {
         position: "absolute",
         transform: "translate(-50%, -50%)",
@@ -16,7 +16,7 @@ const PlayerClient = ({ user }) => {
         height: "2.5rem",
         animationTimingFunction: "ease-in-out",
         WebkitAnimationTimingFunction: "ease-in-out",
-        transition:"transform 1s ease-in-out 0s",
+        transition: "transform 1s ease-in-out 0s",
     }
 
     const stylePicture = {
@@ -29,20 +29,30 @@ const PlayerClient = ({ user }) => {
         zIndex: "999999999999",
         AnimationTimingFunction: "ease-in-out",
         WebkitAnimationTimingFunction: "ease-in-out",
-        transition:"transform 1s ease-in-out 0s",
+        transition: "transform 1s ease-in-out 0s",
         borderColor: user.color,
+        userDrag: "none",
+        userSelect: "none",
+        WebkitUserDrag: "none",
+        WebkitUserSelect: "none",
+        msUserSelect: "none",
     }
 
     const styleShield = {
         position: "relative",
         animationTimingFunction: "ease-in-out",
         WebkitAnimationTimingFunction: "ease-in-out",
-        transition:"transform 1s ease-in-out 0s",
+        transition: "transform 1s ease-in-out 0s",
         width: "3rem",
         height: "3rem",
         top: "-2.2rem",
         left: "1.4rem",
         zIndex: "999999999999",
+        userDrag: "none",
+        userSelect: "none",
+        WebkitUserDrag: "none",
+        WebkitUserSelect: "none",
+        msUserSelect: "none",
     }
 
     if (!user) {

@@ -1,16 +1,7 @@
 import React from "react"
 import Header from "./Header"
-import { useState, useEffect } from 'react'
 
-const TooSmallScreen = ({ color1, color2 }) => {
-
-    const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
-
-    useEffect(() => {
-        window.addEventListener("resize", () => {
-            setWindowSize([window.innerWidth, window.innerHeight])
-        })
-    }, [])
+const TooSmallScreen = ({ color1, color2, windowSize }) => {
 
     const style = {
         height: "100%",
@@ -37,6 +28,7 @@ const TooSmallScreen = ({ color1, color2 }) => {
         border: "solid black 2px",
         textAlign: "center",
         borderRadius: "10px",
+        cursor: "default",
     }
 
     if (windowSize[1] > 700 && windowSize[0] > 1000) return null

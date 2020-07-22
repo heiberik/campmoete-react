@@ -14,8 +14,8 @@ const Header = ({ text }) => {
         fontFamily: "Arial",
         fontSize: "1.7rem",
         fontWeight: "bold",
-        cursor: "auto",
         zIndex: "50000",
+        cursor: "default",
     }
 
     return (

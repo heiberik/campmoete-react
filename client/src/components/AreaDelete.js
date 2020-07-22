@@ -12,7 +12,8 @@ const AreaDelete = ({ numbersDeleteEvent }) => {
         color: "white",
         bottom: "5rem",
         left: "4.5vw",
-        zIndex: "99999999999999999"
+        zIndex: "99999999999999999",
+        cursor: "default",
     }
 
     const styleImg = {

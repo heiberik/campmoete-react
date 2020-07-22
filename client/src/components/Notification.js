@@ -15,6 +15,7 @@ const Notification = ({ message, messageHandler }) => {
         fontWeight: "bold",
         padding: "30px",
         transform: "translateX(-50%)",
+        cursor: "default",
     }
 
     if (message !== ""){

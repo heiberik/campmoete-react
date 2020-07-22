@@ -49,19 +49,18 @@ const Players = ({ messagesService, userOriginal }) => {
 
             const mouseClickHandler = (e) => {
                 if (e.target.tagName.toUpperCase() === "INPUT") return
+                if (e.target.tagName.toUpperCase() === "BUTTON") return
                 const x = (e.clientX / window.innerWidth) * 100
                 const y = (e.clientY / window.innerHeight) * 100
                 pm.shoot = [x, y]
             }
 
             const mouseUpHandler = (e) => {
-                if (e.target.tagName.toUpperCase() === "INPUT") return
                 pm.shoot = null
                 setFalse = true
             }
 
             const mouseOverHandler = (e) => {
-                if (e.target.tagName.toUpperCase() === "INPUT") return
                 if (!pm.shoot) return
                 const x = (e.clientX / window.innerWidth) * 100
                 const y = (e.clientY / window.innerHeight) * 100

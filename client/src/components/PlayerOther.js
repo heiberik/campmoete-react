@@ -25,6 +25,11 @@ const PlayerOther = ({ user }) => {
         border: ".5vh solid",
         zIndex: "9999999999",
         borderColor: user.color,
+        userDrag: "none",
+        userSelect: "none",
+        WebkitUserDrag: "none",
+        WebkitUserSelect: "none",
+        msUserSelect: "none",
     }
 
     const styleShield = {
@@ -34,6 +39,11 @@ const PlayerOther = ({ user }) => {
         top: "-2.2rem",
         left: "1.4rem",
         zIndex: "999999999999",
+        userDrag: "none",
+        userSelect: "none",
+        WebkitUserDrag: "none",
+        WebkitUserSelect: "none",
+        msUserSelect: "none",
     }
 
     if (!user) {

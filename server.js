@@ -184,7 +184,7 @@ const shootBullet = (shot, id) => {
         updateState = true
         setTimeout(() => {
             playersShootCooldown[id] = false
-        }, 100)
+        }, 200)
     }
 }
 
@@ -429,7 +429,7 @@ const updateNumberAreas = () => {
                         gunGameInProgress = false
                         bullets = []
                         bulletsChanged = true
-                    }, 40000000);
+                    }, 60000);
                 }
                 else {
                     setTimeout(() => countDown(count - 1), 1000);
@@ -542,6 +542,9 @@ const emitGameState = () => {
             bulletsChanged: bulletsChanged,
             bullets: bullets,
             newHighscore: newHighscore,
+            gameInProgress: gameInProgress,
+            gunGameInProgress: gunGameInProgress
+
         })
         newHighscore = false
         pillarsChanged = true
@@ -570,6 +573,8 @@ const emitGameState = () => {
             bulletsChanged: bulletsChanged,
             bullets: bullets,
             newHighscore: newHighscore,
+            gameInProgress: gameInProgress,
+            gunGameInProgress: gunGameInProgress
         })
 
         numbersAreaChanged = false

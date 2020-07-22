@@ -20,6 +20,7 @@ const Message = ({ message }) => {
         borderRadius: "5px",
         borderWidth: "0px",
         background: message.color,
+        cursor: "default",
     }
 
     return (

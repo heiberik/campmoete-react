@@ -16,6 +16,7 @@ const User = ({ user }) => {
         padding: "0px",
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
+        cursor: "default",
     }
 
     const styleBox = {
