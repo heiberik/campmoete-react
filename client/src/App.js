@@ -24,11 +24,15 @@ import "./css/App.css"
 
 const App = () => {
 
+    console.log("render APP")
+
     const [messageText, setMessageText] = useState("")
     const [user, setUser] = useState("")
     const [usernameChosen, setUsernameChosen] = useState(false)
     const [notMessage, setNotMessage] = useState("")
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
+    
+    
     const [messages, setMessages] = useState([])
     const [users, setUsers] = useState([])
     const [bullets, setBullets] = useState([])
@@ -194,7 +198,7 @@ const App = () => {
                                     pm.shoot = null
                                     setFalse = false
                                 }
-                            }, 1000 / 60);
+                            }, 1000 / 49);
                         }
                         return true
                     })
