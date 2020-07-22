@@ -1,5 +1,5 @@
 import React from "react"
-import char from "../images/char4.png"
+import char from "../images/char.png"
 import shieldPic from "../images/shield.png"
 
 const PlayerClient = ({ user }) => {
