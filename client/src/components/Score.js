@@ -1,23 +1,25 @@
 import React from "react"
 import { useState, useEffect } from 'react'
 
-const Score = ({ score, usernameChosen }) => {
+const Score = ({ messagesService }) => {
 
     const [newHighScore, setNewHighScore] = useState(false)
-    const [highscoreCheck, setHighscoreCheck] = useState(-1)
+    const [scoreCurrentHigh, setScoreCurrentHigh] = useState([0, 0])
 
     useEffect(() => {
-        setHighscoreCheck(hs => {
-            if (!usernameChosen) return highscoreCheck
-            else if (usernameChosen && score[1] === 0) return 0
-            else if (usernameChosen && score[1] > 0 && hs === 0) return score[1]
-            else {
-                setTimeout(() => setNewHighScore(false), 2000)
-                setNewHighScore(true)
-                return score[1]
+        messagesService.getGameState((gameState) => {
+            if (gameState.scoreChanged) {
+                setScoreCurrentHigh([gameState.currentScore, gameState.highScore])
+                if (gameState.newHighscore){
+                    setNewHighScore(true)
+                    setTimeout(() => {
+                        setNewHighScore(false)  
+                    }, 3000)
+                }
             }
         })
-    }, [score, highscoreCheck, usernameChosen])
+    }, [messagesService])
+
 
     const scoreStyle = {
         textAlign: "center",
@@ -49,24 +51,17 @@ const Score = ({ score, usernameChosen }) => {
         zIndex: "9999"
     }
 
-    if (!usernameChosen) {
-        return (
-            <>
-                <div style={scoreStyle}> &emsp; </div>
-            </>
-        )
-    }
-    else if (newHighScore) {
+    if (newHighScore) {
         return (
             <>
                 <div style={newHighScoreStyle}> NEW HIGHSCORE!</div>
-                <div style={scoreStyle}> Current Score: {score[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {score[1]}</div>
+                <div style={scoreStyle}> Current Score: {scoreCurrentHigh[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {scoreCurrentHigh[1]}</div>
             </>
         )
     }
     else {
         return (
-            <div style={scoreStyle}> Current Score: {score[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {score[1]}</div>
+            <div style={scoreStyle}> Current Score: {scoreCurrentHigh[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {scoreCurrentHigh[1]}</div>
         )
     }
 }

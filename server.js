@@ -11,48 +11,49 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
-
+// global vars
 let messages = []
 let newMessages = false
 let users = []
 let usersChanged = false
 let pillars = []
 let pillarsChanged = false
-
 let playerMovementQueue = {}
 let messagesQueue = []
-
 let usersDead = []
 let usersDeadChanged = false
+let numbersDeleteEvent = 0
+let numbersGameEvent = 0
+let numbersGunGameEvent = 0
+let moveSpeed1 = .5
+let moveSpeed2 = .25
+let pillarSpeed = .4
 
+// pillar game
 let scoreChanged = false
 let highscore = 0
+let newHighscore = false
 let currentScore = 0
+let progressTick = 0
+let progressTickSpeed = 200
+let freezeGame = false
+let freezeGameChanged = false
 
+// gun game
 let playersShootCooldown = {}
 let bullets = []
 let bulletsChanged = false
 
-let numbersDeleteEvent = 0
-let numbersGameEvent = 0
-let numbersGunGameEvent = 0
+// other state changes
+let numbersAreaChanged = false
 let updateState = false
 let startOverDelete = false
 let startOverGame = false
 let startOverGunGame = false
 let gameInProgress = false
 let gunGameInProgress = false
-let progressTick = 0
-let progressTickSpeed = 200
 let countDownStarted = false
 let countDownNumber = -2
-
-let freezeGame = false
-let freezeGameChanged = false
-
-let moveSpeed1 = .5
-let moveSpeed2 = .25
-let pillarSpeed = .4
 
 
 const getRandomColor = () => {
@@ -60,15 +61,6 @@ const getRandomColor = () => {
     var color = '#';
     for (var i = 0; i < 6; i++) {
         color += letters[Math.floor(Math.random() * 6)];
-    }
-    return color;
-}
-
-const getRandomColorDark = () => {
-    var letters = '3456789A';
-    var color = '#';
-    for (var i = 0; i < 8; i++) {
-        color += letters[Math.floor(Math.random() * 8)];
     }
     return color;
 }
@@ -108,6 +100,7 @@ io.on("connection", (socket) => {
             updateState = true
             usersChanged = true
             newMessages = true
+            scoreChanged = true
         }
     })
 
@@ -366,8 +359,7 @@ const moveBullets = () => {
     
 }
 
-const update = () => {
-
+const updateNumberAreas = () => {
     if (!gameInProgress && updateState) {
 
         let usersInDeleteArea = 0
@@ -439,27 +431,29 @@ const update = () => {
 
         if (numbersDeleteEvent !== usersInDeleteArea) {
             numbersDeleteEvent = usersInDeleteArea
+            numbersAreaChanged = true
         }
         if (numbersGameEvent !== usersInGameArea) {
             numbersGameEvent = usersInGameArea
+            numbersAreaChanged = true
         }
         if (numbersGunGameEvent !== usersInGunGameArea) {
             numbersGunGameEvent = usersInGunGameArea
+            numbersAreaChanged = true
         }
-        numbersAreaChanged = true
     }
+}
+
+const updateGames = () => {
 
     if (gameInProgress) {
-
         progressTick++
-
         if (progressTick % progressTickSpeed === 0) {
             makePillar()
             if (progressTickSpeed > 90) {
                 progressTickSpeed -= 4
             }
         }
-
 
         movePillars()
 
@@ -477,6 +471,7 @@ const update = () => {
             }, 5000)
             if (currentScore > highscore) {
                 highscore = currentScore
+                newHighscore = true
             }
             currentScore = 0
             scoreChanged = true
@@ -531,7 +526,9 @@ const emitGameState = () => {
             numbersGunGameEvent: [numbersGunGameEvent, users.length],
             bulletsChanged: bulletsChanged,
             bullets: bullets,
+            newHighscore: newHighscore,
         })
+        newHighscore = false
         pillarsChanged = true
         freezeGameChanged = false
     }
@@ -557,6 +554,7 @@ const emitGameState = () => {
             numbersGunGameEvent: [numbersGunGameEvent, users.length],
             bulletsChanged: bulletsChanged,
             bullets: bullets,
+            newHighscore: newHighscore,
         })
 
         numbersAreaChanged = false
@@ -568,6 +566,7 @@ const emitGameState = () => {
         freezeGameChanged = false
         usersChanged = false
         bulletsChanged = false
+        newHighscore = false
     }
 }
 
@@ -590,7 +589,8 @@ setInterval(() => {
 
     handleMessageQueue()
     handlePlayerMovementQueue()
-    update()
+    updateNumberAreas()
+    updateGames()
     emitGameState()
 
 }, 1000 / 50);

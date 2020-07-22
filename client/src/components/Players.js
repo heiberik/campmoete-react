@@ -2,9 +2,20 @@ import React from "react"
 import PlayerClient from './PlayerClient'
 import PlayerOther from './PlayerOther'
 import Users from "./Users"
+import { useState, useEffect } from 'react'
 
 
-const Players = ({ users, user }) => {
+const Players = ({ messagesService, user }) => {
+
+    const [users, setUsers] = useState([])
+
+    useEffect(() => {
+        messagesService.getGameState((gameState) => {
+            if (gameState.usersChanged) {
+                setUsers(gameState.users)
+            }
+        })
+    }, [messagesService])
 
     return (
         <>

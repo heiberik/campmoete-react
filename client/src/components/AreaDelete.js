@@ -1,7 +1,7 @@
 import React from "react"
 import comp from "../images/composter.png"
 
-const AreaDelete = ({ usernameChosen, numbersDeleteEvent }) => {
+const AreaDelete = ({ numbersDeleteEvent }) => {
 
     const styleText = {
         position: "absolute",
@@ -23,7 +23,7 @@ const AreaDelete = ({ usernameChosen, numbersDeleteEvent }) => {
         zIndex: "99999999999999999"
     }
 
-    if (numbersDeleteEvent[0] > 0 && usernameChosen) {
+    if (numbersDeleteEvent[0] > 0) {
         return (
             <>
                 <img src={comp} style={styleImg} alt="composter" />

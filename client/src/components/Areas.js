@@ -2,25 +2,30 @@ import React from "react"
 import AreaDelete from "./AreaDelete"
 import AreaStartGame from "./AreaStartGame"
 import AreaStartGunGame from "./AreaStartGunGame"
+import { useState, useEffect } from 'react'
 
-const Areas = ({
-    usernameChosen,
-    numbersDeleteEvent,
-    numbersGunGameEvent,
-    numbersGameEvent }) => {
+const Areas = ({ messagesService }) => {
 
-    if (!usernameChosen) return null
-    else return (
+    const [numbersDeleteEvent, setNumbersDeleteEvent] = useState([])
+    const [numbersGameEvent, setNumbersGameEvent] = useState([])
+    const [numbersGunGameEvent, setNumbersGunGameEvent] = useState([])
+
+
+    useEffect(() => {
+        messagesService.getGameState((gameState) => {
+            if (gameState.numbersAreaChanged) {
+                setNumbersGameEvent(gameState.numbersGameEvent)
+                setNumbersDeleteEvent(gameState.numbersDeleteEvent)
+                setNumbersGunGameEvent(gameState.numbersGunGameEvent)
+            }
+        })
+    }, [messagesService])
+
+    return (
         <div>
-            <AreaDelete
-                numbersDeleteEvent={numbersDeleteEvent}
-                usernameChosen={usernameChosen} />
-            <AreaStartGame
-                usernameChosen={usernameChosen}
-                numbersGameEvent={numbersGameEvent} />
-            <AreaStartGunGame
-                usernameChosen={usernameChosen}
-                numbersGunGameEvent={numbersGunGameEvent} />
+            <AreaDelete numbersDeleteEvent={numbersDeleteEvent} />
+            <AreaStartGame numbersGameEvent={numbersGameEvent} />
+            <AreaStartGunGame numbersGunGameEvent={numbersGunGameEvent} />
         </div>
     )
 }

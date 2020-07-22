@@ -1,6 +1,17 @@
 import React from "react"
+import { useState, useEffect } from 'react'
 
-const CountDown = ({ countDown }) => {
+const CountDown = ({ messagesService }) => {
+
+    const [countDown, setCountDown] = useState([])
+
+    useEffect(() => {
+        messagesService.getGameState((gameState) => {
+            if (gameState.countDown > -2) {
+                setCountDown(gameState.countDown)
+            }
+        })
+    }, [messagesService])
 
     const countDownStyle = {
         position: "absolute",

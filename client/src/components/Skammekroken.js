@@ -1,7 +1,25 @@
 import React from "react"
+import { useState, useEffect } from 'react'
+
+const Skammekroken = ({ messagesService }) => {
 
 
-const Skammekroken = ({ showSkammekroken }) => {
+    const [showSkammekroken, setShowSkammekroken] = useState(false)
+
+    useEffect(() => {
+        messagesService.getGameState((gameState) => {
+            if (gameState.freezeGameChanged) {
+                if (gameState.freezeGame) {
+                    setShowSkammekroken(gameState.freezeGame)
+                }
+                else {
+                    setTimeout(() => {
+                        setShowSkammekroken(gameState.freezeGame)
+                    }, 3000)
+                }
+            }
+        })
+    }, [messagesService])
 
     const styleSkam = {
         display: "flex",

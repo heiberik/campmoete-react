@@ -1,7 +1,18 @@
 import React from "react"
 import Pillar from "./Pillar"
+import { useState, useEffect } from 'react'
 
-const Pillars = ({ pillars }) => {
+const Pillars = ({ messagesService }) => {
+
+    const [pillars, setPillars] = useState([])
+
+    useEffect(() => {
+        messagesService.getGameState((gameState) => {
+            if (gameState.pillarsChanged) {
+                setPillars(gameState.pillars)
+            }
+        })
+    }, [messagesService])
 
     return (
         <ul>

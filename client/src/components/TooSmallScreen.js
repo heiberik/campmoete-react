@@ -1,13 +1,23 @@
 import React from "react"
 import Header from "./Header"
+import { useState, useEffect } from 'react'
 
-const TooSmallScreen = ({ size, color1, color2 }) => {
+const TooSmallScreen = ({ color1, color2 }) => {
+
+
+    const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
+
+    useEffect(() => {
+        window.addEventListener("resize", () => {
+            setWindowSize([window.innerWidth, window.innerHeight])
+        })
+    }, [])
 
     const style = {
         height: "100%",
         width: "100%",
         position: "absolute",
-        zIndex: "9999999999999999",
+        zIndex: "999999999999999999999999999999",
         background: "radial-gradient("+color1+", "+color2+")",
     }
 
@@ -17,7 +27,7 @@ const TooSmallScreen = ({ size, color1, color2 }) => {
         left: "50%",
         maxWidth: "800px",
         minWidth: "350px",
-        zIndex: "999999999999999",
+        zIndex: "99999999999999999999999999999999",
         transform: "translateX(-50%)",
         padding: "20px",
         margin: "0px",
@@ -30,14 +40,14 @@ const TooSmallScreen = ({ size, color1, color2 }) => {
         borderRadius: "10px",
     }
 
-    if (size[1] > 700 && size[0] > 1000) return null
+    if (windowSize[1] > 700 && windowSize[0] > 1000) return null
     else return (
         <div style={style}>
             <Header text="CAMPMØTE" />
             <div style={styleBox}>
                 <div> Your screen is too small to attend Campmøte </div> <br/>
-                <div> Height {size[1]} (required 700) </div>
-                <div> Width {size[0]} (required 1000) </div>
+                <div> Height {windowSize[1]} (required 700) </div>
+                <div> Width {windowSize[0]} (required 1000) </div>
             </div>
         </div>
     )

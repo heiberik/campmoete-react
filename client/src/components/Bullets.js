@@ -1,10 +1,20 @@
 import React from "react"
 import Bullet from "./Bullet"
+import { useState, useEffect } from 'react'
 
-const Bullets = ({ bullets, usernameChosen }) => {
+const Bullets = ({ messagesService }) => {
 
-    if (!usernameChosen) return null
-    else return (
+    const [bullets, setBullets] = useState([])
+    
+    useEffect(() => {
+        messagesService.getGameState((gameState) => {
+            if (gameState.bulletsChanged) {
+                setBullets(gameState.bullets)
+            }
+        })
+    }, [messagesService])
+
+    return (
         <ul>
             {bullets.map(b => {
                 return (

@@ -1,7 +1,7 @@
 import React from "react"
 import pig from "../images/pig2.png"
 
-const AreaStartGunGame = ({ usernameChosen, numbersGunGameEvent }) => {
+const AreaStartGunGame = ({ numbersGunGameEvent }) => {
 
     const styleText = {
         position: "absolute",
@@ -23,7 +23,7 @@ const AreaStartGunGame = ({ usernameChosen, numbersGunGameEvent }) => {
         zIndex: "99999999999999999"
     }
 
-    if (numbersGunGameEvent[0] > 0 && usernameChosen) {
+    if (numbersGunGameEvent[0] > 0) {
         return (
             <>
                 <img src={pig} style={styleImg} alt="composter" />
