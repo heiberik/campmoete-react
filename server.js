@@ -18,7 +18,6 @@ let users = []
 let usersChanged = false
 let pillars = []
 let pillarsChanged = false
-let playerMovementQueue = {}
 let messagesQueue = []
 let usersDead = []
 let usersDeadChanged = false
@@ -92,7 +91,6 @@ io.on("connection", (socket) => {
                 shield: false,
             }
 
-            playerMovementQueue[socket.id] = []
             playersShootCooldown[socket.id] = false
 
             users = users.concat(newUser)
@@ -105,8 +103,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on("playerMovement", async (pm) => {
-        if (!playerMovementQueue[socket.id]) return
-        playerMovementQueue[socket.id].push({ pm: pm, id: socket.id })
+        handlePlayerMovement(pm, socket.id)
     })
 
     socket.on("disconnect", async () => {
@@ -114,7 +111,6 @@ io.on("connection", (socket) => {
         console.log("user disconnected")
         updateState = true
         usersChanged = true
-        delete playerMovementQueue[socket.id]
         delete playersShootCooldown[socket.id]
     })
 })
@@ -189,69 +185,60 @@ const shootBullet = (shot, id) => {
     }
 }
 
-const handlePlayerMovementQueue = () => {
+const handlePlayerMovement = (pm, id) => {
 
-    for (var key in playerMovementQueue) {
 
-        if (!playerMovementQueue.hasOwnProperty(key)) continue
+    if (!freezeGame) {
+        const user = users.find(u => u.id === id)
+        if (!user) return
+        let newPosX = user.playerPosX
+        let newPosY = user.playerPosY
 
-        var queue = playerMovementQueue[key];
-        const firstMove = queue.shift()
-        if (!firstMove) continue
-
-        const pm = firstMove.pm
-
-        if (!freezeGame) {
-            const user = users.find(u => u.id === firstMove.id)
-            if (!user) continue
-            let newPosX = user.playerPosX
-            let newPosY = user.playerPosY
-
-            if (pm.up && pm.left) {
-                newPosX = newPosX - moveSpeed2
-                newPosY = newPosY - moveSpeed2
-            }
-            else if (pm.up && pm.right) {
-                newPosX = newPosX + moveSpeed2
-                newPosY = newPosY - moveSpeed2
-            }
-            else if (pm.down && pm.left) {
-                newPosX = newPosX - moveSpeed2
-                newPosY = newPosY + moveSpeed2
-            }
-            else if (pm.down && pm.right) {
-                newPosX = newPosX + moveSpeed2
-                newPosY = newPosY + moveSpeed2
-            }
-            else if (pm.up) newPosY = newPosY - moveSpeed1
-            else if (pm.down) newPosY = newPosY + moveSpeed1
-            else if (pm.left) newPosX = newPosX - moveSpeed1
-            else if (pm.right) newPosX = newPosX + moveSpeed1
-
-            if (newPosX > 101) newPosX = newPosX - moveSpeed1
-            if (newPosX < -1) newPosX = newPosX + moveSpeed1
-            if (newPosY > 101) newPosY = newPosY - moveSpeed1
-            if (newPosY < -1) newPosY = newPosY + moveSpeed1
-
-            if (gunGameInProgress) {
-                if (pm.shoot) {
-                    shootBullet(pm.shoot, firstMove.id)
-                }
-            }
-
-            const newPlayer = {
-                ...user,
-                shield: pm.space,
-                playerPosX: newPosX,
-                playerPosY: newPosY,
-            }
-
-            users = users.filter(u => u.id !== firstMove.id)
-            users = users.concat(newPlayer)
-            updateState = true
-            usersChanged = true
+        if (pm.up && pm.left) {
+            newPosX = newPosX - moveSpeed2
+            newPosY = newPosY - moveSpeed2
         }
+        else if (pm.up && pm.right) {
+            newPosX = newPosX + moveSpeed2
+            newPosY = newPosY - moveSpeed2
+        }
+        else if (pm.down && pm.left) {
+            newPosX = newPosX - moveSpeed2
+            newPosY = newPosY + moveSpeed2
+        }
+        else if (pm.down && pm.right) {
+            newPosX = newPosX + moveSpeed2
+            newPosY = newPosY + moveSpeed2
+        }
+        else if (pm.up) newPosY = newPosY - moveSpeed1
+        else if (pm.down) newPosY = newPosY + moveSpeed1
+        else if (pm.left) newPosX = newPosX - moveSpeed1
+        else if (pm.right) newPosX = newPosX + moveSpeed1
+
+        if (newPosX > 101) newPosX = newPosX - moveSpeed1
+        if (newPosX < -1) newPosX = newPosX + moveSpeed1
+        if (newPosY > 101) newPosY = newPosY - moveSpeed1
+        if (newPosY < -1) newPosY = newPosY + moveSpeed1
+
+        if (gunGameInProgress) {
+            if (pm.shoot) {
+                shootBullet(pm.shoot, id)
+            }
+        }
+
+        const newPlayer = {
+            ...user,
+            shield: pm.space,
+            playerPosX: newPosX,
+            playerPosY: newPosY,
+        }
+
+        users = users.filter(u => u.id !== id)
+        users = users.concat(newPlayer)
+        updateState = true
+        usersChanged = true
     }
+
 
     messages.forEach(m => {
 
@@ -347,16 +334,16 @@ const checkBulletCollission = () => {
 const moveBullets = () => {
 
     bullets.forEach(b => {
-        b.posX = b.posX + b.dirX/1.5
-        b.posY = b.posY + b.dirY/1.5
-        bulletsChanged = true  
+        b.posX = b.posX + b.dirX / 1.5
+        b.posY = b.posY + b.dirY / 1.5
+        bulletsChanged = true
     })
-      
+
     bullets = bullets.filter(b => {
         return b.posX < 102 && b.posX > -2 && b.posY < 102 && b.posY > -2
     })
-    
-    
+
+
 }
 
 const updateNumberAreas = () => {
@@ -586,14 +573,13 @@ const getPillars = () => {
 }
 
 setInterval(() => {
-
     handleMessageQueue()
-    handlePlayerMovementQueue()
     updateNumberAreas()
     updateGames()
     emitGameState()
-
 }, 1000 / 60);
+
+setInterval(emitGameState, 1000 / 40);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))

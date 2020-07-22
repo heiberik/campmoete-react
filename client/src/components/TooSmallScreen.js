@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 
 const TooSmallScreen = ({ color1, color2 }) => {
 
-
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
 
     useEffect(() => {

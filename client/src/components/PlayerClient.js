@@ -14,6 +14,9 @@ const PlayerClient = ({ user }) => {
         zIndex: "9999999999999",
         width: "2.5rem",
         height: "2.5rem",
+        animationTimingFunction: "ease-in-out",
+        WebkitAnimationTimingFunction: "ease-in-out",
+        transition:"transform 1s ease-in-out 0s",
     }
 
     const stylePicture = {
@@ -24,11 +27,17 @@ const PlayerClient = ({ user }) => {
         display: "block",
         border: ".5vh solid",
         zIndex: "999999999999",
+        AnimationTimingFunction: "ease-in-out",
+        WebkitAnimationTimingFunction: "ease-in-out",
+        transition:"transform 1s ease-in-out 0s",
         borderColor: user.color,
     }
 
     const styleShield = {
         position: "relative",
+        animationTimingFunction: "ease-in-out",
+        WebkitAnimationTimingFunction: "ease-in-out",
+        transition:"transform 1s ease-in-out 0s",
         width: "3rem",
         height: "3rem",
         top: "-2.2rem",
