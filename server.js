@@ -25,9 +25,9 @@ let usersDeadChanged = false
 let numbersDeleteEvent = 0
 let numbersGameEvent = 0
 let numbersGunGameEvent = 0
-let moveSpeed1 = .4
-let moveSpeed2 = .2
-let pillarSpeed = .35
+let moveSpeed1 = 1
+let moveSpeed2 = .5
+let pillarSpeed = .5
 
 // pillar game
 let scoreChanged = false
@@ -593,7 +593,7 @@ setInterval(() => {
     updateGames()
     emitGameState()
 
-}, 1000 / 80);
+}, 1000 / 70);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
