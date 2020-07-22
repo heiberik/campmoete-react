@@ -593,7 +593,7 @@ setInterval(() => {
     updateGames()
     emitGameState()
 
-}, 1000 / 30);
+}, 1000 / 60);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
