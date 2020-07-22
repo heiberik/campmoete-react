@@ -347,8 +347,8 @@ const checkBulletCollission = () => {
 const moveBullets = () => {
 
     bullets.forEach(b => {
-        b.posX = b.posX + b.dirX/2
-        b.posY = b.posY + b.dirY/2
+        b.posX = b.posX + b.dirX/1.5
+        b.posY = b.posY + b.dirY/1.5
         bulletsChanged = true  
     })
       
@@ -593,7 +593,7 @@ setInterval(() => {
     updateGames()
     emitGameState()
 
-}, 1000 / 70);
+}, 1000 / 60);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))

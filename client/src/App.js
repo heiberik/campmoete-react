@@ -84,7 +84,7 @@ const App = () => {
                 pm.shoot = null
                 setFalse = false
             }
-        }, 1000 / 60);
+        }, 1000 / 55);
     }
 
     const sendMessageHandler = (event) => {
