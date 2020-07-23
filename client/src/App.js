@@ -28,12 +28,8 @@ const App = () => {
     const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight])
 
     useEffect(() => {
-        if (usernameChosen) {
-            document.getElementsByClassName("form_input")[0].blur();
-        }
-        else {
-            document.getElementsByClassName("form_input")[0].focus();
-        }
+        if (usernameChosen) document.getElementsByClassName("form_input")[0].blur();
+        else document.getElementsByClassName("form_input")[0].focus();
     }, [usernameChosen])
 
     useEffect(() => {

@@ -68,11 +68,11 @@ io.on("connection", (socket) => {
 
     console.log("user connected")
 
-    socket.on("sendMessage", async (message) => {
+    socket.on("sendMessage", (message) => {
         messagesQueue.push(message)
     })
 
-    socket.on("setUsername", async (data) => {
+    socket.on("setUsername", (data) => {
 
         const check = users.filter(u => u.username.toLowerCase() === data.username.toLowerCase())
         if (check.length > 0) {
@@ -105,11 +105,11 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("playerMovement", async (pm) => {
+    socket.on("playerMovement", (pm) => {
         handlePlayerMovement(pm, socket.id)
     })
 
-    socket.on("disconnect", async () => {
+    socket.on("disconnect", () => {
         users = users.filter(user => user.id !== socket.id)
         console.log("user disconnected")
         updateState = true
@@ -334,6 +334,18 @@ const checkBulletCollission = () => {
 
         const x = b.posX
         const y = b.posY
+
+        messages.forEach(m => {
+            
+            const px = m.left
+            const py = m.top
+
+            if (x < px + 11.5 && x > px - 0.5 && y < py + 5.5 && y > py - 0.5){
+                b.hit = true
+                bulletsChanged = true
+                updateState = true
+            }
+        })
 
         users.forEach(u => {
             if (u.id === b.owner) return 
@@ -613,7 +625,7 @@ setInterval(() => {
     emitGameState()
 }, 1000 / 60);
 
-setInterval(emitGameState, 1000 / 50);
+setInterval(emitGameState, 1000 / 30);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
