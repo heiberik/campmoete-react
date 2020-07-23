@@ -109,6 +109,10 @@ io.on("connection", (socket) => {
         await handlePlayerMovement(pm, socket.id)
     })
 
+    socket.on("pingServer", (data) => {
+        socket.emit("pongServer")
+    })
+
     socket.on("disconnect", () => {
         users = users.filter(user => user.id !== socket.id)
         console.log("user disconnected")
@@ -623,9 +627,9 @@ setInterval(() => {
     updateNumberAreas()
     updateGames()
     emitGameState()
-}, 1000 / 70);
+}, 1000 / 65);
 
-setInterval(emitGameState, 1000 / 30);
+setInterval(emitGameState, 1000 / 35);
 
 const port = process.env.PORT || 5000
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))

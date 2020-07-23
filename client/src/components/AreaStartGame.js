@@ -1,20 +1,6 @@
 import React from "react"
-import pig from "../images/pig.png"
 
 const AreaStartGame = ({ numbersGameEvent }) => {
-
-    const styleText = {
-        position: "absolute",
-        transform: "translateX(-50%)",
-        fontSize: "1rem",
-        fontWeight: "bold",
-        fontFamily: "Arial",
-        color: "white",
-        bottom: "5rem",
-        right: "2.8vw",
-        zIndex: "99999999999999999",
-        cursor: "default",
-    }
 
     const coloredBall = {
         borderRadius: "1.5rem",

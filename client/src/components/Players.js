@@ -8,12 +8,23 @@ import { useState, useEffect } from 'react'
 const Players = ({ messagesService, userOriginal }) => {
 
     const [users, setUsers] = useState([])
+    const [user, setUser] = useState([userOriginal, false])
+    const [latency, setLatency] = useState(200)
 
     useEffect(() => {
         messagesService.getGameState((gameState) => {
             if (gameState.usersChanged) {
                 window.requestAnimationFrame(() => setUsers(gameState.users))
             }
+            if (gameState.freezeGameChanged){
+                window.requestAnimationFrame(
+                    () => setUser(u => { return [u[0], gameState.freezeGame]}))
+            }
+        })
+
+        messagesService.getPongServer((time) => {
+            console.log(time)
+            setLatency(time)
         })
 
         const handleUserInput = () => {
@@ -73,12 +84,64 @@ const Players = ({ messagesService, userOriginal }) => {
             document.addEventListener('mouseup', mouseUpHandler, false)
             document.addEventListener('mousemove', mouseOverHandler, false)
 
+            let moveSpeed1 = .4
+            let moveSpeed2 = .20
+
+            let counter = 0
             const loop = () => {
+
+                counter++
+                if (counter === 120){
+                    counter = 0
+                    messagesService.pingServer()
+                }
+
                 if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
-                    messagesService.sendPlayerMovement(pm)                    
+                    messagesService.sendPlayerMovement(pm)
+
+                    setUser(u => {
+
+                        if (u[1]) return u
+    
+                        let newPosX = u[0].playerPosX
+                        let newPosY = u[0].playerPosY
+    
+                        if (pm.up && pm.left) {
+                            newPosX = newPosX - moveSpeed2
+                            newPosY = newPosY - moveSpeed2
+                        }
+                        else if (pm.up && pm.right) {
+                            newPosX = newPosX + moveSpeed2
+                            newPosY = newPosY - moveSpeed2
+                        }
+                        else if (pm.down && pm.left) {
+                            newPosX = newPosX - moveSpeed2
+                            newPosY = newPosY + moveSpeed2
+                        }
+                        else if (pm.down && pm.right) {
+                            newPosX = newPosX + moveSpeed2
+                            newPosY = newPosY + moveSpeed2
+                        }
+                        else if (pm.up) newPosY = newPosY - moveSpeed1
+                        else if (pm.down) newPosY = newPosY + moveSpeed1
+                        else if (pm.left) newPosX = newPosX - moveSpeed1
+                        else if (pm.right) newPosX = newPosX + moveSpeed1
+    
+                        if (newPosX > 101) newPosX = newPosX - moveSpeed1
+                        if (newPosX < -1) newPosX = newPosX + moveSpeed1
+                        if (newPosY > 101) newPosY = newPosY - moveSpeed1
+                        if (newPosY < -1) newPosY = newPosY + moveSpeed1
+    
+                        return [{
+                            ...u[0],
+                            shield: pm.space,
+                            playerPosX: newPosX,
+                            playerPosY: newPosY,
+                        }, u[1]]
+                    })
                 }
             }
-            
+
             setInterval(() => {
                 window.requestAnimationFrame(loop)
             }, 1000 / 60);
@@ -104,8 +167,8 @@ const Players = ({ messagesService, userOriginal }) => {
                     else {
                         return (
                             <PlayerClient
-                                key={u.id}
-                                user={u} />
+                                key={user[0].id}
+                                user={user[0]} />
                         )
                     }
                 })}
