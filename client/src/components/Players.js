@@ -10,7 +10,7 @@ const Players = ({ messagesService, userOriginal }) => {
 
     useEffect(() => {
 
-        let usersServer = []
+        let usersServerList = []
 
         const pm = {
             id: userOriginal.id,
@@ -26,7 +26,7 @@ const Players = ({ messagesService, userOriginal }) => {
 
         messagesService.getGameState((gameState) => {
             if (gameState.usersChanged) {
-                usersServer = gameState.users
+                usersServerList.push(gameState.users)
             }
         })
 
@@ -103,12 +103,14 @@ const Players = ({ messagesService, userOriginal }) => {
             }
         }
 
+        const handleMovementFromServer = () => {
+            const usersServer = usersServerList.shift()
+            if (usersServer) setUsers(usersServer)
+        }
+
         setInterval(() => {
             sendMovementToServer()
-            setUsers(() => {
-                console.log(usersServer)
-                return usersServer
-            })
+            handleMovementFromServer()
         }, 1000 / 60);
 
     }, [messagesService, userOriginal])
