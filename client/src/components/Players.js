@@ -12,18 +12,23 @@ const Players = ({ messagesService, userOriginal }) => {
     const [latency, setLatency] = useState(200)
 
     useEffect(() => {
+
+        let gameStateCounter = 0
         messagesService.getGameState((gameState) => {
+            gameStateCounter++
             if (gameState.usersChanged) {
                 window.requestAnimationFrame(() => setUsers(gameState.users))
             }
-            if (gameState.freezeGameChanged){
+            if (gameState.freezeGameChanged) {
                 window.requestAnimationFrame(
-                    () => setUser(u => { return [u[0], gameState.freezeGame]}))
+                    () => setUser(u => { return [u[0], gameState.freezeGame] }))
+            }
+            if (gameStateCounter % 30 === 0) {
+                setUser(u => [gameState.users.find(us => us.id === userOriginal.id), u[1]])
             }
         })
 
         messagesService.getPongServer((time) => {
-            console.log(time)
             setLatency(time)
         })
 
@@ -89,9 +94,8 @@ const Players = ({ messagesService, userOriginal }) => {
 
             let counter = 0
             const loop = () => {
-
                 counter++
-                if (counter === 120){
+                if (counter === 60) {
                     counter = 0
                     messagesService.pingServer()
                 }
@@ -99,46 +103,51 @@ const Players = ({ messagesService, userOriginal }) => {
                 if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
                     messagesService.sendPlayerMovement(pm)
 
-                    setUser(u => {
-
-                        if (u[1]) return u
-    
-                        let newPosX = u[0].playerPosX
-                        let newPosY = u[0].playerPosY
-    
-                        if (pm.up && pm.left) {
-                            newPosX = newPosX - moveSpeed2
-                            newPosY = newPosY - moveSpeed2
-                        }
-                        else if (pm.up && pm.right) {
-                            newPosX = newPosX + moveSpeed2
-                            newPosY = newPosY - moveSpeed2
-                        }
-                        else if (pm.down && pm.left) {
-                            newPosX = newPosX - moveSpeed2
-                            newPosY = newPosY + moveSpeed2
-                        }
-                        else if (pm.down && pm.right) {
-                            newPosX = newPosX + moveSpeed2
-                            newPosY = newPosY + moveSpeed2
-                        }
-                        else if (pm.up) newPosY = newPosY - moveSpeed1
-                        else if (pm.down) newPosY = newPosY + moveSpeed1
-                        else if (pm.left) newPosX = newPosX - moveSpeed1
-                        else if (pm.right) newPosX = newPosX + moveSpeed1
-    
-                        if (newPosX > 101) newPosX = newPosX - moveSpeed1
-                        if (newPosX < -1) newPosX = newPosX + moveSpeed1
-                        if (newPosY > 101) newPosY = newPosY - moveSpeed1
-                        if (newPosY < -1) newPosY = newPosY + moveSpeed1
-    
-                        return [{
-                            ...u[0],
-                            shield: pm.space,
-                            playerPosX: newPosX,
-                            playerPosY: newPosY,
-                        }, u[1]]
+                    setLatency(l => {
+                        setTimeout(() => {
+                            setUser(u => {
+                                if (u[1]) return u
+        
+                                let newPosX = u[0].playerPosX
+                                let newPosY = u[0].playerPosY
+        
+                                if (pm.up && pm.left) {
+                                    newPosX = newPosX - moveSpeed2
+                                    newPosY = newPosY - moveSpeed2
+                                }
+                                else if (pm.up && pm.right) {
+                                    newPosX = newPosX + moveSpeed2
+                                    newPosY = newPosY - moveSpeed2
+                                }
+                                else if (pm.down && pm.left) {
+                                    newPosX = newPosX - moveSpeed2
+                                    newPosY = newPosY + moveSpeed2
+                                }
+                                else if (pm.down && pm.right) {
+                                    newPosX = newPosX + moveSpeed2
+                                    newPosY = newPosY + moveSpeed2
+                                }
+                                else if (pm.up) newPosY = newPosY - moveSpeed1
+                                else if (pm.down) newPosY = newPosY + moveSpeed1
+                                else if (pm.left) newPosX = newPosX - moveSpeed1
+                                else if (pm.right) newPosX = newPosX + moveSpeed1
+        
+                                if (newPosX > 101) newPosX = newPosX - moveSpeed1
+                                if (newPosX < -1) newPosX = newPosX + moveSpeed1
+                                if (newPosY > 101) newPosY = newPosY - moveSpeed1
+                                if (newPosY < -1) newPosY = newPosY + moveSpeed1
+        
+                                return [{
+                                    ...u[0],
+                                    shield: pm.space,
+                                    playerPosX: newPosX,
+                                    playerPosY: newPosY,
+                                }, u[1]]
+                            })
+                        }, l) 
+                        return l
                     })
+                      
                 }
             }
 
@@ -149,7 +158,7 @@ const Players = ({ messagesService, userOriginal }) => {
 
         handleUserInput()
 
-    }, [messagesService])
+    }, [messagesService, userOriginal])
 
 
     return (

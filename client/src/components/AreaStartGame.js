@@ -2,6 +2,13 @@ import React from "react"
 
 const AreaStartGame = ({ numbersGameEvent }) => {
 
+    const getOpacity = () => {
+        if (numbersGameEvent[0]){
+            return numbersGameEvent[0] / numbersGameEvent[1] + .2
+        }
+        else return 0.2
+    }
+
     const coloredBall = {
         borderRadius: "1.5rem",
         border: "solid 1rem orange",
@@ -15,7 +22,7 @@ const AreaStartGame = ({ numbersGameEvent }) => {
         right: "3vw",
         fontSize: "10px",
         padding: "0px",
-        opacity: numbersGameEvent[0] / numbersGameEvent[1] + .2,
+        opacity: getOpacity(),
     }
 
     return <div style={coloredBall}> </div>

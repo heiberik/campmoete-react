@@ -2,6 +2,13 @@ import React from "react"
 
 const AreaDelete = ({ numbersDeleteEvent }) => {
 
+    const getOpacity = () => {
+        if (numbersDeleteEvent[0]){
+            return numbersDeleteEvent[0] / numbersDeleteEvent[1] + .2
+        }
+        else return 0.2
+    }
+
     const coloredBall = {
         borderRadius: "1.5rem",
         border: "solid 1rem yellow",
@@ -15,7 +22,7 @@ const AreaDelete = ({ numbersDeleteEvent }) => {
         left: "3vw",
         fontSize: "10px",
         padding: "0px",
-        opacity: numbersDeleteEvent[0] / numbersDeleteEvent[1] + .2,
+        opacity: getOpacity(),
     }
 
     return <div style={coloredBall}> </div>
