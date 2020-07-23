@@ -25,12 +25,14 @@ const PlayerClient = ({ user }) => {
         padding: "0px",
         margin: "auto",
         display: "block",
-        border: ".5vh solid",
+        border: "1vh solid",
+        borderRadius: "5vh",
         zIndex: "999999999999",
         AnimationTimingFunction: "ease-in-out",
         WebkitAnimationTimingFunction: "ease-in-out",
         transition: "transform 1s ease-in-out 0s",
         borderColor: user.color,
+        background: user.color,
         userDrag: "none",
         userSelect: "none",
         WebkitUserDrag: "none",
@@ -68,7 +70,7 @@ const PlayerClient = ({ user }) => {
     }
     else return (
         <div style={stylePlayer}>
-            <img style={stylePicture} src={char} alt="character" />
+            <div style={stylePicture} />
         </div>
     )
 
