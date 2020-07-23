@@ -106,8 +106,8 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("playerMovement", async (pm) => {
-        await handlePlayerMovement(pm, socket.id)
+    socket.on("playerMovement", (pm) => {
+        handlePlayerMovement(pm, socket.id)
     })
 
     socket.on("pingServer", (data) => {

@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react'
 const Players = ({ messagesService, userOriginal }) => {
 
     const [users, setUsers] = useState([])
-    const [user, setUser] = useState(userOriginal)
+    //const [user, setUser] = useState(userOriginal)
 
     useEffect(() => {
 
@@ -21,6 +21,7 @@ const Players = ({ messagesService, userOriginal }) => {
         let usersServer = []
         let movesServer = []
         let latency = 0
+
         const pm = {
             up: false,
             down: false,
@@ -36,8 +37,8 @@ const Players = ({ messagesService, userOriginal }) => {
 
             if (gameState.usersChanged) {
                 usersServer = gameState.users
-                const us = usersServer.find(us => us.id === userOriginal.id)
-                if (us) movesServer.push(us)
+                //const us = usersServer.find(us => us.id === userOriginal.id)
+                //if (us) movesServer.push(us)
             }
             if (gameState.freezeGameChanged) {
                 if (!gameState.freezeGame){
@@ -119,17 +120,23 @@ const Players = ({ messagesService, userOriginal }) => {
 
         const tick = () => {
 
+            /*
             tickCounter++
             if (tickCounter === 60) {
                 tickCounter = 0
                 messagesService.pingServer()
             }
+            */
 
             if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
 
+
+                messagesService.sendPlayerMovement(pm)
+                /*
                 if (!freeze) {
                     setFalse = false
 
+                    
                     let newPosX = userClient.playerPosX
                     let newPosY = userClient.playerPosY
 
@@ -170,9 +177,11 @@ const Players = ({ messagesService, userOriginal }) => {
 
                     userClient = newUserClient
                     movesClient.push(userClient)
+                    
 
                     messagesService.sendPlayerMovement(pm)
                 }
+                */
             }
         }
 
@@ -210,9 +219,9 @@ const Players = ({ messagesService, userOriginal }) => {
 
         setInterval(() => {
             tick()
-            checkStatus()
+            //checkStatus()
             setUsers(usersServer)
-            setUser(userClient)
+            //setUser(userClient)
 
         }, 1000 / 60);
 
@@ -235,8 +244,8 @@ const Players = ({ messagesService, userOriginal }) => {
                     else {
                         return (
                             <PlayerClient
-                                key={user.id}
-                                user={user} />
+                                key={u.id}
+                                user={u} />
                         )
                     }
                 })}
