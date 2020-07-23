@@ -26,7 +26,7 @@ let numbersGameEvent = 0
 let numbersGunGameEvent = 0
 let moveSpeed1 = .4
 let moveSpeed2 = .20
-let pillarSpeed = .35
+let pillarSpeed = .3
 
 // pillar game
 let scoreChanged = false
@@ -105,8 +105,8 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("playerMovement", (pm) => {
-        handlePlayerMovement(pm, socket.id)
+    socket.on("playerMovement", async (pm) => {
+        await handlePlayerMovement(pm, socket.id)
     })
 
     socket.on("disconnect", () => {
@@ -623,7 +623,7 @@ setInterval(() => {
     updateNumberAreas()
     updateGames()
     emitGameState()
-}, 1000 / 60);
+}, 1000 / 70);
 
 setInterval(emitGameState, 1000 / 30);
 

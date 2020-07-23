@@ -39,7 +39,6 @@ const App = () => {
     }, [])
 
     
-
     const sendMessageHandler = (event) => {
         event.preventDefault()
         if (messageText.replace(/\s+/g, '') !== "") {
