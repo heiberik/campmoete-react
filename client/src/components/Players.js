@@ -40,7 +40,10 @@ const Players = ({ messagesService, userOriginal }) => {
                 if (us) movesServer.push(us)
             }
             if (gameState.freezeGameChanged) {
-                freeze = gameState.freezeGame
+                if (!gameState.freezeGame){
+                    setTimeout(() =>  freeze = gameState.freezeGame, 1000)
+                }
+                else freeze = gameState.freezeGame
             }
         })
 
@@ -68,7 +71,16 @@ const Players = ({ messagesService, userOriginal }) => {
         }
 
         const mouseClickHandler = (e) => {
-            if (e.target.tagName.toUpperCase() === "INPUT") return
+            if (e.target.tagName.toUpperCase() === "INPUT") {
+                pm.up = false
+                pm.left = false
+                pm.right = false
+                pm.down = false
+                pm.space = false
+                pm.shoot = null
+                setFalse = true
+                return
+            }
             if (e.target.tagName.toUpperCase() === "BUTTON") return
             const x = (e.clientX / window.innerWidth) * 100
             const y = (e.clientY / window.innerHeight) * 100
@@ -87,11 +99,22 @@ const Players = ({ messagesService, userOriginal }) => {
             pm.shoot = [x, y]
         }
 
+        const blurHandler = (e) => {
+            pm.up = false
+            pm.left = false
+            pm.right = false
+            pm.down = false
+            pm.space = false
+            pm.shoot = null
+            setFalse = true
+        }
+
         document.addEventListener('keydown', keyDownHandler, false)
         document.addEventListener('keyup', keyUpHandler, false)
         document.addEventListener('mousedown', mouseClickHandler, false)
         document.addEventListener('mouseup', mouseUpHandler, false)
         document.addEventListener('mousemove', mouseOverHandler, false)
+        window.addEventListener('blur', blurHandler, false)
 
 
         const tick = () => {
@@ -104,85 +127,93 @@ const Players = ({ messagesService, userOriginal }) => {
 
             if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
 
-                setFalse = false
-                if (freeze) return 
+                if (!freeze) {
+                    setFalse = false
 
-                let newPosX = userClient.playerPosX
-                let newPosY = userClient.playerPosY
+                    let newPosX = userClient.playerPosX
+                    let newPosY = userClient.playerPosY
 
-                if (pm.up && pm.left) {
-                    newPosX = newPosX - moveSpeed2
-                    newPosY = newPosY - moveSpeed2
+                    if (pm.up && pm.left) {
+                        newPosX = newPosX - moveSpeed2
+                        newPosY = newPosY - moveSpeed2
+                    }
+                    else if (pm.up && pm.right) {
+                        newPosX = newPosX + moveSpeed2
+                        newPosY = newPosY - moveSpeed2
+                    }
+                    else if (pm.down && pm.left) {
+                        newPosX = newPosX - moveSpeed2
+                        newPosY = newPosY + moveSpeed2
+                    }
+                    else if (pm.down && pm.right) {
+                        newPosX = newPosX + moveSpeed2
+                        newPosY = newPosY + moveSpeed2
+                    }
+                    else if (pm.up) newPosY = newPosY - moveSpeed1
+                    else if (pm.down) newPosY = newPosY + moveSpeed1
+                    else if (pm.left) newPosX = newPosX - moveSpeed1
+                    else if (pm.right) newPosX = newPosX + moveSpeed1
+
+                    if (newPosX > 101) newPosX = newPosX - moveSpeed1
+                    if (newPosX < -1) newPosX = newPosX + moveSpeed1
+                    if (newPosY > 101) newPosY = newPosY - moveSpeed1
+                    if (newPosY < -1) newPosY = newPosY + moveSpeed1
+
+                    pm.updateSeq++
+                    const newUserClient = {
+                        ...userClient,
+                        updateSeq: pm.updateSeq,
+                        shield: pm.space,
+                        playerPosX: newPosX,
+                        playerPosY: newPosY,
+                    }
+
+                    userClient = newUserClient
+                    movesClient.push(userClient)
+
+                    messagesService.sendPlayerMovement(pm)
                 }
-                else if (pm.up && pm.right) {
-                    newPosX = newPosX + moveSpeed2
-                    newPosY = newPosY - moveSpeed2
-                }
-                else if (pm.down && pm.left) {
-                    newPosX = newPosX - moveSpeed2
-                    newPosY = newPosY + moveSpeed2
-                }
-                else if (pm.down && pm.right) {
-                    newPosX = newPosX + moveSpeed2
-                    newPosY = newPosY + moveSpeed2
-                }
-                else if (pm.up) newPosY = newPosY - moveSpeed1
-                else if (pm.down) newPosY = newPosY + moveSpeed1
-                else if (pm.left) newPosX = newPosX - moveSpeed1
-                else if (pm.right) newPosX = newPosX + moveSpeed1
-
-                if (newPosX > 101) newPosX = newPosX - moveSpeed1
-                if (newPosX < -1) newPosX = newPosX + moveSpeed1
-                if (newPosY > 101) newPosY = newPosY - moveSpeed1
-                if (newPosY < -1) newPosY = newPosY + moveSpeed1
-
-                pm.updateSeq++
-                const newUserClient = {
-                    ...userClient,
-                    updateSeq: pm.updateSeq,
-                    shield: pm.space,
-                    playerPosX: newPosX,
-                    playerPosY: newPosY,
-                }
-
-                userClient = newUserClient
-                movesClient.push(userClient)
-
-                messagesService.sendPlayerMovement(pm)
             }
         }
 
+        let lastNumberFromServer = 0
         const checkStatus = () => {
-            
+
             const sm = movesServer.shift()
             if (sm) {
-            
-                const cm = movesClient.find(m => m.updateSeq === sm.updateSeq)
-                if (!cm) {
+
+                if (sm.updateSeq === lastNumberFromServer) {
                     userClient = sm
                     return
                 }
 
+                lastNumberFromServer = sm.updateSeq
+
+                const cm = movesClient.find(m => m.updateSeq === sm.updateSeq)
+                if (!cm) {
+                    userClient = sm
+                    movesClient = []
+                    return
+                }
+
                 if (cm.playerPosX === sm.playerPosX && cm.playerPosY === sm.playerPosY) {
-                    console.log("RIKTIG!")
                     movesClient = movesClient.filter(move => { return move.updateSeq >= sm.updateSeq })
                 }
                 else {
-                    console.log("FEIL!")
                     movesClient = []
+                    movesServer = []
                     userClient = sm
                 }
-            }  
+            }
         }
 
 
         setInterval(() => {
             tick()
             checkStatus()
-            if (!freeze){
-                setUsers(usersServer)
-                setUser(userClient)
-            }
+            setUsers(usersServer)
+            setUser(userClient)
+
         }, 1000 / 60);
 
 

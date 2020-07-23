@@ -196,7 +196,6 @@ const shootBullet = (shot, id) => {
 
 const handlePlayerMovement = (pm, id) => {
 
-
     if (!freezeGame) {
         const user = users.find(u => u.id === id)
         if (!user) return
@@ -360,7 +359,7 @@ const checkBulletCollission = () => {
             const py = u.playerPosY
 
             if (x < px + 2 && x > px - 2 && y < py + 2 && y > py - 2){
-                dead.push(u)
+                dead.push(u.username)
                 b.hit = true
                 u.hit = true
                 bulletsChanged = true
@@ -525,7 +524,7 @@ const updateGames = () => {
                 freezeGameChanged = true
                 usersChanged = true
                 updateState = true
-            }, 3000)
+            }, 2000)
 
             usersChanged = true
         }
@@ -538,7 +537,13 @@ const updateGames = () => {
         moveBullets()
         const check = checkBulletCollission()
         if (check.length > 0){
-            console.log("DEAD PLAYER!")
+            usersDeadChanged = true
+            usersDead = check
+            setTimeout(() => {
+                usersDead = []
+                usersDeadChanged = true
+                updateState = true
+            }, 5000)
         }
         updateState = true
     }

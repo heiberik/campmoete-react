@@ -13,7 +13,7 @@ const DeadUsers = ({ messagesService }) => {
         })
     }, [messagesService])
 
-    /*
+    
     const usersDeadStyle1 = {
         textAlign: "center",
         position: "absolute",
@@ -29,27 +29,11 @@ const DeadUsers = ({ messagesService }) => {
         cursor: "default",
     }
  
-    const usersDeadStyle2 = {
-        textAlign: "center",
-        position: "absolute",
-        transform: "translateX(-50%)",
-        fontSize: "1rem",
-        width: "100%",
-        fontWeight: "bold",
-        fontFamily: "Arial",
-        color: "white",
-        top: "20rem",
-        left: "50vw",
-        textShadow: "1px 1px black",
-        zIndex: "9999",
-        cursor: "default",
-    }
-    */
 
     if (deadUsers.length > 0) {
         return (
-            <div>
-
+            <div style={usersDeadStyle1}>
+                {deadUsers}
             </div>
         )
     }
