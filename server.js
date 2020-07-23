@@ -84,6 +84,7 @@ io.on("connection", (socket) => {
         else {
             const newUser = {
                 id: socket.id,
+                updateSeq: 0,
                 username: data.username,
                 playerPosX: 85,
                 playerPosY: 85 + (users.length * 2),
@@ -236,10 +237,13 @@ const handlePlayerMovement = (pm, id) => {
 
         const newPlayer = {
             ...user,
+            updateSeq: pm.updateSeq,
             shield: pm.space,
             playerPosX: newPosX,
             playerPosY: newPosY,
         }
+
+        console.log(newPlayer.updateSeq)
 
         users = users.filter(u => u.id !== id)
         users = users.concat(newPlayer)
@@ -631,6 +635,6 @@ setInterval(() => {
 
 setInterval(emitGameState, 1000 / 35);
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 3002
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
 

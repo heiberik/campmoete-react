@@ -10,25 +10,29 @@ const Players = ({ messagesService, userOriginal }) => {
     const [users, setUsers] = useState([])
     const [user, setUser] = useState([userOriginal, false])
     const [latency, setLatency] = useState(0)
+    const [moves, setMoves] = useState([])
 
     useEffect(() => {
 
-        let gameStateCounter = 0
         messagesService.getGameState((gameState) => {
-            gameStateCounter++
-            console.log(gameStateCounter)
+
             if (gameState.usersChanged) {
                 window.requestAnimationFrame(() => setUsers(gameState.users))
             }
             if (gameState.freezeGameChanged) {
-                window.requestAnimationFrame(
-                    () => setUser(u => { return [u[0], gameState.freezeGame] }))
+                window.requestAnimationFrame(() => setUser(u => [u[0], gameState.freezeGame]))
             }
-            if (gameStateCounter % 120 === 0) {
-                setUser(u => [gameState.users.find(us => us.id === userOriginal.id), u[1]])
-                console.log("resetting user")
-                gameStateCounter = 0
-            }
+            
+            //const userServerState = gameState.users.find(us => us.id === userOriginal.id)
+            /*
+            setMoves(m => {
+
+                console.log(m)
+                const newList = m.filter(move => {return move.updateSeq > userServerState.updateSeq})
+                console.log(newList)
+                return newList
+            })
+            */            
         })
 
         messagesService.getPongServer((time) => {
@@ -44,6 +48,7 @@ const Players = ({ messagesService, userOriginal }) => {
                 right: false,
                 space: false,
                 shoot: null,
+                updateSeq: 0,
             }
 
             const keyDownHandler = (e) => {
@@ -104,6 +109,10 @@ const Players = ({ messagesService, userOriginal }) => {
                 }
 
                 if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
+                    
+                    setFalse = false
+                    pm.updateSeq++
+                    console.log(pm.updateSeq++)
                     messagesService.sendPlayerMovement(pm)
 
                     setUser(u => {
@@ -138,12 +147,20 @@ const Players = ({ messagesService, userOriginal }) => {
                         if (newPosY > 101) newPosY = newPosY - moveSpeed1
                         if (newPosY < -1) newPosY = newPosY + moveSpeed1
 
-                        return [{
+                        const newuser = {
                             ...u[0],
+                            updateSeq: pm.updateSeq++, 
                             shield: pm.space,
                             playerPosX: newPosX,
                             playerPosY: newPosY,
-                        }, u[1]]
+                        }
+
+                        setMoves(m => {
+                            console.log(m)
+                            return m.concat(newuser)
+                        })
+
+                        return [newuser, u[1]]
                     })
                 }
             }
