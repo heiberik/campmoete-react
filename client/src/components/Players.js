@@ -22,17 +22,36 @@ const Players = ({ messagesService, userOriginal }) => {
             if (gameState.freezeGameChanged) {
                 window.requestAnimationFrame(() => setUser(u => [u[0], gameState.freezeGame]))
             }
-            
-            //const userServerState = gameState.users.find(us => us.id === userOriginal.id)
-            /*
-            setMoves(m => {
+            if (gameState.usersChanged) {
 
-                console.log(m)
-                const newList = m.filter(move => {return move.updateSeq > userServerState.updateSeq})
-                console.log(newList)
-                return newList
-            })
-            */            
+                const userServerState = gameState.users.find(us => us.id === userOriginal.id)
+
+                setMoves(m => {
+
+                    const userClientState = m.find(move => move.updateSeq === userServerState.updateSeq)
+                    if (!userClientState) return m
+
+                    console.log(userServerState)
+                    console.log(userClientState)
+
+
+                    if (userServerState.playerPosX === userClientState.playerPosX &&
+                        userServerState.playerPosY === userClientState.playerPosY) {
+                        console.log("RIKTIG!")
+                    }
+                    else {
+                        console.log("FEIL!")
+                        setUser(u => [userServerState, u[1]])
+                    }
+
+                    const newList = m.filter(move => { return move.updateSeq >= userServerState.updateSeq })
+                    console.log(newList)
+                    return newList
+                })
+
+            }
+
+
         })
 
         messagesService.getPongServer((time) => {
@@ -109,13 +128,14 @@ const Players = ({ messagesService, userOriginal }) => {
                 }
 
                 if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
-                    
+
                     setFalse = false
-                    pm.updateSeq++
-                    console.log(pm.updateSeq++)
-                    messagesService.sendPlayerMovement(pm)
 
                     setUser(u => {
+
+                        pm.updateSeq++
+                        messagesService.sendPlayerMovement(pm)
+
                         if (u[1]) return u
 
                         let newPosX = u[0].playerPosX
@@ -149,14 +169,13 @@ const Players = ({ messagesService, userOriginal }) => {
 
                         const newuser = {
                             ...u[0],
-                            updateSeq: pm.updateSeq++, 
+                            updateSeq: pm.updateSeq,
                             shield: pm.space,
                             playerPosX: newPosX,
                             playerPosY: newPosY,
                         }
 
                         setMoves(m => {
-                            console.log(m)
                             return m.concat(newuser)
                         })
 
