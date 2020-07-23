@@ -176,13 +176,13 @@ const Players = ({ messagesService, userOriginal }) => {
         }
 
 
-            
-
         setInterval(() => {
             tick()
             checkStatus()
-            setUsers(usersServer)
-            setUser(userClient)
+            if (!freeze){
+                setUsers(usersServer)
+                setUser(userClient)
+            }
         }, 1000 / 60);
 
 
