@@ -243,8 +243,6 @@ const handlePlayerMovement = (pm, id) => {
             playerPosY: newPosY,
         }
 
-        console.log(newPlayer.updateSeq)
-
         users = users.filter(u => u.id !== id)
         users = users.concat(newPlayer)
         updateState = true
@@ -518,11 +516,17 @@ const updateGames = () => {
                         u.playerPosY = 85
                     }
                 })
+                usersChanged = true
+                updateState = true
+            }, 1000)
+
+            setTimeout(() => {
                 freezeGame = false
                 freezeGameChanged = true
                 usersChanged = true
                 updateState = true
             }, 3000)
+
             usersChanged = true
         }
 
