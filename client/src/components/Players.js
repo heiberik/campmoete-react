@@ -105,7 +105,10 @@ const Players = ({ messagesService, userOriginal }) => {
 
         setInterval(() => {
             sendMovementToServer()
-            setUsers(usersServer)
+            setUsers(() => {
+                console.log(usersServer)
+                return usersServer
+            })
         }, 1000 / 60);
 
     }, [messagesService, userOriginal])
