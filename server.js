@@ -3,7 +3,7 @@ const cors = require("cors")
 const app = express()
 const http = require("http")
 const server = http.createServer(app)
-const io = require("socket.io").listen(server)
+const io = require("socket.io")(server)
 var sslRedirect = require("heroku-ssl-redirect")
 
 app.use(sslRedirect([
@@ -110,7 +110,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on("playerMovement", (pm) => {
-        userMoves.push(pm)
+        if (!freezeGame) userMoves.push(pm)
     })
 
     socket.on("pingServer", (data) => {
@@ -246,43 +246,43 @@ const handlePlayerMovements = () => {
 
             updateState = true
             usersChanged = true
+
+            messages.forEach(m => {
+
+                const messageX = m.left
+                const messageY = m.top
+        
+                users.forEach(u => {
+        
+                    const x = u.playerPosX
+                    const y = u.playerPosY
+        
+                    // fra venstre
+                    if (x >= messageX - 2.0 && x <= messageX - 1.5 && y >= messageY - 2.5 && y <= messageY + 7.75) {
+                        m.left = m.left + moveSpeed1
+                        newMessages = true
+                    }
+                    //fra høyre
+                    else if (x <= messageX + 12.75 && x >= messageX + 12.25 && y >= messageY - 2.5 && y <= messageY + 7.75) {
+                        m.left = m.left - moveSpeed1
+                        newMessages = true
+                    }
+                    //fra top
+                    else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY - 2.75 && y <= messageY - 2.25) {
+                        m.top = m.top + moveSpeed1
+                        newMessages = true
+                    }
+                    //fra bot
+                    else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY + 7.25 && y <= messageY + 7.75) {
+                        m.top = m.top - moveSpeed1
+                        newMessages = true
+                    }
+                })
+            })
         })
 
         userMoves = []
     }
-
-    messages.forEach(m => {
-
-        const messageX = m.left
-        const messageY = m.top
-
-        users.forEach(u => {
-
-            const x = u.playerPosX
-            const y = u.playerPosY
-
-            // fra venstre
-            if (x >= messageX - 2.0 && x <= messageX - 1.5 && y >= messageY - 2.5 && y <= messageY + 7.75) {
-                m.left = m.left + moveSpeed1
-                newMessages = true
-            }
-            //fra høyre
-            else if (x <= messageX + 12.75 && x >= messageX + 12.25 && y >= messageY - 2.5 && y <= messageY + 7.75) {
-                m.left = m.left - moveSpeed1
-                newMessages = true
-            }
-            //fra top
-            else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY - 2.75 && y <= messageY - 2.25) {
-                m.top = m.top + moveSpeed1
-                newMessages = true
-            }
-            //fra bot
-            else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY + 7.25 && y <= messageY + 7.75) {
-                m.top = m.top - moveSpeed1
-                newMessages = true
-            }
-        })
-    })
 }
 
 const makePillar = () => {
@@ -494,7 +494,7 @@ const updateGames = () => {
             gameInProgress = false
             startOver = false
             progressTick = 0
-            pillars = []
+            
             setTimeout(() => {
                 usersDead = []
                 usersDeadChanged = true
@@ -519,14 +519,15 @@ const updateGames = () => {
                 })
                 usersChanged = true
                 updateState = true
-            }, 1000)
+                pillars = []
+                pillarsChanged = true
+            }, 3000)
 
             setTimeout(() => {
                 freezeGame = false
                 freezeGameChanged = true
-                usersChanged = true
                 updateState = true
-            }, 2000)
+            }, 3500)
 
             usersChanged = true
         }
@@ -609,12 +610,14 @@ const getPillars = () => {
     else return null
 }
 
+
 setInterval(() => {
+
+    updateGames()
     handleMessageQueue()
     handlePlayerMovements()
     updateNumberAreas()
-    updateGames()
-    emitGameState()
+
 }, 1000 / 60);
 
 setInterval(emitGameState, 1000 / 35);

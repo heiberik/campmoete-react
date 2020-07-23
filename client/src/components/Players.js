@@ -4,7 +4,6 @@ import PlayerOther from './PlayerOther'
 import Users from "./Users"
 import { useState, useEffect } from 'react'
 
-
 const Players = ({ messagesService, userOriginal }) => {
 
     const [users, setUsers] = useState([])
