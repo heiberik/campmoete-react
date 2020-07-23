@@ -132,6 +132,7 @@ const Players = ({ messagesService, userOriginal }) => {
 
 
                 messagesService.sendPlayerMovement(pm)
+                setFalse = false
                 /*
                 if (!freeze) {
                     setFalse = false
