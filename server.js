@@ -28,9 +28,9 @@ let usersDeadChanged = false
 let numbersDeleteEvent = 0
 let numbersGameEvent = 0
 let numbersGunGameEvent = 0
-let moveSpeed1 = .2
-let moveSpeed2 = .1
-let pillarSpeed = .15
+let moveSpeed1 = .4
+let moveSpeed2 = .2
+let pillarSpeed = .3
 
 // pillar game
 let scoreChanged = false
@@ -38,7 +38,7 @@ let highscore = 0
 let newHighscore = false
 let currentScore = 0
 let progressTick = 0
-let progressTickSpeed = 200
+let progressTickSpeed = 280
 let freezeGame = false
 let freezeGameChanged = false
 
@@ -520,8 +520,8 @@ const updateGames = () => {
         progressTick++
         if (progressTick % progressTickSpeed === 0) {
             makePillar()
-            if (progressTickSpeed > 120) {
-                progressTickSpeed -= 4
+            if (progressTickSpeed > 150) {
+                progressTickSpeed -= 2
             }
         }
 
