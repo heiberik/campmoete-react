@@ -9,11 +9,27 @@ const Messages = ({ messagesService }) => {
 
 
     useEffect(() => {
+
+        const messagesList = []
+
         messagesService.getGameState((gameState) => {
             if (gameState.newMessages) {
-                window.requestAnimationFrame(() => setMessages(gameState.messages))
+                messagesList.push(gameState.messages)
             }
         })
+
+        const changeGameState = () => {
+            const msgs = messagesList.shift()
+            if (msgs) {
+                window.requestAnimationFrame(() => setMessages(msgs))
+            }
+        }
+
+        setInterval(() => {
+            changeGameState()
+        }, 1000 / 60);
+
+
     }, [messagesService])
 
     const style = {

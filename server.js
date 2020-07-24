@@ -148,7 +148,7 @@ const handleMessageQueue = () => {
         }
 
         const newMessage = {
-            number: m.length,
+            number: messages.length,
             message: m.message,
             date: Date(),
             color: getRandomColor(),
@@ -204,9 +204,18 @@ const shootBullet = (shot, id) => {
     }
 }
 
-const findPlayer = (id) => {
+const findPlayerId = (id) => {
     for (let i = 0; i < users.length; i++) {
         if (users[i].id === id) {
+            return users[i]
+        }
+    }
+    return null
+}
+
+const findPlayerUsername = (username) => {
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].username === username) {
             return users[i]
         }
     }
@@ -217,7 +226,7 @@ const handlePlayerMovements = () => {
 
     userMoves.forEach(pm => {
 
-        let user = findPlayer(pm.id)
+        let user = findPlayerId(pm.id)
         if (!user) return
 
         user.up = pm.up
@@ -506,8 +515,8 @@ const updateGames = () => {
         }
 
         movePillars()
-
         usersDead = checkCollissions()
+
         if (usersDead.length > 0) {
             usersDeadChanged = true
             gameInProgress = false
@@ -519,28 +528,29 @@ const updateGames = () => {
                 usersDeadChanged = true
                 updateState = true
             }, 5000)
+
             if (currentScore > highscore) {
                 highscore = currentScore
                 newHighscore = true
             }
+
             currentScore = 0
             scoreChanged = true
             freezeGame = true
             freezeGameChanged = true
 
             setTimeout(() => {
-                users.forEach(u => {
-                    const user = users.find(us => us.id === u.id)
-                    if (user) {
-                        u.playerPosX = 93
-                        u.playerPosY = 85
-                    }
+                usersDead.forEach(u => {
+                    const user = findPlayerUsername(u)
+                    user.playerPosX = 93
+                    user.playerPosY = 85
                 })
+                usersDeadChanged = true
                 usersChanged = true
                 updateState = true
                 pillars = []
                 pillarsChanged = true
-            }, 3000)
+            }, 2000)
 
             setTimeout(() => {
                 freezeGame = false
@@ -639,7 +649,7 @@ setInterval(() => {
 
 }, 1000 / 60);
 
-setInterval(emitGameState, 1000 / 50);
+setInterval(emitGameState, 1000 / 40);
 
 const port = process.env.PORT || 3002
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))

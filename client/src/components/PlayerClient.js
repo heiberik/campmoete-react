@@ -4,11 +4,15 @@ import shieldPic from "../images/shield.png"
 
 const PlayerClient = ({ user }) => {
 
+
+    const x = Math.round((user.playerPosX + Number.EPSILON) * 100) / 100
+    const y = Math.round((user.playerPosY + Number.EPSILON) * 100) / 100
+
     const stylePlayer = {
         position: "absolute",
         transform: "translate(-50%, -50%)",
-        top: user.playerPosY + "vh",
-        left: user.playerPosX + "vw",
+        top: y + "vh",
+        left: x + "vw",
         padding: "0px",
         margin: "0px",
         zIndex: "9999999999999",

@@ -140,7 +140,6 @@ const Players = ({ messagesService, userOriginal }) => {
             }
         }
 
-        
         setInterval(() => {
             sendMovementToServer()
             handleMovementFromServer()

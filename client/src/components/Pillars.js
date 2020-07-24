@@ -7,11 +7,27 @@ const Pillars = ({ messagesService }) => {
     const [pillars, setPillars] = useState([])
 
     useEffect(() => {
+
+        const pillarsList = []
+
         messagesService.getGameState((gameState) => {
             if (gameState.pillarsChanged) {
-                window.requestAnimationFrame(() => setPillars(gameState.pillars))
+                pillarsList.push(gameState.pillars)
             }
         })
+
+        const changeGameState = () => {
+            const pillrs = pillarsList.shift()
+            if (pillrs) {
+                window.requestAnimationFrame(() => setPillars(pillrs))
+            }
+        }
+
+        setInterval(() => {
+            changeGameState()
+        }, 1000 / 60);
+
+
     }, [messagesService])
 
     return (

@@ -2,10 +2,13 @@ import React from "react"
 
 const Message = ({ message }) => {
 
+    const x = Math.round((message.left + Number.EPSILON) * 100) / 100
+    const y = Math.round((message.top + Number.EPSILON) * 100) / 100
+
     const style = {
         position: "absolute",
-        top: message.top + "vh",
-        left: message.left + "vw",
+        top: y + "vh",
+        left: x + "vw",
         zIndex: message.number,
         padding: "1vh",
         width: "10vw",

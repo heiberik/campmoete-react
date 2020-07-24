@@ -5,13 +5,28 @@ import { useState, useEffect } from 'react'
 const Bullets = ({ messagesService }) => {
 
     const [bullets, setBullets] = useState([])
-    
+
     useEffect(() => {
+
+        const bulletsList = []
+
         messagesService.getGameState((gameState) => {
             if (gameState.bulletsChanged) {
-                window.requestAnimationFrame(() => setBullets(gameState.bullets))  
+                bulletsList.push(gameState.bullets)
             }
         })
+
+        const changeGameState = () => {
+            const bullts = bulletsList.shift()
+            if (bullts) {
+                window.requestAnimationFrame(() => setBullets(bullts))
+            }
+        }
+
+        setInterval(() => {
+            changeGameState()
+        }, 1000 / 60);
+
     }, [messagesService])
 
     return (
