@@ -202,7 +202,7 @@ const shootBullet = (shot, id) => {
         updateState = true
         setTimeout(() => {
             playersShootCooldown[id] = false
-        }, 5)
+        }, 150)
     }
 }
 

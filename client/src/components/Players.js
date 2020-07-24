@@ -106,7 +106,7 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
             waitSendMousePos = true
             setTimeout(() => {
                 waitSendMousePos = false
-            }, 1000 / 60)
+            }, 1000 / 60 * 5)
         }
 
         const blurHandler = (e) => {
