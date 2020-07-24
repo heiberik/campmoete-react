@@ -264,7 +264,7 @@ const handlePlayerMovements = () => {
 
         if (gunGameInProgress) {
             if (user.shoot) {
-                shootBullet(pm.shoot, pm.id)
+                shootBullet(user.shoot, user.id)
             }
         }
 
