@@ -141,9 +141,12 @@ const Players = ({ messagesService, userOriginal }) => {
         }
 
         setInterval(() => {
+            while (usersServerList.length > 0){
+                handleMovementFromServer()
+            }
             sendMovementToServer()
-            handleMovementFromServer()
-        }, 1000 / 60)
+            
+        }, 1000 / 50)
 
     }, [messagesService, userOriginal])
 
