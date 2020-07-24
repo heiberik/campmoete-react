@@ -25,7 +25,7 @@ const Bullets = ({ messagesService }) => {
 
         setInterval(() => {
             changeGameState()
-        }, 1000 / 30);
+        }, 1000 / 60);
 
     }, [messagesService])
 
