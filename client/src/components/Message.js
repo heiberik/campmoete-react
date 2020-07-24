@@ -1,6 +1,6 @@
 import React from "react"
 
-const Message = ({ message }) => {
+const Message = React.memo(({ message }) => {
 
     const x = Math.round((message.left + Number.EPSILON) * 100) / 100
     const y = Math.round((message.top + Number.EPSILON) * 100) / 100
@@ -29,6 +29,6 @@ const Message = ({ message }) => {
     return (
         <li style={style}> {message.message} </li>
     )
-}
+})
 
 export default Message

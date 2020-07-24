@@ -2,8 +2,7 @@ import React from "react"
 import char from "../images/char.png"
 import shieldPic from "../images/shield.png"
 
-const PlayerClient = ({ user }) => {
-
+const PlayerClient = React.memo(({ user }) => {
 
     const x = Math.round((user.playerPosX + Number.EPSILON) * 100) / 100
     const y = Math.round((user.playerPosY + Number.EPSILON) * 100) / 100
@@ -76,6 +75,6 @@ const PlayerClient = ({ user }) => {
         </div>
     )
 
-}
+})
 
 export default PlayerClient

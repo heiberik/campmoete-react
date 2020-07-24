@@ -1,6 +1,6 @@
 import React from "react"
 
-const Bullet = ({ bullet }) => {
+const Bullet = React.memo(({ bullet }) => {
 
     const bulletStyle = {
         position: "absolute",
@@ -15,6 +15,6 @@ const Bullet = ({ bullet }) => {
     return (
         <div style={bulletStyle}></div>
     )
-}
+})
 
 export default Bullet

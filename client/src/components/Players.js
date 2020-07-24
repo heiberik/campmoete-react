@@ -145,6 +145,7 @@ const Players = ({ messagesService, userOriginal }) => {
             handleMovementFromServer()
         }, 1000 / 60);
 
+
     }, [messagesService, userOriginal])
 
 
