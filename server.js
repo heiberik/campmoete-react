@@ -224,22 +224,33 @@ const findPlayerUsername = (username) => {
 
 const handlePlayerMovements = () => {
 
+    let shieldChanged = false
     userMoves.forEach(pm => {
 
         let user = findPlayerId(pm.id)
         if (!user) return
 
+        if (pm.space !== user.shield) shieldChanged = true
         user.up = pm.up
         user.down = pm.down
         user.left = pm.left
         user.right = pm.right
         user.space = pm.space
         user.shoot = pm.shoot
-
     })
 
     userMoves = []
 
+    if (!shieldChanged){
+        let noMovement = true
+        users.forEach(u => {
+            if (u.up || u.down || u.left || u.right || u.space || u.up || u.shoot){
+                noMovement = false
+            }
+        })
+        if (noMovement) return  
+    }   
+    
     users.forEach(user => {
 
         if (freezeGame) return 
@@ -639,12 +650,11 @@ const getPillars = () => {
     else return null
 }
 
-
 setInterval(() => {
 
     updateGames()
     handleMessageQueue()
-    handlePlayerMovements()
+    handlePlayerMovements() 
     updateNumberAreas()
 
 }, 1000 / 60);
