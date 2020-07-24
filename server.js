@@ -28,9 +28,9 @@ let usersDeadChanged = false
 let numbersDeleteEvent = 0
 let numbersGameEvent = 0
 let numbersGunGameEvent = 0
-let moveSpeed1 = .4
-let moveSpeed2 = .20
-let pillarSpeed = .3
+let moveSpeed1 = .2
+let moveSpeed2 = .1
+let pillarSpeed = .15
 
 // pillar game
 let scoreChanged = false

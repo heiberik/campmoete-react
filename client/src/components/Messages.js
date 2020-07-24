@@ -7,7 +7,6 @@ const Messages = ({ messagesService }) => {
 
     const [messages, setMessages] = useState([])
 
-
     useEffect(() => {
 
         const messagesList = []
