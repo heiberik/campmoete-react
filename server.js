@@ -520,7 +520,7 @@ const updateGames = () => {
         progressTick++
         if (progressTick % progressTickSpeed === 0) {
             makePillar()
-            if (progressTickSpeed > 150) {
+            if (progressTickSpeed > 130) {
                 progressTickSpeed -= 2
             }
         }
@@ -662,6 +662,7 @@ setInterval(() => {
         emitGS = false
     }
     else {
+        emitGameState()
         emitGS = true
     }
 }, 1000 / 60);
