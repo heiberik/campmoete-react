@@ -117,7 +117,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on("playerMovement", (pm) => {
-        if (!freezeGame) userMoves.push(pm)
+        userMoves.push(pm)
     })
 
     socket.on("pingServer", (data) => {
@@ -233,6 +233,7 @@ const handlePlayerMovements = () => {
 
     users.forEach(user => {
 
+        if (freezeGame) return 
         let newPosX = user.playerPosX
         let newPosY = user.playerPosY
 
