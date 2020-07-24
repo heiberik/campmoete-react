@@ -105,7 +105,7 @@ const Players = ({ messagesService, userOriginal }) => {
             waitSendMousePos = true
             setTimeout(() => {
                 waitSendMousePos = false
-            }, (1000 / 60) * 10)
+            }, (1000 / 60) * 5)
         }
 
         const blurHandler = (e) => {
@@ -143,7 +143,7 @@ const Players = ({ messagesService, userOriginal }) => {
         setInterval(() => {
             sendMovementToServer()
             handleMovementFromServer()
-        }, 1000 / 50)
+        }, 1000 / 60)
 
     }, [messagesService, userOriginal])
 
