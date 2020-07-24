@@ -592,6 +592,21 @@ const updateGames = () => {
     }
 }
 
+const getMessages = () => {
+    if (newMessages) return messages
+    else return null
+}
+
+const getUsers = () => {
+    if (usersChanged) return users
+    else return null
+}
+
+const getPillars = () => {
+    if (pillarsChanged) return pillars
+    else return null
+}
+
 const emitGameState = () => {
 
     if (updateState) {
@@ -635,33 +650,22 @@ const emitGameState = () => {
     }
 }
 
-const getMessages = () => {
-    if (newMessages) return messages
-    else return null
-}
-
-const getUsers = () => {
-    if (usersChanged) return users
-    else return null
-}
-
-const getPillars = () => {
-    if (pillarsChanged) return pillars
-    else return null
-}
-
-
+let emitGS = false
 setInterval(() => {
 
     updateGames()
     handleMessageQueue()
     handlePlayerMovements() 
     updateNumberAreas()
-
+    if (emitGS){
+        emitGameState()
+        emitGS = false
+    }
+    else {
+        emitGS = true
+    }
 }, 1000 / 60);
 
-
-setInterval(emitGameState, 1000 / 55);
 
 const port = process.env.PORT || 3002
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))
