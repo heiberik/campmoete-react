@@ -1,15 +1,13 @@
 const express = require("express")
-const cors = require("cors")
 const app = express()
-const http = require("http")
-const server = http.createServer(app)
-const io = require("socket.io")(server)
+var server = require('http').createServer(app)
+var io = require('socket.io')(server)
+
+
+const cors = require("cors")
 var sslRedirect = require("heroku-ssl-redirect")
 
-app.use(sslRedirect([
-    'other',
-    'development',
-    'production']))
+app.use(sslRedirect())
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
@@ -58,18 +56,14 @@ let gunGameInProgress = false
 let countDownStarted = false
 let countDownNumber = -2
 
-const getRandomColor = () => {
-    var letters = 'ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 6)];
-    }
-    return color;
-}
 
 io.on("connection", (socket) => {
 
     console.log("user connected")
+
+    socket.on("playerMovement", (pm) => {
+        userMoves.push(pm)
+    })
 
     socket.on("sendMessage", (message) => {
         messagesQueue.push(message)
@@ -116,10 +110,6 @@ io.on("connection", (socket) => {
         }
     })
 
-    socket.on("playerMovement", (pm) => {
-        userMoves.push(pm)
-    })
-
     socket.on("pingServer", (data) => {
         socket.emit("pongServer")
     })
@@ -132,6 +122,16 @@ io.on("connection", (socket) => {
         delete playersShootCooldown[socket.id]
     })
 })
+
+
+const getRandomColor = () => {
+    var letters = 'ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 6)];
+    }
+    return color;
+}
 
 const handleMessageQueue = () => {
 
@@ -650,6 +650,7 @@ const getPillars = () => {
     else return null
 }
 
+
 setInterval(() => {
 
     updateGames()
@@ -657,9 +658,10 @@ setInterval(() => {
     handlePlayerMovements() 
     updateNumberAreas()
 
-}, 1000 / 60);
+}, 1000 / 50);
 
-setInterval(emitGameState, 1000 / 50);
+
+setInterval(emitGameState, 1000 / 45);
 
 const port = process.env.PORT || 3002
 server.listen(port, () => console.log(`Server started, listening on port ${port}`))

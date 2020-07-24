@@ -9,7 +9,7 @@ const Bullets = ({ messagesService }) => {
     useEffect(() => {
 
         const bulletsList = []
-
+        
         messagesService.getGameState((gameState) => {
             if (gameState.bulletsChanged) {
                 bulletsList.push(gameState.bullets)

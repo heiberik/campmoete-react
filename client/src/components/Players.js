@@ -118,12 +118,12 @@ const Players = ({ messagesService, userOriginal }) => {
             sendUpdate = true
         }
 
-        document.addEventListener('keydown', keyDownHandler, false)
-        document.addEventListener('keyup', keyUpHandler, false)
-        document.addEventListener('mousedown', mouseClickHandler, false)
-        document.addEventListener('mouseup', mouseUpHandler, false)
-        document.addEventListener('mousemove', mouseOverHandler, false)
-        window.addEventListener('blur', blurHandler, false)
+        document.addEventListener('keydown', keyDownHandler, true)
+        document.addEventListener('keyup', keyUpHandler, true)
+        document.addEventListener('mousedown', mouseClickHandler, true)
+        document.addEventListener('mouseup', mouseUpHandler, true)
+        document.addEventListener('mousemove', mouseOverHandler, true)
+        window.addEventListener('blur', blurHandler, true)
 
 
         const sendMovementToServer = () => {
@@ -143,8 +143,7 @@ const Players = ({ messagesService, userOriginal }) => {
         setInterval(() => {
             sendMovementToServer()
             handleMovementFromServer()
-        }, 1000 / 60);
-
+        }, 1000 / 50)
 
     }, [messagesService, userOriginal])
 

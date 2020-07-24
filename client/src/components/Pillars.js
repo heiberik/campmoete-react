@@ -9,7 +9,7 @@ const Pillars = ({ messagesService }) => {
     useEffect(() => {
 
         const pillarsList = []
-
+        
         messagesService.getGameState((gameState) => {
             if (gameState.pillarsChanged) {
                 pillarsList.push(gameState.pillars)
