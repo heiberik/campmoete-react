@@ -20,9 +20,9 @@ const Players = ({ messagesService, userOriginal }) => {
             right: false,
             space: false,
             shoot: null,
-            updateSeq: 0,
         }
-        let setFalse = false
+
+        let sendUpdate = false
 
         messagesService.getGameState((gameState) => {
             if (gameState.usersChanged) {
@@ -32,21 +32,44 @@ const Players = ({ messagesService, userOriginal }) => {
 
         const keyDownHandler = (e) => {
             if (e.target.tagName.toUpperCase() === "INPUT") return
-            if (e.keyCode === 68 || e.keyCode === 39) pm.right = true
-            else if (e.keyCode === 65 || e.keyCode === 37) pm.left = true
-            else if (e.keyCode === 87 || e.keyCode === 38) pm.up = true
-            else if (e.keyCode === 83 || e.keyCode === 40) pm.down = true
-            else if (e.keyCode === 32) pm.space = true
+
+            if (e.keyCode === 68 || e.keyCode === 39) {
+                if (!pm.right) pm.right = true 
+            }
+            else if (e.keyCode === 65 || e.keyCode === 37) {
+                if (!pm.left) pm.left = true 
+            }
+            else if (e.keyCode === 87 || e.keyCode === 38) {
+                if (!pm.up) pm.up = true 
+            }
+            else if (e.keyCode === 83 || e.keyCode === 40) {
+                if (!pm.down) pm.down = true 
+            }
+            else if (e.keyCode === 32) {
+                if (!pm.space) pm.space = true 
+            }
+            sendUpdate = true
         }
 
         const keyUpHandler = (e) => {
             if (e.target.tagName.toUpperCase() === "INPUT") return
-            if (e.keyCode === 68 || e.keyCode === 39) pm.right = false
-            else if (e.keyCode === 65 || e.keyCode === 37) pm.left = false
-            else if (e.keyCode === 87 || e.keyCode === 38) pm.up = false
-            else if (e.keyCode === 83 || e.keyCode === 40) pm.down = false
-            else if (e.keyCode === 32) pm.space = false
-            setFalse = true
+
+            if (e.keyCode === 68 || e.keyCode === 39) {
+                if (pm.right) pm.right = false
+            }
+            else if (e.keyCode === 65 || e.keyCode === 37) {
+                if (pm.left) pm.left = false
+            }
+            else if (e.keyCode === 87 || e.keyCode === 38) {
+                if (pm.up) pm.up = false 
+            }
+            else if (e.keyCode === 83 || e.keyCode === 40) {
+                if (pm.down) pm.down = false
+            }
+            else if (e.keyCode === 32) {
+                if (pm.space) pm.space = false 
+            }
+            sendUpdate = true
         }
 
         const mouseClickHandler = (e) => {
@@ -57,25 +80,32 @@ const Players = ({ messagesService, userOriginal }) => {
                 pm.down = false
                 pm.space = false
                 pm.shoot = null
-                setFalse = true
+                sendUpdate = true
                 return
             }
             if (e.target.tagName.toUpperCase() === "BUTTON") return
             const x = (e.clientX / window.innerWidth) * 100
             const y = (e.clientY / window.innerHeight) * 100
             pm.shoot = [x, y]
+            sendUpdate = true
         }
 
         const mouseUpHandler = (e) => {
             pm.shoot = null
-            setFalse = true
+            sendUpdate = true
         }
 
+        let waitSendMousePos = false
         const mouseOverHandler = (e) => {
-            if (!pm.shoot) return
+            if (!pm.shoot || waitSendMousePos) return
             const x = (e.clientX / window.innerWidth) * 100
             const y = (e.clientY / window.innerHeight) * 100
             pm.shoot = [x, y]
+            sendUpdate = true
+            waitSendMousePos = true
+            setTimeout(() => {
+                waitSendMousePos = false
+            }, (1000 / 60) * 10)
         }
 
         const blurHandler = (e) => {
@@ -85,7 +115,7 @@ const Players = ({ messagesService, userOriginal }) => {
             pm.down = false
             pm.space = false
             pm.shoot = null
-            setFalse = true
+            sendUpdate = true
         }
 
         document.addEventListener('keydown', keyDownHandler, false)
@@ -97,17 +127,20 @@ const Players = ({ messagesService, userOriginal }) => {
 
 
         const sendMovementToServer = () => {
-            if (pm.up || pm.down || pm.left || pm.right || pm.space || setFalse || pm.shoot) {
+            if (sendUpdate) {
                 messagesService.sendPlayerMovement(pm)
-                setFalse = false
+                sendUpdate = false
             }
         }
 
         const handleMovementFromServer = () => {
             const usersServer = usersServerList.shift()
-            if (usersServer) setUsers(usersServer)
+            if (usersServer) {
+                window.requestAnimationFrame(() => setUsers(usersServer))
+            }
         }
 
+        
         setInterval(() => {
             sendMovementToServer()
             handleMovementFromServer()

@@ -94,6 +94,13 @@ io.on("connection", (socket) => {
                 color: getRandomColor(),
                 hit: false,
                 shield: false,
+
+                up: false,
+                down: false,
+                left: false,
+                right: false,
+                space: false,
+                shoot: null,
             }
 
             playersShootCooldown[socket.id] = false
@@ -193,96 +200,107 @@ const shootBullet = (shot, id) => {
         updateState = true
         setTimeout(() => {
             playersShootCooldown[id] = false
-        }, 200)
+        }, 300)
     }
+}
+
+const findPlayer = (id) => {
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].id === id) {
+            return users[i]
+        }
+    }
+    return null
 }
 
 const handlePlayerMovements = () => {
 
-    if (!freezeGame) {
-        userMoves.forEach(pm => {
+    userMoves.forEach(pm => {
 
-            const user = users.find(u => u.id === pm.id)
-            if (!user) return
+        let user = findPlayer(pm.id)
+        if (!user) return
 
-            let newPosX = user.playerPosX
-            let newPosY = user.playerPosY
+        user.up = pm.up
+        user.down = pm.down
+        user.left = pm.left
+        user.right = pm.right
+        user.space = pm.space
+        user.shoot = pm.shoot
 
-            if (pm.up && pm.left) {
-                newPosX = newPosX - moveSpeed2
-                newPosY = newPosY - moveSpeed2
+    })
+
+    userMoves = []
+
+    users.forEach(user => {
+
+        let newPosX = user.playerPosX
+        let newPosY = user.playerPosY
+
+        if (user.up && user.left) {
+            newPosX = newPosX - moveSpeed2
+            newPosY = newPosY - moveSpeed2
+        }
+        else if (user.up && user.right) {
+            newPosX = newPosX + moveSpeed2
+            newPosY = newPosY - moveSpeed2
+        }
+        else if (user.down && user.left) {
+            newPosX = newPosX - moveSpeed2
+            newPosY = newPosY + moveSpeed2
+        }
+        else if (user.down && user.right) {
+            newPosX = newPosX + moveSpeed2
+            newPosY = newPosY + moveSpeed2
+        }
+        else if (user.up) newPosY = newPosY - moveSpeed1
+        else if (user.down) newPosY = newPosY + moveSpeed1
+        else if (user.left) newPosX = newPosX - moveSpeed1
+        else if (user.right) newPosX = newPosX + moveSpeed1
+
+        if (newPosX > 101) newPosX = newPosX - moveSpeed1
+        if (newPosX < -1) newPosX = newPosX + moveSpeed1
+        if (newPosY > 101) newPosY = newPosY - moveSpeed1
+        if (newPosY < -1) newPosY = newPosY + moveSpeed1
+
+        if (gunGameInProgress) {
+            if (user.shoot) {
+                shootBullet(pm.shoot, pm.id)
             }
-            else if (pm.up && pm.right) {
-                newPosX = newPosX + moveSpeed2
-                newPosY = newPosY - moveSpeed2
+        }
+
+        user.shield = user.space
+        user.playerPosX = newPosX
+        user.playerPosY = newPosY
+
+        updateState = true
+        usersChanged = true
+
+        messages.forEach(m => {
+
+            const messageX = m.left
+            const messageY = m.top
+            const x = newPosX
+            const y = newPosY
+
+            if (x >= messageX - 2.0 && x <= messageX - 1.5 && y >= messageY - 2.5 && y <= messageY + 7.75) {
+                m.left = m.left + moveSpeed1
+                newMessages = true
             }
-            else if (pm.down && pm.left) {
-                newPosX = newPosX - moveSpeed2
-                newPosY = newPosY + moveSpeed2
+            else if (x <= messageX + 12.75 && x >= messageX + 12.25 && y >= messageY - 2.5 && y <= messageY + 7.75) {
+                m.left = m.left - moveSpeed1
+                newMessages = true
             }
-            else if (pm.down && pm.right) {
-                newPosX = newPosX + moveSpeed2
-                newPosY = newPosY + moveSpeed2
+            else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY - 2.75 && y <= messageY - 2.25) {
+                m.top = m.top + moveSpeed1
+                newMessages = true
             }
-            else if (pm.up) newPosY = newPosY - moveSpeed1
-            else if (pm.down) newPosY = newPosY + moveSpeed1
-            else if (pm.left) newPosX = newPosX - moveSpeed1
-            else if (pm.right) newPosX = newPosX + moveSpeed1
-
-            if (newPosX > 101) newPosX = newPosX - moveSpeed1
-            if (newPosX < -1) newPosX = newPosX + moveSpeed1
-            if (newPosY > 101) newPosY = newPosY - moveSpeed1
-            if (newPosY < -1) newPosY = newPosY + moveSpeed1
-
-            if (gunGameInProgress) {
-                if (pm.shoot) {
-                    shootBullet(pm.shoot, pm.id)
-                }
+            else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY + 7.25 && y <= messageY + 7.75) {
+                m.top = m.top - moveSpeed1
+                newMessages = true
             }
 
-            user.shield = pm.space
-            user.playerPosX = newPosX
-            user.playerPosY = newPosY
-
-            updateState = true
-            usersChanged = true
-
-            messages.forEach(m => {
-
-                const messageX = m.left
-                const messageY = m.top
-        
-                users.forEach(u => {
-        
-                    const x = u.playerPosX
-                    const y = u.playerPosY
-        
-                    // fra venstre
-                    if (x >= messageX - 2.0 && x <= messageX - 1.5 && y >= messageY - 2.5 && y <= messageY + 7.75) {
-                        m.left = m.left + moveSpeed1
-                        newMessages = true
-                    }
-                    //fra høyre
-                    else if (x <= messageX + 12.75 && x >= messageX + 12.25 && y >= messageY - 2.5 && y <= messageY + 7.75) {
-                        m.left = m.left - moveSpeed1
-                        newMessages = true
-                    }
-                    //fra top
-                    else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY - 2.75 && y <= messageY - 2.25) {
-                        m.top = m.top + moveSpeed1
-                        newMessages = true
-                    }
-                    //fra bot
-                    else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY + 7.25 && y <= messageY + 7.75) {
-                        m.top = m.top - moveSpeed1
-                        newMessages = true
-                    }
-                })
-            })
         })
-
-        userMoves = []
-    }
+    })
 }
 
 const makePillar = () => {
@@ -494,7 +512,7 @@ const updateGames = () => {
             gameInProgress = false
             startOver = false
             progressTick = 0
-            
+
             setTimeout(() => {
                 usersDead = []
                 usersDeadChanged = true
@@ -553,7 +571,7 @@ const updateGames = () => {
 }
 
 const emitGameState = () => {
-    
+
     if (updateState) {
 
         io.sockets.emit('gameState', {
