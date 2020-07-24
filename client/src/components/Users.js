@@ -2,7 +2,7 @@ import React from "react"
 import { useState, useEffect } from 'react'
 import User from "./User"
 
-const Users = ({ users }) => {
+const Users = React.memo(({ users }) => {
 
     const [usersSorted, setUsersSorted] = useState([])
 
@@ -42,6 +42,6 @@ const Users = ({ users }) => {
         </div>
 
     )
-}
+})
 
 export default Users

@@ -5,7 +5,7 @@ import AreaStartGunGame from "./AreaStartGunGame"
 import AreaRandom from "./AreaRandom"
 import { useState, useEffect } from 'react'
 
-const Areas = ({ messagesService }) => {
+const Areas = React.memo(({ messagesService }) => {
 
     const [numbersDeleteEvent, setNumbersDeleteEvent] = useState([])
     const [numbersGameEvent, setNumbersGameEvent] = useState([])
@@ -30,6 +30,6 @@ const Areas = ({ messagesService }) => {
             <AreaRandom />
         </div>
     )
-}
+})
 
 export default Areas

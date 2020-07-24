@@ -1,6 +1,6 @@
 import React from "react"
 
-const AreaDelete = ({ numbersDeleteEvent }) => {
+const AreaDelete = React.memo(({ numbersDeleteEvent }) => {
 
     const getOpacity = () => {
         if (numbersDeleteEvent[0]){
@@ -26,6 +26,6 @@ const AreaDelete = ({ numbersDeleteEvent }) => {
     }
 
     return <div style={coloredBall}> </div>
-}
+})
 
 export default AreaDelete

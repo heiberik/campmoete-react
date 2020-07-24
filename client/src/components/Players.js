@@ -4,7 +4,7 @@ import PlayerOther from './PlayerOther'
 import Users from "./Users"
 import { useState, useEffect } from 'react'
 
-const Players = ({ messagesService, userOriginal }) => {
+const Players = React.memo(({ messagesService, userOriginal }) => {
 
     const [users, setUsers] = useState([])
 
@@ -31,6 +31,7 @@ const Players = ({ messagesService, userOriginal }) => {
         })
 
         const keyDownHandler = (e) => {
+            console.log(e)
             if (e.target.tagName.toUpperCase() === "INPUT") return
 
             if (e.keyCode === 68 || e.keyCode === 39) {
@@ -105,7 +106,7 @@ const Players = ({ messagesService, userOriginal }) => {
             waitSendMousePos = true
             setTimeout(() => {
                 waitSendMousePos = false
-            }, (1000 / 60) * 5)
+            }, 1000 / 60)
         }
 
         const blurHandler = (e) => {
@@ -171,7 +172,7 @@ const Players = ({ messagesService, userOriginal }) => {
             </ul>
         </>
     )
-}
+})
 
 
 

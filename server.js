@@ -56,6 +56,8 @@ let gunGameInProgress = false
 let countDownStarted = false
 let countDownNumber = -2
 
+// ha en countdown når gungame er ferdig.
+// pillargame: står hvor mange poeng man fikk når spillet er ferdig
 
 io.on("connection", (socket) => {
 
@@ -200,7 +202,7 @@ const shootBullet = (shot, id) => {
         updateState = true
         setTimeout(() => {
             playersShootCooldown[id] = false
-        }, 300)
+        }, 5)
     }
 }
 
@@ -239,6 +241,10 @@ const handlePlayerMovements = () => {
         user.shoot = pm.shoot
     })
 
+    if (userMoves.length > 0) {
+        updateState = true
+        usersChanged = true
+    }
     userMoves = []
 
     if (!shieldChanged){
@@ -650,21 +656,14 @@ const emitGameState = () => {
     }
 }
 
-let emitGS = false
 setInterval(() => {
 
     updateGames()
     handleMessageQueue()
     handlePlayerMovements() 
     updateNumberAreas()
-    if (emitGS){
-        emitGameState()
-        emitGS = false
-    }
-    else {
-        emitGameState()
-        emitGS = true
-    }
+    emitGameState()
+
 }, 1000 / 60);
 
 

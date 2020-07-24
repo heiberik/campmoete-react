@@ -29,6 +29,7 @@ const PlayerClient = React.memo(({ user }) => {
         margin: "auto",
         display: "block",
         border: ".5vh solid",
+        borderRadius: "1.2vh",
         zIndex: "999999999999",
         AnimationTimingFunction: "ease-in-out",
         WebkitAnimationTimingFunction: "ease-in-out",

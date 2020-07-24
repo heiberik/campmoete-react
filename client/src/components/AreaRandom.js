@@ -1,6 +1,6 @@
 import React from "react"
 
-const AreaRandom = () => {
+const AreaRandom = React.memo((props) => {
 
     const coloredBall = {
         borderRadius: "1.5rem",
@@ -20,6 +20,6 @@ const AreaRandom = () => {
 
 
     return <div style={coloredBall}> </div>
-}
+})
 
 export default AreaRandom

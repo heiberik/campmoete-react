@@ -23,6 +23,7 @@ const PlayerOther = ({ user }) => {
         margin: "auto",
         display: "block",
         border: ".5vh solid",
+        borderRadius: "1.2vh",
         zIndex: "9999999999",
         borderColor: user.color,
         userDrag: "none",

@@ -1,6 +1,6 @@
 import React from "react"
 
-const AreaStartGame = ({ numbersGameEvent }) => {
+const AreaStartGame = React.memo(({ numbersGameEvent }) => {
 
     const getOpacity = () => {
         if (numbersGameEvent[0]){
@@ -27,6 +27,6 @@ const AreaStartGame = ({ numbersGameEvent }) => {
 
     return <div style={coloredBall}> </div>
     
-}
+})
 
 export default AreaStartGame
