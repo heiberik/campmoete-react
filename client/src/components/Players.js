@@ -31,7 +31,6 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
         })
 
         const keyDownHandler = (e) => {
-            console.log(e)
             if (e.target.tagName.toUpperCase() === "INPUT") return
 
             if (e.keyCode === 68 || e.keyCode === 39) {
