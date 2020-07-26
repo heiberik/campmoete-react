@@ -6,25 +6,28 @@ const PlayerOther = ({ user }) => {
 
     const stylePlayer = {
         position: "absolute",
-        transform: "translate(-50%, -50%)",
+        width: user.playerWidth + "vw",
+        height: user.playerHeight + "vh",
         top: user.playerPosY + "vh",
         left: user.playerPosX + "vw",
         padding: "0px",
         margin: "0px",
-        zIndex: "9999999999",
-        width: "2.5rem",
-        height: "2.5rem",
+        zIndex: "999999999999",
+        borderRadius: "1vh",
+        background: user.color,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
     }
 
     const stylePicture = {
-        width: "3vw",
-        height: "4vh",
-        padding: "0px",
-        margin: "auto",
+        width: "80%",
+        height: "80%",
         display: "block",
-        border: ".5vh solid",
-        borderRadius: "1.2vh",
-        zIndex: "9999999999",
+        borderRadius: ".8vh",
+        padding: "0px",
+        margin: "0px",
+        zIndex: "99999999999",
         borderColor: user.color,
         userDrag: "none",
         userSelect: "none",
@@ -34,12 +37,12 @@ const PlayerOther = ({ user }) => {
     }
 
     const styleShield = {
-        position: "relative",
-        width: "3rem",
-        height: "3rem",
-        top: "-2.2rem",
-        left: "1.4rem",
-        zIndex: "999999999999",
+        position: "absolute",
+        width: user.playerWidth + "vw",
+        height: user.playerHeight + "vh",
+        top: user.playerPosY + 1 + "vh",
+        left: user.playerPosX + 1 + "vw",
+        zIndex: "99999999999",
         userDrag: "none",
         userSelect: "none",
         WebkitUserDrag: "none",
@@ -50,12 +53,14 @@ const PlayerOther = ({ user }) => {
     if (!user) {
         return null
     }
-    else if (user.shield){
+    else if (user.shield) {
         return (
-            <div style={stylePlayer}>
-                <img style={stylePicture} src={char} alt="character" />
+            <>
+                <div style={stylePlayer}>
+                    <img style={stylePicture} src={char} alt="character" />
+                </div>
                 <img style={styleShield} src={shieldPic} alt="shield" />
-            </div>
+            </>
         )
     }
     else return (

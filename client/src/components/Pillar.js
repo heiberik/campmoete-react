@@ -4,7 +4,7 @@ const Pillar = ({ pillar }) => {
 
     const styleLine = {
         position: "relative",
-        strokeWidth: "2rem",
+        strokeWidth: "2vw",
         stroke: pillar.color,
         zIndex: "600"
     }

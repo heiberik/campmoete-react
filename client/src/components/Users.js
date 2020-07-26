@@ -37,7 +37,7 @@ const Users = React.memo(({ users }) => {
     else return (
         <div style={style}>
             <ul style={styleList}>
-                {usersSorted.map(user => <User key={user.id} user={user} />)}
+                {usersSorted.map(user => <User key={user.socketID} user={user} />)}
             </ul>
         </div>
 

@@ -13,7 +13,7 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
         let usersServerList = []
 
         const pm = {
-            id: userOriginal.id,
+            id: userOriginal.socketID,
             up: false,
             down: false,
             left: false,
@@ -135,6 +135,11 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
 
         const handleMovementFromServer = () => {
             const usersServer = usersServerList.shift()
+            if (usersServerList.length > 180){
+                const usersLast = usersServerList[usersServerList.length - 1]
+                usersServerList = []
+                window.requestAnimationFrame(() => setUsers(usersLast))
+            }
             if (usersServer) {
                 window.requestAnimationFrame(() => setUsers(usersServer))
             }
@@ -153,17 +158,17 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
             <Users users={users} />
             <ul>
                 {users.map(u => {
-                    if (u.id !== userOriginal.id) {
+                    if (u.socketID !== userOriginal.socketID) {
                         return (
                             <PlayerOther
-                                key={u.id}
+                                key={u.socketID}
                                 user={u} />
                         )
                     }
                     else {
                         return (
                             <PlayerClient
-                                key={u.id}
+                                key={u.socketID}
                                 user={u} />
                         )
                     }

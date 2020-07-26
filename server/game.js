@@ -1,8 +1,10 @@
+const Player = require("./player")
+
 class Game {
     constructor() {
         this.messages = []
         this.newMessages = false
-        this.users = []
+        this.players = []
         this.sockets = []
         this.userMoves = []
         this.usersChanged = false
@@ -17,6 +19,9 @@ class Game {
         this.moveSpeed1 = .4
         this.moveSpeed2 = .2
         this.pillarSpeed = .3
+        this.countDownNumber = -2
+        this.messagesWidth = 12
+        this.messagesHeight = 6
 
         // pillar game
         this.scoreChanged = false
@@ -34,60 +39,47 @@ class Game {
         this.bulletsChanged = false
 
         // other state changes
-        this.numbersAreaChanged = false
         this.updateState = false
+        this.numbersAreaChanged = false
         this.startOverDelete = false
         this.startOverGame = false
         this.startOverGunGame = false
         this.gameInProgress = false
         this.gunGameInProgress = false
         this.countDownStarted = false
-        this.countDownNumber = -2
+
 
         setInterval(() => {
 
+            this.handlePlayerMovements()
             this.updateGames()
             this.handleMessageQueue()
-            this.handlePlayerMovements()
             this.updateNumberAreas()
             this.emitGameState()
-    
+
         }, 1000 / 60);
     }
 
 
-    addPlayer(player, socket){
+    addPlayer(player, socket) {
 
-        const check = this.users.filter(u => u.username.toLowerCase() === player.username.toLowerCase())
+        const check = this.players.filter(u => u.username.toLowerCase() === player.username.toLowerCase())
         if (check.length > 0) {
-            const newUser = {
-                id: "usernameTaken"
-            }
+            const newUser = { id: "usernameTaken" }
             socket.emit("sendUser", newUser)
         }
         else {
-            const newUser = {
-                id: socket.id,
-                updateSeq: 0,
-                username: player.username,
-                playerPosX: 85,
-                playerPosY: 85 + (this.users.length * 2),
-                color: this.getRandomColor(),
-                hit: false,
-                shield: false,
-
-                up: false,
-                down: false,
-                left: false,
-                right: false,
-                space: false,
-                shoot: null,
-            }
+            const newPlayer = new Player(
+                socket.id,
+                player.username,
+                85,
+                85 + (this.players.length * 2),
+                this.getRandomColor())
 
             this.playersShootCooldown[socket.id] = false
-            this.users.push(newUser)
+            this.players.push(newPlayer)
             this.sockets.push(socket)
-            socket.emit("sendUser", newUser)
+            socket.emit("sendUser", newPlayer.getJSON())
 
             this.updateState = true
             this.usersChanged = true
@@ -97,23 +89,23 @@ class Game {
         }
     }
 
-    removePlayer(socket){
-        this.users = this.users.filter(user => user.id !== socket.id)
+    removePlayer(socket) {
+        this.players = this.players.filter(user => user.getID() !== socket.id)
         console.log("user disconnected")
         this.updateState = true
         this.usersChanged = true
         delete this.playersShootCooldown[socket.id]
     }
 
-    addPlayerMovement(pm){
+    addPlayerMovement(pm) {
         this.userMoves.push(pm)
     }
 
-    addMessage(message){
+    addMessage(message) {
         this.messagesQueue.push(message)
     }
 
-    getRandomColor(){
+    getRandomColor() {
         var letters = 'ABCDEF'
         var color = '#'
         for (var i = 0; i < 6; i++) {
@@ -122,7 +114,7 @@ class Game {
         return color
     }
 
-    handleMessageQueue(){
+    handleMessageQueue() {
 
         this.messagesQueue.forEach(m => {
             let top = 0
@@ -142,7 +134,9 @@ class Game {
                 date: Date(),
                 color: this.getRandomColor(),
                 top: top,
-                left: left
+                left: left,
+                width: this.messagesWidth,
+                height: this.messagesHeight,
             }
 
             this.messages.push(newMessage)
@@ -153,7 +147,7 @@ class Game {
         this.messagesQueue = []
     }
 
-    shootBullet(shot, id){
+    shootBullet(shot, id) {
 
         var cd = this.playersShootCooldown[id]
 
@@ -163,8 +157,8 @@ class Game {
             const y = shot[1]
 
             const user = this.findPlayerId(id)
-            let dirX = x - user.playerPosX
-            let dirY = y - user.playerPosY
+            let dirX = x - user.getPosX()
+            let dirY = y - user.getPosY()
 
             const len = Math.sqrt(dirX * dirX + dirY * dirY)
 
@@ -173,9 +167,9 @@ class Game {
 
             const bullet = {
                 id: Math.floor(Math.random() * 999999999) + user.id,
-                owner: user.id,
-                posX: user.playerPosX,
-                posY: user.playerPosY,
+                owner: user.getID(),
+                posX: user.getPosX(),
+                posY: user.getPosY(),
                 dirX: dirX,
                 dirY: dirY,
                 hit: false,
@@ -193,83 +187,65 @@ class Game {
         }
     }
 
-    findPlayerId(id){
-        for (let i = 0; i < this.users.length; i++) {
-            if (this.users[i].id === id) {
-                return this.users[i]
+    findPlayerId(id) {
+        for (let i = 0; i < this.players.length; i++) {
+            if (this.players[i].getID() === id) {
+                return this.players[i]
             }
         }
         return null
     }
 
-    findPlayerUsername(username){
-        for (let i = 0; i < this.users.length; i++) {
-            if (this.users[i].username === username) {
-                return this.users[i]
+    findPlayerUsername(username) {
+        for (let i = 0; i < this.players.length; i++) {
+            if (this.players[i].getUsername() === username) {
+                return this.players[i]
             }
         }
         return null
     }
 
-    handlePlayerMovements(){
+    handlePlayerMovements() {
 
-        let shieldChanged = false
         this.userMoves.forEach(pm => {
 
-            let user = this.findPlayerId(pm.id)
-            if (!user) return
+            let player = this.findPlayerId(pm.id)
+            if (!player) return
 
-            if (pm.space !== user.shield) shieldChanged = true
-            user.up = pm.up
-            user.down = pm.down
-            user.left = pm.left
-            user.right = pm.right
-            user.space = pm.space
-            user.shoot = pm.shoot
-        })
-
-        if (this.userMoves.length > 0) {
+            player.setPM(pm)
             this.updateState = true
             this.usersChanged = true
-        }
+        })
+
         this.userMoves = []
 
-        if (!shieldChanged) {
-            let noMovement = true
-            this.users.forEach(u => {
-                if (u.up || u.down || u.left || u.right || u.space || u.up || u.shoot) {
-                    noMovement = false
-                }
-            })
-            if (noMovement) return
-        }
 
-        this.users.forEach(user => {
+        this.players.forEach(p => {
 
             if (this.freezeGame) return
-            let newPosX = user.playerPosX
-            let newPosY = user.playerPosY
+            let newPosX = p.getPosX()
+            let newPosY = p.getPosY()
 
-            if (user.up && user.left) {
+            if (p.getUp() && p.getLeft()) {
                 newPosX = newPosX - this.moveSpeed2
                 newPosY = newPosY - this.moveSpeed2
             }
-            else if (user.up && user.right) {
+            else if (p.getUp() && p.getRight()) {
                 newPosX = newPosX + this.moveSpeed2
                 newPosY = newPosY - this.moveSpeed2
             }
-            else if (user.down && user.left) {
+            else if (p.getDown() && p.getLeft()) {
                 newPosX = newPosX - this.moveSpeed2
                 newPosY = newPosY + this.moveSpeed2
             }
-            else if (user.down && user.right) {
+            else if (p.getDown() && p.getRight()) {
                 newPosX = newPosX + this.moveSpeed2
                 newPosY = newPosY + this.moveSpeed2
             }
-            else if (user.up) newPosY = newPosY - this.moveSpeed1
-            else if (user.down) newPosY = newPosY + this.moveSpeed1
-            else if (user.left) newPosX = newPosX - this.moveSpeed1
-            else if (user.right) newPosX = newPosX + this.moveSpeed1
+            else if (p.getUp()) newPosY = newPosY - this.moveSpeed1
+            else if (p.getDown()) newPosY = newPosY + this.moveSpeed1
+            else if (p.getLeft()) newPosX = newPosX - this.moveSpeed1
+            else if (p.getRight()) newPosX = newPosX + this.moveSpeed1
 
             if (newPosX > 101) newPosX = newPosX - this.moveSpeed1
             if (newPosX < -1) newPosX = newPosX + this.moveSpeed1
@@ -277,38 +253,47 @@ class Game {
             if (newPosY < -1) newPosY = newPosY + this.moveSpeed1
 
             if (this.gunGameInProgress) {
-                if (user.shoot) {
-                    this.shootBullet(user.shoot, user.id)
+                if (p.getShoot()) {
+                    this.shootBullet(p.getShoot(), p.getID())
                 }
             }
 
-            user.shield = user.space
-            user.playerPosX = newPosX
-            user.playerPosY = newPosY
+            p.setShield()
+            p.setPosX(newPosX)
+            p.setPosY(newPosY)
 
             this.updateState = true
             this.usersChanged = true
+
+            const x = newPosX
+            const y = newPosY
+            const width = p.getWidth()
+            const height = p.getHeight()
 
             this.messages.forEach(m => {
 
                 const messageX = m.left
                 const messageY = m.top
-                const x = newPosX
-                const y = newPosY
+                const mHeight = this.messagesHeight
+                const mWidth = this.messagesWidth
 
-                if (x >= messageX - 2.0 && x <= messageX - 1.5 && y >= messageY - 2.5 && y <= messageY + 7.75) {
+                // fra venstre
+                if (x + width >= messageX && x + width <= messageX + 1 && y + height >= messageY && y <= messageY + mHeight) {
                     m.left = m.left + this.moveSpeed1
                     this.newMessages = true
                 }
-                else if (x <= messageX + 12.75 && x >= messageX + 12.25 && y >= messageY - 2.5 && y <= messageY + 7.75) {
+                //fra høyre
+                else if (x <= messageX + mWidth && x >= messageX + mWidth - 1 && y + height >= messageY && y <= messageY + mHeight) {
                     m.left = m.left - this.moveSpeed1
                     this.newMessages = true
                 }
-                else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY - 2.75 && y <= messageY - 2.25) {
+                //fra top
+                else if (x + width >= messageX && x <= messageX + mWidth && y + height >= messageY && y + height <= messageY + 1) {
                     m.top = m.top + this.moveSpeed1
                     this.newMessages = true
                 }
-                else if (x >= messageX - 2 && x <= messageX + 12.75 && y >= messageY + 7.25 && y <= messageY + 7.75) {
+                // fra bunn
+                else if (x + width >= messageX && x <= messageX + mWidth && y <= messageY + mHeight && y >= messageY + mHeight - 1) {
                     m.top = m.top - this.moveSpeed1
                     this.newMessages = true
                 }
@@ -317,7 +302,7 @@ class Game {
         })
     }
 
-    makePillar(){
+    makePillar() {
 
         const randomNumber1 = Math.floor(Math.random() * 60) + 20
 
@@ -331,7 +316,7 @@ class Game {
         this.pillars.push(newPillar)
     }
 
-    movePillars(){
+    movePillars() {
 
         this.pillars.forEach(p => { p.posX = p.posX - this.pillarSpeed })
         this.pillars = this.pillars.filter(p => {
@@ -344,18 +329,21 @@ class Game {
         })
     }
 
-    checkCollissions(){
+    checkCollissions() {
         let ud = []
 
-        this.users.forEach(u => {
+        this.players.forEach(p => {
 
-            const x = u.playerPosX
-            const y = u.playerPosY
+            const x = p.getPosX()
+            const y = p.getPosY()
+            const width = p.getWidth()
+            const height = p.getHeight()
 
-            this.pillars.forEach(p => {
-                if (p.posX >= x - 2.8 && p.posX <= x + 2.8) {
-                    if (y >= p.bottom - 2.8 || y <= p.top + 1.9) {
-                        ud.push(u.username)
+            this.pillars.forEach(pillar => {
+
+                if (x + width >= pillar.posX - 1 && x <= pillar.posX + 1) {
+                    if (y <= pillar.top || y + height >= pillar.bottom) {
+                        ud.push(p.getUsername())
                     }
                 }
             })
@@ -364,50 +352,57 @@ class Game {
         return ud
     }
 
-    checkBulletCollission(){
+    checkBulletCollission() {
+
 
         this.bullets = this.bullets.filter(b => { return b.hit === false })
 
         let dead = []
+        const e = .2
+
         this.bullets.forEach(b => {
 
-            const x = b.posX
-            const y = b.posY
+            const x = b.posX + e
+            const y = b.posY + e
 
             this.messages.forEach(m => {
 
-                const px = m.left
-                const py = m.top
-
-                if (x < px + 11.5 && x > px - 0.5 && y < py + 5.5 && y > py - 0.5) {
+                const mX = m.left
+                const mY = m.top
+                const height = this.messagesHeight
+                const width = this.messagesWidth
+                if (x > mX-e && x < mX + width+e && y > mY-e && y < mY + height+e) {
                     b.hit = true
                     this.bulletsChanged = true
                     this.updateState = true
                 }
             })
 
-            this.users.forEach(u => {
-                if (u.id === b.owner) return
+            this.players.forEach(u => {
+                if (u.getID() === b.owner) return
 
-                const px = u.playerPosX
-                const py = u.playerPosY
-
-                if (x < px + 2 && x > px - 2 && y < py + 2 && y > py - 2) {
-                    dead.push(u.username)
+                const pX = u.getPosX()
+                const pY = u.getPosY()
+                const height = u.getHeight()
+                const width = u.getWidth()
+                if (x > pX-e && x < pX + width+e && y > pY-e && y < pY + height+e) {
+                    dead.push(u.getUsername())
                     b.hit = true
-                    u.hit = true
+                    u.setHit(true)
                     this.bulletsChanged = true
                     this.updateState = true
                     this.usersChanged = true
-                    u.playerPosX = 93
-                    u.playerPosY = 85
+                    u.setPosX(93)
+                    u.setPosY(85)
+                    console.log("hit!")
                 }
             })
         })
+
         return dead
     }
 
-    moveBullets(){
+    moveBullets() {
 
         this.bullets.forEach(b => {
             b.posX = b.posX + b.dirX
@@ -422,33 +417,37 @@ class Game {
         this.updateState = true
     }
 
-    updateNumberAreas(){
+    updateNumberAreas() {
         if (!this.gameInProgress && this.updateState) {
 
             let usersInDeleteArea = 0
             let usersInGameArea = 0
             let usersInGunGameArea = 0
 
-            this.users.forEach(u => {
-                if (u.playerPosX < 8 && u.playerPosY > 92 && u.playerPosX > 1 && u.playerPosY < 99) {
+            this.players.forEach(u => {
+
+                const x = u.getPosX()
+                const y = u.getPosY()
+
+                if (x < 8 && y > 92 && x > 1 && y < 99) {
                     usersInDeleteArea++
                 } else this.startOverDelete = false
 
-                if (u.playerPosX > 92 && u.playerPosY > 92 && u.playerPosX < 99 && u.playerPosY < 99) {
+                if (x > 92 && y > 92 && x < 99 && y < 99) {
                     usersInGameArea++
                 } else this.startOverGame = false
 
-                if (u.playerPosX > 80 && u.playerPosY > 92 && u.playerPosX < 87 && u.playerPosY < 99) {
+                if (x > 80 && y > 92 && x < 87 && y < 99) {
                     usersInGunGameArea++
                 } else this.startOverGunGame = false
             })
 
-            if (usersInDeleteArea > 0 && usersInDeleteArea === this.users.length && !this.startOverDelete) {
+            if (usersInDeleteArea > 0 && usersInDeleteArea === this.players.length && !this.startOverDelete) {
                 this.messages = []
                 this.startOverDelete = true
                 this.newMessages = true
             }
-            if (usersInGameArea > 0 && usersInGameArea === this.users.length && !this.startOverGame && !this.gameInProgress && !this.countDownStarted) {
+            if (usersInGameArea > 0 && usersInGameArea === this.players.length && !this.startOverGame && !this.gameInProgress && !this.countDownStarted) {
                 this.countDownStarted = true
                 this.startOverGame = true
                 const countDown = (count) => {
@@ -468,7 +467,7 @@ class Game {
                 }
                 countDown(5)
             }
-            if (usersInGunGameArea > 0 && usersInGunGameArea === this.users.length && !this.startOverGunGame && !this.gunGameInProgress && !this.countDownStarted) {
+            if (usersInGunGameArea > 0 && usersInGunGameArea === this.players.length && !this.startOverGunGame && !this.gunGameInProgress && !this.countDownStarted) {
                 this.countDownStarted = true
                 this.startOverGunGame = true
                 const countDown = (count) => {
@@ -507,13 +506,13 @@ class Game {
         }
     }
 
-    updateGames(){
+    updateGames() {
 
         if (this.gameInProgress) {
             this.progressTick++
             if (this.progressTick % this.progressTickSpeed === 0) {
                 this.makePillar()
-                if (this.progressTickSpeed > 130) {
+                if (this.progressTickSpeed > 110) {
                     this.progressTickSpeed -= 2
                 }
             }
@@ -544,10 +543,10 @@ class Game {
                 this.freezeGameChanged = true
 
                 setTimeout(() => {
-                    this.usersDead.forEach(u => {
-                        const user = this.findPlayerUsername(u)
-                        user.playerPosX = 93
-                        user.playerPosY = 85
+                    this.usersDead.forEach(username => {
+                        const p = this.findPlayerUsername(username)
+                        p.setPosX(93)
+                        p.setPosY(85)
                     })
                     this.usersDeadChanged = true
                     this.usersChanged = true
@@ -585,22 +584,28 @@ class Game {
         }
     }
 
-    getMessages(){
+    getMessages() {
         if (this.newMessages) return this.messages
         else return null
     }
 
-    getUsers(){
-        if (this.usersChanged) return this.users
+    getUsers() {
+        if (this.usersChanged) {
+            const users = []
+            this.players.forEach(p => {
+                users.push(p.getJSON())
+            })
+            return users
+        }
         else return null
     }
 
-    getPillars(){
+    getPillars() {
         if (this.pillarsChanged) return this.pillars
         else return null
     }
 
-    emitGameState(){
+    emitGameState() {
 
         if (this.updateState) {
 
@@ -620,9 +625,9 @@ class Game {
                 highScore: this.highscore,
                 currentScore: this.currentScore,
                 numbersAreaChanged: this.startOverGame || this.startOverDelete || this.numbersAreaChanged,
-                numbersDeleteEvent: [this.numbersDeleteEvent, this.users.length],
-                numbersGameEvent: [this.numbersGameEvent, this.users.length],
-                numbersGunGameEvent: [this.numbersGunGameEvent, this.users.length],
+                numbersDeleteEvent: [this.numbersDeleteEvent, this.players.length],
+                numbersGameEvent: [this.numbersGameEvent, this.players.length],
+                numbersGunGameEvent: [this.numbersGunGameEvent, this.players.length],
                 bulletsChanged: this.bulletsChanged,
                 bullets: this.bullets,
                 newHighscore: this.newHighscore,
@@ -633,7 +638,7 @@ class Game {
             this.sockets.forEach(s => {
                 s.emit('gameState', gameState)
             })
-        
+
             this.numbersAreaChanged = false
             this.scoreChanged = false
             this.usersDeadChanged = false
