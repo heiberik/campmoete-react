@@ -380,7 +380,7 @@ class Game {
                 const width = p.getWidth()
 
                 if (x > pX - r && x < pX + width + r && y > pY - r && y < pY + height + r) {
-                    dead.push(u.getUsername())
+                    dead.push(p.getUsername())
                     b.setExploded(true)
                     p.setHit(true)
                     this.bulletsChanged = true
@@ -628,7 +628,7 @@ class Game {
                     this.usersDead = []
                     this.usersDeadChanged = true
                     this.updateState = true
-                }, 5000)
+                }, 2000)
             }
             this.updateState = true
         }
