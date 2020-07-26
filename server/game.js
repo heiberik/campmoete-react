@@ -207,18 +207,22 @@ class Game {
 
     handlePlayerMovements() {
 
+
         this.userMoves.forEach(pm => {
 
             let player = this.findPlayerId(pm.id)
             if (!player) return
-
             player.setPM(pm)
             this.updateState = true
             this.usersChanged = true
         })
-
         this.userMoves = []
 
+        let checkMovement = false
+        this.players.forEach(p => {
+            if (p.checkIfMoving()) checkMovement = true
+        })
+        if (!checkMovement) return 
 
         this.players.forEach(p => {
 
@@ -394,7 +398,6 @@ class Game {
                     this.usersChanged = true
                     u.setPosX(93)
                     u.setPosY(85)
-                    console.log("hit!")
                 }
             })
         })
@@ -609,6 +612,7 @@ class Game {
 
         if (this.updateState) {
 
+            console.log("emitting")
             const gameState = {
                 freezeGameChanged: this.freezeGameChanged,
                 freezeGame: this.freezeGame,

@@ -32,10 +32,6 @@ io.on("connection", (socket) => {
         game = new Game()
     }
 
-    socket.on("joinRoom", (data) => {
-        
-    })
-
     socket.on("playerMovement", (pm) => {
         game.addPlayerMovement(pm)
     })

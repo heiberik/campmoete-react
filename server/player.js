@@ -37,6 +37,10 @@ class Player {
     setShield(){this.shield = this.space}
     getHit() {return this.hit}
 
+    checkIfMoving(){
+        return this.up || this.shield || this.down || this.left || this.right || this.shoot || this.space
+    }
+
     setPM(pm) {
         this.up = pm.up
         this.down = pm.down
