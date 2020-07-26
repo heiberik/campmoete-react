@@ -1,4 +1,7 @@
 const Player = require("./player")
+const Message = require("./message")
+const Bullet = require("./bullet")
+const Pillar = require("./pillar")
 
 class Game {
     constructor() {
@@ -20,8 +23,7 @@ class Game {
         this.moveSpeed2 = .2
         this.pillarSpeed = .3
         this.countDownNumber = -2
-        this.messagesWidth = 12
-        this.messagesHeight = 6
+
 
         // pillar game
         this.scoreChanged = false
@@ -117,27 +119,23 @@ class Game {
     handleMessageQueue() {
 
         this.messagesQueue.forEach(m => {
-            let top = 0
-            let left = 0
+            let y = 0
+            let x = 0
 
-            while ((top === 0) ||
-                (top > 35 && top < 60 && (left > 25 && left < 75)) ||
-                (left > 25 && left < 75 && (top > 35 && top < 60))
+            while ((y === 0) ||
+                (y > 35 && y < 60 && (x > 25 && x < 75)) ||
+                (x > 25 && x < 75 && (y > 35 && y < 60))
             ) {
-                top = Math.floor(Math.random() * 70) + 15
-                left = Math.floor(Math.random() * 80) + 5
+                y = Math.floor(Math.random() * 70) + 15
+                x = Math.floor(Math.random() * 80) + 5
             }
 
-            const newMessage = {
-                number: this.messages.length,
-                message: m.message,
-                date: Date(),
-                color: this.getRandomColor(),
-                top: top,
-                left: left,
-                width: this.messagesWidth,
-                height: this.messagesHeight,
-            }
+            const newMessage = new Message(
+                this.messages.length,
+                m.message,
+                this.getRandomColor(),
+                x,
+                y)
 
             this.messages.push(newMessage)
             this.newMessages = true
@@ -150,33 +148,16 @@ class Game {
     shootBullet(shot, id) {
 
         var cd = this.playersShootCooldown[id]
-
         if (!cd) {
 
-            const x = shot[0]
-            const y = shot[1]
+            const newBullet = new Bullet(
+                shot,
+                this.findPlayerId(id).getJSON(),
+                this.getRandomColor())
 
-            const user = this.findPlayerId(id)
-            let dirX = x - user.getPosX()
-            let dirY = y - user.getPosY()
+            console.log(newBullet)
 
-            const len = Math.sqrt(dirX * dirX + dirY * dirY)
-
-            dirX /= len
-            dirY /= len
-
-            const bullet = {
-                id: Math.floor(Math.random() * 999999999) + user.id,
-                owner: user.getID(),
-                posX: user.getPosX(),
-                posY: user.getPosY(),
-                dirX: dirX,
-                dirY: dirY,
-                hit: false,
-                color: this.getRandomColor(),
-            }
-
-            this.bullets.push(bullet)
+            this.bullets.push(newBullet)
 
             this.playersShootCooldown[id] = true
             this.bulletsChanged = true
@@ -207,7 +188,6 @@ class Game {
 
     handlePlayerMovements() {
 
-
         this.userMoves.forEach(pm => {
 
             let player = this.findPlayerId(pm.id)
@@ -222,7 +202,7 @@ class Game {
         this.players.forEach(p => {
             if (p.checkIfMoving()) checkMovement = true
         })
-        if (!checkMovement) return 
+        if (!checkMovement) return
 
         this.players.forEach(p => {
 
@@ -276,29 +256,29 @@ class Game {
 
             this.messages.forEach(m => {
 
-                const messageX = m.left
-                const messageY = m.top
-                const mHeight = this.messagesHeight
-                const mWidth = this.messagesWidth
+                const messageX = m.getPosX()
+                const messageY = m.getPosY()
+                const mHeight = m.getHeight()
+                const mWidth = m.getWidth()
 
                 // fra venstre
                 if (x + width >= messageX && x + width <= messageX + 1 && y + height >= messageY && y <= messageY + mHeight) {
-                    m.left = m.left + this.moveSpeed1
+                    m.setPosX(messageX + this.moveSpeed1)
                     this.newMessages = true
                 }
                 //fra høyre
                 else if (x <= messageX + mWidth && x >= messageX + mWidth - 1 && y + height >= messageY && y <= messageY + mHeight) {
-                    m.left = m.left - this.moveSpeed1
+                    m.setPosX(messageX - this.moveSpeed1)
                     this.newMessages = true
                 }
                 //fra top
                 else if (x + width >= messageX && x <= messageX + mWidth && y + height >= messageY && y + height <= messageY + 1) {
-                    m.top = m.top + this.moveSpeed1
+                    m.setPosY(messageY + this.moveSpeed1)
                     this.newMessages = true
                 }
                 // fra bunn
                 else if (x + width >= messageX && x <= messageX + mWidth && y <= messageY + mHeight && y >= messageY + mHeight - 1) {
-                    m.top = m.top - this.moveSpeed1
+                    m.setPosY(messageY - this.moveSpeed1)
                     this.newMessages = true
                 }
 
@@ -307,24 +287,15 @@ class Game {
     }
 
     makePillar() {
-
-        const randomNumber1 = Math.floor(Math.random() * 60) + 20
-
-        const newPillar = {
-            top: randomNumber1 - 7,
-            bottom: randomNumber1 + 7,
-            color: this.getRandomColor(),
-            posX: 105.0,
-        }
-
+        const newPillar = new Pillar(this.getRandomColor())
         this.pillars.push(newPillar)
     }
 
     movePillars() {
 
-        this.pillars.forEach(p => { p.posX = p.posX - this.pillarSpeed })
+        this.pillars.forEach(p => p.movePillar(this.pillarSpeed))
         this.pillars = this.pillars.filter(p => {
-            if (p.posX >= -4.0) return true
+            if (p.getPosX() >= -4.0) return true
             else {
                 this.scoreChanged = true
                 this.currentScore++
@@ -344,9 +315,9 @@ class Game {
             const height = p.getHeight()
 
             this.pillars.forEach(pillar => {
-
-                if (x + width >= pillar.posX - 1 && x <= pillar.posX + 1) {
-                    if (y <= pillar.top || y + height >= pillar.bottom) {
+                const pWidth = pillar.getWidth()
+                if (x + width >= pillar.getPosX() - (pWidth/2) && x <= pillar.getPosX() + (pWidth/2)) {
+                    if (y <= pillar.getTop() || y + height >= pillar.getBottom()) {
                         ud.push(p.getUsername())
                     }
                 }
@@ -359,45 +330,47 @@ class Game {
     checkBulletCollission() {
 
 
-        this.bullets = this.bullets.filter(b => { return b.hit === false })
+        this.bullets = this.bullets.filter(b => { return b.getExploded() === false })
 
         let dead = []
-        const e = .2
-
+        
         this.bullets.forEach(b => {
 
-            const x = b.posX + e
-            const y = b.posY + e
+            const r = b.getRadius()
+            const x = b.getPosX() + r
+            const y = b.getPosY() + r
 
             this.messages.forEach(m => {
 
-                const mX = m.left
-                const mY = m.top
-                const height = this.messagesHeight
-                const width = this.messagesWidth
-                if (x > mX-e && x < mX + width+e && y > mY-e && y < mY + height+e) {
-                    b.hit = true
+                const mX = m.getPosX()
+                const mY = m.getPosY()
+                const height = m.getHeight()
+                const width = m.getWidth()
+
+                if (x > mX - r && x < mX + width + r && y > mY - r && y < mY + height + r) {
+                    b.setExploded(true)
                     this.bulletsChanged = true
                     this.updateState = true
                 }
             })
 
-            this.players.forEach(u => {
-                if (u.getID() === b.owner) return
+            this.players.forEach(p => {
+                if (p.getID() === b.getOwner()) return
 
-                const pX = u.getPosX()
-                const pY = u.getPosY()
-                const height = u.getHeight()
-                const width = u.getWidth()
-                if (x > pX-e && x < pX + width+e && y > pY-e && y < pY + height+e) {
+                const pX = p.getPosX()
+                const pY = p.getPosY()
+                const height = p.getHeight()
+                const width = p.getWidth()
+
+                if (x > pX - r && x < pX + width + r && y > pY - r && y < pY + height + r) {
                     dead.push(u.getUsername())
-                    b.hit = true
-                    u.setHit(true)
+                    b.setExploded(true)
+                    p.setHit(true)
                     this.bulletsChanged = true
                     this.updateState = true
                     this.usersChanged = true
-                    u.setPosX(93)
-                    u.setPosY(85)
+                    p.setPosX(93)
+                    p.setPosY(85)
                 }
             })
         })
@@ -408,16 +381,13 @@ class Game {
     moveBullets() {
 
         this.bullets.forEach(b => {
-            b.posX = b.posX + b.dirX
-            b.posY = b.posY + b.dirY
+            b.moveBullet()
             this.bulletsChanged = true
         })
 
         this.bullets = this.bullets.filter(b => {
-            return b.posX < 102 && b.posX > -2 && b.posY < 102 && b.posY > -2
+            return b.getPosX() < 102 && b.getPosX() > -2 && b.getPosY() < 102 && b.getPosY() > -2
         })
-
-        this.updateState = true
     }
 
     updateNumberAreas() {
@@ -608,11 +578,20 @@ class Game {
         else return null
     }
 
+    getBullets(){
+        if (this.bulletsChanged) {
+            const bs = []
+            this.bullets.forEach(b => {
+                bs.push(b.getJSON())
+            })
+            return bs
+        }
+        else return null
+    }
+
     emitGameState() {
 
         if (this.updateState) {
-
-            console.log("emitting")
             const gameState = {
                 freezeGameChanged: this.freezeGameChanged,
                 freezeGame: this.freezeGame,
@@ -633,7 +612,7 @@ class Game {
                 numbersGameEvent: [this.numbersGameEvent, this.players.length],
                 numbersGunGameEvent: [this.numbersGunGameEvent, this.players.length],
                 bulletsChanged: this.bulletsChanged,
-                bullets: this.bullets,
+                bullets: this.getBullets(),
                 newHighscore: this.newHighscore,
                 gameInProgress: this.gameInProgress,
                 gunGameInProgress: this.gunGameInProgress

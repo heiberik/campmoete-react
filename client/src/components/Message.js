@@ -4,8 +4,8 @@ const Message = React.memo(({ message }) => {
 
     const style = {
         position: "absolute",
-        top: message.top + "vh",
-        left: message.left + "vw",
+        top: message.posY + "vh",
+        left: message.posX + "vw",
         zIndex: message.number,
         width: message.width + "vw",
         height: message.height + "vh",

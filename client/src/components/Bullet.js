@@ -6,8 +6,8 @@ const Bullet = React.memo(({ bullet }) => {
         position: "absolute",
         top: bullet.posY+"vh",
         left: bullet.posX+"vw",
-        border: "solid 0.4vw black",
-        borderRadius: "0.4vw",
+        border: "solid "+ bullet.width + "vw black",
+        borderRadius: bullet.width + "vw",
         borderColor: bullet.color,
         zIndex: "9999999999999999999999999999999",
     }
