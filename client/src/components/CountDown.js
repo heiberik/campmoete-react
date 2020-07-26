@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 
 const CountDown = ({ messagesService }) => {
 
-    const [countDown, setCountDown] = useState([])
+    const [countDown, setCountDown] = useState(-1)
 
     useEffect(() => {
         messagesService.getGameState((gameState) => {
@@ -26,6 +26,11 @@ const CountDown = ({ messagesService }) => {
         cursor: "default",
     }
 
+    if (countDown === 0){
+        return (
+            <div style={countDownStyle}> ;) </div>
+        )
+    }
     if (countDown > -1) {
         return (
             <div style={countDownStyle}> {countDown} </div>

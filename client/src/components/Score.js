@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react'
 const Score = ({ messagesService }) => {
 
     const [newHighScore, setNewHighScore] = useState(false)
-    const [scoreCurrentHigh, setScoreCurrentHigh] = useState([0, 0])
+    const [scoreCurrentHigh, setScoreCurrentHigh] = useState([0, 0, ""])
     const [pillarGameInProgress, setPillarGameInProgress] = useState(false)
+    const [gunGameInProgress, setGunGameInProgress] = useState(false)
+    const [timer, setTimer] = useState(-1)
 
     useEffect(() => {
         messagesService.getGameState((gameState) => {
             if (gameState.scoreChanged) {
-                setScoreCurrentHigh([gameState.currentScore, gameState.highScore])
+                setScoreCurrentHigh([gameState.currentScore, gameState.highScore, gameState.highScoreUsername])
                 if (gameState.newHighscore){
                     setNewHighScore(true)
                     setTimeout(() => {
@@ -19,10 +21,15 @@ const Score = ({ messagesService }) => {
                 }
             }
 
-            if (gameState.gameInProgress){
-                setPillarGameInProgress(true)
+            if (gameState.gameInProgressChanged = true){
+                setPillarGameInProgress(gameState.gameInProgress)
+                setGunGameInProgress(gameState.gunGameInProgress)
             }
-            else setPillarGameInProgress(false)
+
+            if (gameState.timerChanged){
+                setTimer(gameState.timer)
+            }
+            
         })
     }, [messagesService])
 
@@ -70,7 +77,14 @@ const Score = ({ messagesService }) => {
             <div style={scoreStyle}> Current Score: {scoreCurrentHigh[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {scoreCurrentHigh[1]}</div>
         )
     }
-    else return <div style={scoreStyle}> &emsp; </div>
+    else if (gunGameInProgress){
+        return (
+            <div style={scoreStyle}> {timer} </div>
+        )
+    }
+    else return (
+        <div style={scoreStyle}> Highest Score: {scoreCurrentHigh[1]} {scoreCurrentHigh[2]}</div>
+    )
 }
 
 export default Score

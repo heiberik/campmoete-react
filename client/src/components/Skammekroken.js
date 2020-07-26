@@ -8,15 +8,8 @@ const Skammekroken = ({ messagesService }) => {
 
     useEffect(() => {
         messagesService.getGameState((gameState) => {
-            if (gameState.freezeGameChanged) {
-                if (gameState.freezeGame) {
-                    setShowSkammekroken(gameState.freezeGame)
-                }
-                else {
-                    setTimeout(() => {
-                        setShowSkammekroken(gameState.freezeGame)
-                    }, 3000)
-                }
+            if (gameState.idiotBoxChanged) {
+                setShowSkammekroken(gameState.showIdiotBox)
             }
         })
     }, [messagesService])
@@ -30,20 +23,21 @@ const Skammekroken = ({ messagesService }) => {
         fontWeight: "bold",
         fontSize: "1.5rem",
         position: "absolute",
-        bottom: "4.5rem",
-        right: "0.5vw",
-        height: "10rem",
-        width: "10rem",
+        bottom: "10vh",
+        right: "1vw",
+        height: "15vh",
+        width: "15vw",
         background: "purple",
         color: "pink",
         border: "solid 2px pink",
         borderRadius: ".2rem",
+        zIndez: "999",
     }
 
     if (!showSkammekroken) return null
     else return (
         <div style={styleSkam}>
-            Krok of Skam
+            Idiotboksen
         </div>
     )
 }

@@ -15,6 +15,7 @@ class Game {
         this.pillarsChanged = false
         this.messagesQueue = []
         this.usersDead = []
+        this.usersIdiotboks = []
         this.usersDeadChanged = false
         this.numbersDeleteEvent = 0
         this.numbersGameEvent = 0
@@ -23,11 +24,14 @@ class Game {
         this.moveSpeed2 = .2
         this.pillarSpeed = .3
         this.countDownNumber = -2
+        this.timer = -1
+        this.showIdiotBox = false
 
 
         // pillar game
         this.scoreChanged = false
         this.highscore = 0
+        this.highScoreUsername = ""
         this.newHighscore = false
         this.currentScore = 0
         this.progressTick = 0
@@ -42,6 +46,7 @@ class Game {
 
         // other state changes
         this.updateState = false
+        this.gameInProgressChanged = false
         this.numbersAreaChanged = false
         this.startOverDelete = false
         this.startOverGame = false
@@ -49,6 +54,8 @@ class Game {
         this.gameInProgress = false
         this.gunGameInProgress = false
         this.countDownStarted = false
+        this.timerChanged = false
+        this.idiotBoxChanged = false
 
 
         setInterval(() => {
@@ -231,10 +238,19 @@ class Game {
             else if (p.getLeft()) newPosX = newPosX - this.moveSpeed1
             else if (p.getRight()) newPosX = newPosX + this.moveSpeed1
 
-            if (newPosX > 101) newPosX = newPosX - this.moveSpeed1
-            if (newPosX < -1) newPosX = newPosX + this.moveSpeed1
-            if (newPosY > 101) newPosY = newPosY - this.moveSpeed1
-            if (newPosY < -1) newPosY = newPosY + this.moveSpeed1
+            if (newPosX > 99) newPosX = newPosX - this.moveSpeed1
+            if (newPosX < -2) newPosX = newPosX + this.moveSpeed1
+            if (newPosY > 99) newPosY = newPosY - this.moveSpeed1
+            if (newPosY < -2) newPosY = newPosY + this.moveSpeed1
+            
+            if (p.getRestricted()) {
+                const width = p.getWidth()
+                const height = p.getHeight()
+                if (newPosX < 84) newPosX = newPosX + this.moveSpeed1
+                if (newPosX + width > 99) newPosX = newPosX - this.moveSpeed1
+                if (newPosY < 75) newPosY = newPosY + this.moveSpeed1
+                if (newPosY + height > 90) newPosY = newPosY - this.moveSpeed1
+            }
 
             if (this.gunGameInProgress) {
                 if (p.getShoot()) {
@@ -309,6 +325,7 @@ class Game {
 
         this.players.forEach(p => {
 
+            if (p.getRestricted()) return
             const x = p.getPosX()
             const y = p.getPosY()
             const width = p.getWidth()
@@ -316,7 +333,7 @@ class Game {
 
             this.pillars.forEach(pillar => {
                 const pWidth = pillar.getWidth()
-                if (x + width >= pillar.getPosX() - (pWidth/2) && x <= pillar.getPosX() + (pWidth/2)) {
+                if (x + width >= pillar.getPosX() - (pWidth / 2) && x <= pillar.getPosX() + (pWidth / 2)) {
                     if (y <= pillar.getTop() || y + height >= pillar.getBottom()) {
                         ud.push(p.getUsername())
                     }
@@ -333,7 +350,7 @@ class Game {
         this.bullets = this.bullets.filter(b => { return b.getExploded() === false })
 
         let dead = []
-        
+
         this.bullets.forEach(b => {
 
             const r = b.getRadius()
@@ -391,7 +408,7 @@ class Game {
     }
 
     updateNumberAreas() {
-        if (!this.gameInProgress && this.updateState) {
+        if (this.usersChanged) {
 
             let usersInDeleteArea = 0
             let usersInGameArea = 0
@@ -424,12 +441,14 @@ class Game {
                 this.countDownStarted = true
                 this.startOverGame = true
                 const countDown = (count) => {
-                    if (count < -1) {
+                    if (count < 0) {
                         this.gameInProgress = true
-                        this.progressTickSpeed = 180
+                        this.gameInProgressChanged = true
+                        this.progressTickSpeed = 200
                         this.usersDead = []
+                        this.usersIdiotboks = []
                         this.countDownStarted = false
-                        this.countDownNumber = -2
+                        this.countDownNumber = -1
                         this.makePillar()
                     }
                     else {
@@ -444,16 +463,36 @@ class Game {
                 this.countDownStarted = true
                 this.startOverGunGame = true
                 const countDown = (count) => {
-                    if (count < -1) {
+                    if (count < 0) {
                         this.gunGameInProgress = true
+                        this.gameInProgressChanged = true
                         this.usersDead = []
                         this.countDownStarted = false
-                        this.countDownNumber = -2
+                        this.countDownNumber = -1
+                        this.timer = 60
+                        this.usersIdiotboks = []
+
+                        const setTimer = (t) => {
+                            if (t > -1) {
+                                this.timer = t
+                                this.timerChanged = true
+                                setTimeout(() => setTimer(t - 1), 1000);
+                            }
+                            else {
+                                this.timerChanged = true
+                            }
+                        }
+
+                        setTimer(this.timer)
+
                         setTimeout(() => {
                             this.gunGameInProgress = false
+                            this.gameInProgressChanged = true
                             this.bullets = []
                             this.bulletsChanged = true
-                        }, 60000);
+                            this.timer = -1
+                            this.timerChanged = true
+                        }, 61000)
                     }
                     else {
                         setTimeout(() => countDown(count - 1), 1000);
@@ -481,64 +520,102 @@ class Game {
 
     updateGames() {
 
-        if (this.gameInProgress) {
+        if (this.gameInProgress && !this.freezeGame) {
+
             this.progressTick++
             if (this.progressTick % this.progressTickSpeed === 0) {
                 this.makePillar()
-                if (this.progressTickSpeed > 110) {
+                if (this.progressTickSpeed > 120) {
                     this.progressTickSpeed -= 2
                 }
             }
 
-            this.movePillars()
-            this.usersDead = this.checkCollissions()
-
-            if (this.usersDead.length > 0) {
-                this.usersDeadChanged = true
-                this.gameInProgress = false
-                this.startOver = false
-                this.progressTick = 0
-
-                setTimeout(() => {
-                    this.usersDead = []
-                    this.usersDeadChanged = true
-                    this.updateState = true
-                }, 5000)
-
-                if (this.currentScore > this.highscore) {
-                    this.highscore = this.currentScore
-                    this.newHighscore = true
-                }
-
-                this.currentScore = 0
-                this.scoreChanged = true
-                this.freezeGame = true
-                this.freezeGameChanged = true
-
-                setTimeout(() => {
-                    this.usersDead.forEach(username => {
-                        const p = this.findPlayerUsername(username)
-                        p.setPosX(93)
-                        p.setPosY(85)
-                    })
-                    this.usersDeadChanged = true
-                    this.usersChanged = true
-                    this.updateState = true
-                    this.pillars = []
-                    this.pillarsChanged = true
-                }, 2000)
-
-                setTimeout(() => {
-                    this.freezeGame = false
-                    this.freezeGameChanged = true
-                    this.updateState = true
-                }, 3500)
-
-                this.usersChanged = true
-            }
-
             this.pillarsChanged = true
             this.updateState = true
+
+            this.movePillars()
+            const check = this.checkCollissions()
+
+            if (check.length > 0) {
+
+                console.log(check)
+                check.forEach(username => {
+                    const p = this.findPlayerUsername(username)
+                    this.usersIdiotboks.push(p)
+                    p.setRestricted(true)
+                })
+
+                this.showIdiotBox = true
+                this.idiotBoxChanged = true
+
+
+                if (this.players.length === this.usersIdiotboks.length) {
+
+                    this.gameInProgress = false
+                    this.gameInProgressChanged = true
+                    this.startOver = false
+                    this.progressTick = 0
+                    this.scoreChanged = true
+                    this.freezeGame = true
+                    this.updateState = true
+                    this.freezeGameChanged = true
+                    if (this.currentScore > this.highscore) {
+                        this.highscore = this.currentScore
+                        this.highScoreUsername = check[0]
+                        this.newHighscore = true
+                    }
+                    this.currentScore = 0
+
+                    setTimeout(() => {
+                        
+                        this.updateState = true
+                        this.usersChanged = true
+                        this.showIdiotBox = false
+                        this.idiotBoxChanged = true
+                        this.usersIdiotboks.forEach(p => {
+                            p.setRestricted(false)
+                        })
+                    }, 4000)
+
+                    setTimeout(() => {
+                        check.forEach(username => {
+                            const p = this.findPlayerUsername(username)
+                            if (!p) return
+                            p.setPosX(91.5 - (p.getWidth() / 2))
+                            p.setPosY(82.5 + this.usersIdiotboks.length - (p.getHeight() / 2))
+                        })
+                        this.freezeGame = false
+                        this.freezeGameChanged = true
+                        this.usersChanged = true
+                        this.updateState = true
+                        this.pillars = []
+                        this.pillarsChanged = true
+                    }, 2000)
+                }
+                else {
+
+                    this.freezeGame = true
+                    this.freezeGameChanged = true
+
+                    setTimeout(() => {
+                        check.forEach(username => {
+                            const p = this.findPlayerUsername(username)
+                            p.setRestricted(true)
+                            p.setPosX(91.5 - (p.getWidth() / 2))
+                            p.setPosY(82.5 + this.usersIdiotboks.length - (p.getHeight() / 2))
+                        })
+                        this.usersChanged = true
+                        this.updateState = true
+                    }, 1500)
+
+                    setTimeout(() => {
+                        this.freezeGame = false
+                        this.freezeGameChanged = true
+                        this.updateState = true
+                    }, 3000)
+                }
+                this.usersChanged = true
+            }
         }
 
         if (this.gunGameInProgress) {
@@ -578,7 +655,7 @@ class Game {
         else return null
     }
 
-    getBullets(){
+    getBullets() {
         if (this.bulletsChanged) {
             const bs = []
             this.bullets.forEach(b => {
@@ -606,6 +683,7 @@ class Game {
                 deadUsers: this.usersDead,
                 scoreChanged: this.scoreChanged,
                 highScore: this.highscore,
+                highScoreUsername: this.highScoreUsername,
                 currentScore: this.currentScore,
                 numbersAreaChanged: this.startOverGame || this.startOverDelete || this.numbersAreaChanged,
                 numbersDeleteEvent: [this.numbersDeleteEvent, this.players.length],
@@ -614,8 +692,14 @@ class Game {
                 bulletsChanged: this.bulletsChanged,
                 bullets: this.getBullets(),
                 newHighscore: this.newHighscore,
+                gameInProgressChanged: this.gameInProgressChanged,
                 gameInProgress: this.gameInProgress,
-                gunGameInProgress: this.gunGameInProgress
+                gunGameInProgress: this.gunGameInProgress,
+                timerChanged: this.timerChanged,
+                timer: this.timer,
+                idiotBoxChanged: this.idiotBoxChanged,
+                showIdiotBox: this.showIdiotBox,
+
             }
 
             this.sockets.forEach(s => {
@@ -632,6 +716,8 @@ class Game {
             this.usersChanged = false
             this.bulletsChanged = false
             this.newHighscore = false
+            this.gameInProgressChanged = false
+            this.idiotBoxChanged = false
         }
     }
 }

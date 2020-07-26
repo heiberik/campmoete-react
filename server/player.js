@@ -16,28 +16,34 @@ class Player {
         this.right = false
         this.space = false
         this.shoot = null
+        this.points = 0
+        this.restricted = false
     }
 
-    getHeight(){return this.playerHeight}
-    getWidth(){return this.playerWidth}
-    getShield(){return this.shield}
-    getUp(){return this.up}
-    getDown(){return this.down}
-    getLeft(){return this.left}
-    getRight(){return this.right}
-    getSpace(){return this.space}
-    getShoot(){return this.shoot}
-    getID() {return this.socketID}
-    getUsername() {return this.username}
-    getPosX() {return this.playerPosX}
-    getPosY() { return this.playerPosY}
-    setPosX(pos) {this.playerPosX = pos}
-    setPosY(pos) {this.playerPosY = pos}
-    setHit(hit) {this.hit = hit}
-    setShield(){this.shield = this.space}
-    getHit() {return this.hit}
+    setRestricted(r){this.restricted = r}
+    getRestricted(){return this.restricted}
+    getPoints() { return this.points }
+    setPoints(p) { this.points = p }
+    getHeight() { return this.playerHeight }
+    getWidth() { return this.playerWidth }
+    getShield() { return this.shield }
+    getUp() { return this.up }
+    getDown() { return this.down }
+    getLeft() { return this.left }
+    getRight() { return this.right }
+    getSpace() { return this.space }
+    getShoot() { return this.shoot }
+    getID() { return this.socketID }
+    getUsername() { return this.username }
+    getPosX() { return this.playerPosX }
+    getPosY() { return this.playerPosY }
+    setPosX(pos) { this.playerPosX = pos }
+    setPosY(pos) { this.playerPosY = pos }
+    setHit(hit) { this.hit = hit }
+    setShield() { this.shield = this.space }
+    getHit() { return this.hit }
 
-    checkIfMoving(){
+    checkIfMoving() {
         return this.up || this.shield || this.down || this.left || this.right || this.shoot || this.space
     }
 
