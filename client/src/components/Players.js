@@ -148,7 +148,7 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
         setInterval(() => {
             sendMovementToServer()
             handleMovementFromServer()
-        }, 1000 / 60)
+        }, 1000 / 55)
 
     }, [messagesService, userOriginal])
 
