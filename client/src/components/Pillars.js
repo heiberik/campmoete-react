@@ -25,7 +25,7 @@ const Pillars = React.memo(({ messagesService }) => {
 
         setInterval(() => {
             changeGameState()
-        }, 1000 / 55);
+        }, 1000 / 65);
 
 
     }, [messagesService])
