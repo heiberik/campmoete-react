@@ -1,6 +1,6 @@
 import React from "react"
 
-const Notification = ({ message, messageHandler }) => {
+const Notification = React.memo(({ message, messageHandler }) => {
 
     const style = {
         position: "absolute",
@@ -30,6 +30,6 @@ const Notification = ({ message, messageHandler }) => {
         )
     }
     else return null 
-}
+})
 
 export default Notification

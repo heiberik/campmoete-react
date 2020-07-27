@@ -1,7 +1,7 @@
 import React from "react"
 import { useState, useEffect } from 'react'
 
-const Skammekroken = ({ messagesService }) => {
+const Skammekroken = React.memo(({ messagesService }) => {
 
 
     const [showSkammekroken, setShowSkammekroken] = useState(false)
@@ -40,8 +40,6 @@ const Skammekroken = ({ messagesService }) => {
             Idiotboksen
         </div>
     )
-}
-
-
+})
 
 export default Skammekroken

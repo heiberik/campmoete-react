@@ -1,7 +1,7 @@
 import React from "react"
 import campfire from "../images/campfire.gif"
 
-const Campfire = ({ messages }) => {
+const Campfire = React.memo(({ messages }) => {
 
     const style = {
         width: "7vw",
@@ -19,6 +19,6 @@ const Campfire = ({ messages }) => {
         )
     }
     else return null
-}
+})
 
 export default Campfire

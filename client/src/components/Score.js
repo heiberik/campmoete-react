@@ -1,7 +1,7 @@
 import React from "react"
 import { useState, useEffect } from 'react'
 
-const Score = ({ messagesService }) => {
+const Score = React.memo(({ messagesService }) => {
 
     const [newHighScore, setNewHighScore] = useState(false)
     const [scoreCurrentHigh, setScoreCurrentHigh] = useState([0, 0, ""])
@@ -21,7 +21,7 @@ const Score = ({ messagesService }) => {
                 }
             }
 
-            if (gameState.gameInProgressChanged = true){
+            if (gameState.gameInProgressChanged){
                 setPillarGameInProgress(gameState.gameInProgress)
                 setGunGameInProgress(gameState.gunGameInProgress)
             }
@@ -38,7 +38,7 @@ const Score = ({ messagesService }) => {
         textAlign: "center",
         position: "absolute",
         transform: "translateX(-50%)",
-        fontSize: ".6rem",
+        fontSize: "10px",
         width: "100%",
         background: "purple",
         fontWeight: "bold",
@@ -82,9 +82,15 @@ const Score = ({ messagesService }) => {
             <div style={scoreStyle}> {timer} </div>
         )
     }
+    else if (scoreCurrentHigh[2] !== ""){
+        return (
+            <div style={scoreStyle}> Highest Score: {scoreCurrentHigh[1]} by {scoreCurrentHigh[2]}</div>   
+        )
+    }
+   
     else return (
-        <div style={scoreStyle}> Highest Score: {scoreCurrentHigh[1]} {scoreCurrentHigh[2]}</div>
+        <div style={scoreStyle}> Highest Score: {scoreCurrentHigh[1]} </div>
     )
-}
+})
 
 export default Score

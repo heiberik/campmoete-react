@@ -1,6 +1,6 @@
 import React from "react"
 
-const Pillar = ({ pillar }) => {
+const Pillar = React.memo(({ pillar }) => {
 
     const styleLine = {
         position: "relative",
@@ -39,6 +39,6 @@ const Pillar = ({ pillar }) => {
         </>
     )
 
-}
+})
 
 export default Pillar

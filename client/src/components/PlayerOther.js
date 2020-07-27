@@ -2,7 +2,7 @@ import React from "react"
 import char from "../images/char5.png"
 import shieldPic from "../images/shield.png"
 
-const PlayerOther = ({ user }) => {
+const PlayerOther = React.memo(({ user }) => {
 
     const stylePlayer = {
         position: "absolute",
@@ -68,6 +68,6 @@ const PlayerOther = ({ user }) => {
             <img style={stylePicture} src={char} alt="character" />
         </div>
     )
-}
+})
 
 export default PlayerOther

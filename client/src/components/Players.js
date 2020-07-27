@@ -34,19 +34,19 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
             if (e.target.tagName.toUpperCase() === "INPUT") return
 
             if (e.keyCode === 68 || e.keyCode === 39) {
-                if (!pm.right) pm.right = true 
+                if (!pm.right) pm.right = true
             }
             else if (e.keyCode === 65 || e.keyCode === 37) {
-                if (!pm.left) pm.left = true 
+                if (!pm.left) pm.left = true
             }
             else if (e.keyCode === 87 || e.keyCode === 38) {
-                if (!pm.up) pm.up = true 
+                if (!pm.up) pm.up = true
             }
             else if (e.keyCode === 83 || e.keyCode === 40) {
-                if (!pm.down) pm.down = true 
+                if (!pm.down) pm.down = true
             }
             else if (e.keyCode === 32) {
-                if (!pm.space) pm.space = true 
+                if (!pm.space) pm.space = true
             }
             sendUpdate = true
         }
@@ -61,13 +61,13 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
                 if (pm.left) pm.left = false
             }
             else if (e.keyCode === 87 || e.keyCode === 38) {
-                if (pm.up) pm.up = false 
+                if (pm.up) pm.up = false
             }
             else if (e.keyCode === 83 || e.keyCode === 40) {
                 if (pm.down) pm.down = false
             }
             else if (e.keyCode === 32) {
-                if (pm.space) pm.space = false 
+                if (pm.space) pm.space = false
             }
             sendUpdate = true
         }
@@ -135,7 +135,7 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
 
         const handleMovementFromServer = () => {
             const usersServer = usersServerList.shift()
-            if (usersServerList.length > 180){
+            if (usersServerList.length > 180) {
                 const usersLast = usersServerList[usersServerList.length - 1]
                 usersServerList = []
                 window.requestAnimationFrame(() => setUsers(usersLast))
@@ -155,7 +155,10 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
 
     return (
         <>
-            <Users users={users} />
+            <Users
+                users={users}
+                messagesService={messagesService}
+                userOriginal={userOriginal} />
             <ul>
                 {users.map(u => {
                     if (u.socketID !== userOriginal.socketID) {

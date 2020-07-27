@@ -2,7 +2,7 @@ import React from "react"
 import Bullet from "./Bullet"
 import { useState, useEffect } from 'react'
 
-const Bullets = ({ messagesService }) => {
+const Bullets = React.memo(({ messagesService }) => {
 
     const [bullets, setBullets] = useState([])
 
@@ -40,6 +40,6 @@ const Bullets = ({ messagesService }) => {
             })}
         </ul>
     )
-}
+})
 
 export default Bullets

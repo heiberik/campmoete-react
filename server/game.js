@@ -538,7 +538,6 @@ class Game {
 
             if (check.length > 0) {
 
-                console.log(check)
                 check.forEach(username => {
                     const p = this.findPlayerUsername(username)
                     this.usersIdiotboks.push(p)

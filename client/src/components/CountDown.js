@@ -1,7 +1,7 @@
 import React from "react"
 import { useState, useEffect } from 'react'
 
-const CountDown = ({ messagesService }) => {
+const CountDown = React.memo(({ messagesService }) => {
 
     const [countDown, setCountDown] = useState(-1)
 
@@ -37,6 +37,6 @@ const CountDown = ({ messagesService }) => {
         )
     }
     else return null
-}
+})
 
 export default CountDown

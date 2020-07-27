@@ -2,7 +2,7 @@ import React from "react"
 import Pillar from "./Pillar"
 import { useState, useEffect } from 'react'
 
-const Pillars = ({ messagesService }) => {
+const Pillars = React.memo(({ messagesService }) => {
 
     const [pillars, setPillars] = useState([])
 
@@ -41,6 +41,6 @@ const Pillars = ({ messagesService }) => {
             })}
         </ul>
     )
-}
+})
 
 export default Pillars

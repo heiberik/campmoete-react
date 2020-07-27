@@ -1,7 +1,7 @@
 import React from "react"
 import Header from "./Header"
 
-const TooSmallScreen = ({ color1, color2, windowSize }) => {
+const TooSmallScreen = React.memo(({ color1, color2, windowSize }) => {
 
     const style = {
         height: "100%",
@@ -42,6 +42,6 @@ const TooSmallScreen = ({ color1, color2, windowSize }) => {
             </div>
         </div>
     )
-}
+})
 
 export default TooSmallScreen

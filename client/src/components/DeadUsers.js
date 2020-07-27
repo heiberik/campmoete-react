@@ -1,7 +1,7 @@
 import React from "react"
 import { useState, useEffect } from 'react'
 
-const DeadUsers = ({ messagesService }) => {
+const DeadUsers = React.memo(({ messagesService }) => {
 
     const [deadUsers, setDeadUsers] = useState([])
 
@@ -38,6 +38,6 @@ const DeadUsers = ({ messagesService }) => {
         )
     }
     else return null
-}
+})
 
 export default DeadUsers

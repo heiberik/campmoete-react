@@ -1,6 +1,6 @@
 import React from "react"
 
-const Background = ({color1, color2}) => {
+const Background = React.memo(({color1, color2}) => {
 
     const style = {
         listStyleType: "none",
@@ -13,6 +13,6 @@ const Background = ({color1, color2}) => {
     return (
         <div style={style}></div>
     )
-}
+})
 
 export default Background

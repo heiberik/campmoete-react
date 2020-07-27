@@ -1,6 +1,6 @@
 import React from "react"
 
-const Header = ({ text }) => {
+const Header = React.memo(({ text }) => {
 
     const style = {
         color: "white",
@@ -21,6 +21,6 @@ const Header = ({ text }) => {
     return (
         <h1 style={style}> { text }</h1>
     )
-}
+})
 
 export default Header

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Message from './Message'
 import Campfire from './Campfire'
 
-const Messages = ({ messagesService }) => {
+const Messages = React.memo(({ messagesService }) => {
 
     const [messages, setMessages] = useState([])
 
@@ -45,6 +45,6 @@ const Messages = ({ messagesService }) => {
             </ul>
         </>
     )
-}
+})
 
 export default Messages

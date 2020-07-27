@@ -2,13 +2,13 @@ import React from "react"
 import { useState, useEffect } from 'react'
 import User from "./User"
 
-const Users = React.memo(({ users }) => {
+const Users = React.memo(({ users, userOriginal, messagesService }) => {
 
     const [usersSorted, setUsersSorted] = useState([])
 
     useEffect(() => {
         setUsersSorted(usersS => {
-            if (usersS.length === users.length){
+            if (usersS.length === users.length) {
                 return usersS
             }
             else {
@@ -31,13 +31,18 @@ const Users = React.memo(({ users }) => {
     }
 
 
-    if (users.length === 0){
+    if (users.length === 0) {
         return null
     }
     else return (
         <div style={style}>
             <ul style={styleList}>
-                {usersSorted.map(user => <User key={user.socketID} user={user} />)}
+                {usersSorted.map(user => {
+                    if (userOriginal.socketID === user.socketID) {
+                        return <User messagesService={messagesService} key={user.socketID} user={user} latency={true} />
+                    }
+                    else return <User key={user.socketID} user={user} latency={false} />
+                })}
             </ul>
         </div>
 

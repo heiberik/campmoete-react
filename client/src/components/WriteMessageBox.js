@@ -2,7 +2,7 @@ import React from "react"
 import "../css/WriteMessageBox.css"
 
 
-const WriteMessageBox = ({
+const WriteMessageBox = React.memo(({
     messageText,
     sendMessageHandler,
     messageTextChangedhandler,
@@ -40,6 +40,6 @@ const WriteMessageBox = ({
             </button>
         </form>
     )
-}
+})
 
 export default WriteMessageBox
