@@ -88,8 +88,8 @@ class Game {
             const newPlayer = new Player(
                 socket.id,
                 player.username,
-                82,
-                90 + (this.players.length * 2),
+                50,
+                50 + (this.players.length * 2),
                 this.getRandomColor())
 
             this.playersShootCooldown[socket.id] = false
