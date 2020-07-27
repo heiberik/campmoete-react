@@ -43,6 +43,11 @@ class Game {
         this.playersShootCooldown = {}
         this.bullets = []
         this.bulletsChanged = false
+        this.scoreBlue = 0
+        this.scoreRed = 0
+        this.teamWon = ""
+        this.teamWonChanged = false
+        this.gunScoreChanged = false
 
         // other state changes
         this.updateState = false
@@ -79,8 +84,8 @@ class Game {
             const newPlayer = new Player(
                 socket.id,
                 player.username,
-                85,
-                85 + (this.players.length * 2),
+                82,
+                90 + (this.players.length * 2),
                 this.getRandomColor())
 
             this.playersShootCooldown[socket.id] = false
@@ -113,8 +118,8 @@ class Game {
         this.userMoves.push(pm)
     }
 
-    addMessage(message) {
-        this.messagesQueue.push(message)
+    addMessage(message, id) {
+        this.messagesQueue.push({message: message, id: id})
     }
 
     getRandomColor() {
@@ -129,23 +134,43 @@ class Game {
     handleMessageQueue() {
 
         this.messagesQueue.forEach(m => {
+
             let y = 0
             let x = 0
+            let newMessage = null
 
-            while ((y === 0) ||
-                (y > 35 && y < 60 && (x > 25 && x < 75)) ||
-                (x > 25 && x < 75 && (y > 35 && y < 60))
-            ) {
-                y = Math.floor(Math.random() * 70) + 15
-                x = Math.floor(Math.random() * 80) + 5
+            if (this.gunGameInProgress){
+                const p = this.findPlayerId(m.id)
+                const px = p.getPosX()
+                const py = p.getPosY()
+                y = py - 3
+                x = px + (p.getWidth()/2) - 2
+                newMessage = new Message(
+                    this.messages.length,
+                    m.message.message,
+                    this.getRandomColor(),
+                    x,
+                    y,
+                    4,
+                    2,
+                    false,
+                    8)
             }
+            else {
+                y = Math.floor(Math.random() * 75) + 10
+                x = Math.floor(Math.random() * 80) + 4  
 
-            const newMessage = new Message(
-                this.messages.length,
-                m.message,
-                this.getRandomColor(),
-                x,
-                y)
+                newMessage = new Message(
+                    this.messages.length,
+                    m.message.message,
+                    this.getRandomColor(),
+                    x,
+                    y,
+                    12,
+                    6,
+                    false,
+                    14)
+            }
 
             this.messages.push(newMessage)
             this.newMessages = true
@@ -255,6 +280,7 @@ class Game {
             p.setShield()
             p.setPosX(newPosX)
             p.setPosY(newPosY)
+
             this.updateState = true
             this.usersChanged = true
 
@@ -272,26 +298,79 @@ class Game {
 
                 // fra venstre
                 if (x + width >= messageX && x + width <= messageX + 1 && y + height >= messageY && y <= messageY + mHeight) {
-                    m.setPosX(messageX + this.moveSpeed1)
-                    this.newMessages = true
+                    if (m.getSolid()) {
+                        this.resetPlayerMove(p)
+                    }
+                    else {
+                        m.setPosX(messageX + this.moveSpeed1)
+                        this.newMessages = true
+                    }
+
                 }
                 //fra høyre
                 else if (x <= messageX + mWidth && x >= messageX + mWidth - 1 && y + height >= messageY && y <= messageY + mHeight) {
-                    m.setPosX(messageX - this.moveSpeed1)
-                    this.newMessages = true
+                    if (m.getSolid()) {
+                        this.resetPlayerMove(p)
+                    }
+                    else {
+                        m.setPosX(messageX - this.moveSpeed1)
+                        this.newMessages = true
+                    }
+
                 }
                 //fra top
                 else if (x + width >= messageX && x <= messageX + mWidth && y + height >= messageY && y + height <= messageY + 1) {
-                    m.setPosY(messageY + this.moveSpeed1)
-                    this.newMessages = true
+                    if (m.getSolid()) {
+                        this.resetPlayerMove(p)
+                    }
+                    else {
+                        m.setPosY(messageY + this.moveSpeed1)
+                        this.newMessages = true
+                    }
+
                 }
                 // fra bunn
                 else if (x + width >= messageX && x <= messageX + mWidth && y <= messageY + mHeight && y >= messageY + mHeight - 1) {
-                    m.setPosY(messageY - this.moveSpeed1)
-                    this.newMessages = true
+                    if (m.getSolid()) {
+                        this.resetPlayerMove(p)
+                    }
+                    else {
+                        m.setPosY(messageY - this.moveSpeed1)
+                        this.newMessages = true
+                    }
+
                 }
             })
         })
+    }
+
+    resetPlayerMove(p) {
+        let newPosX = p.getPosX()
+        let newPosY = p.getPosY()
+
+        if (p.getUp() && p.getLeft()) {
+            newPosX = newPosX + this.moveSpeed2
+            newPosY = newPosY + this.moveSpeed2
+        }
+        else if (p.getUp() && p.getRight()) {
+            newPosX = newPosX - this.moveSpeed2
+            newPosY = newPosY + this.moveSpeed2
+        }
+        else if (p.getDown() && p.getLeft()) {
+            newPosX = newPosX + this.moveSpeed2
+            newPosY = newPosY - this.moveSpeed2
+        }
+        else if (p.getDown() && p.getRight()) {
+            newPosX = newPosX - this.moveSpeed2
+            newPosY = newPosY - this.moveSpeed2
+        }
+        else if (p.getUp()) newPosY = newPosY + this.moveSpeed1
+        else if (p.getDown()) newPosY = newPosY - this.moveSpeed1
+        else if (p.getLeft()) newPosX = newPosX + this.moveSpeed1
+        else if (p.getRight()) newPosX = newPosX - this.moveSpeed1
+
+        p.setPosX(newPosX)
+        p.setPosY(newPosY)
     }
 
     makePillar() {
@@ -364,7 +443,9 @@ class Game {
             })
 
             this.players.forEach(p => {
-                if (p.getID() === b.getOwner()) return
+                const id = b.getOwner()
+                if (p.getID() === id) return
+                if (p.getTeam() === this.findPlayerId(id).getTeam()) return
 
                 const pX = p.getPosX()
                 const pY = p.getPosY()
@@ -378,8 +459,35 @@ class Game {
                     this.bulletsChanged = true
                     this.updateState = true
                     this.usersChanged = true
-                    p.setPosX(93)
-                    p.setPosY(85)
+                    this.gunScoreChanged = true
+                    if (p.getTeam() === "red") {
+                        p.setPosX(-200)
+                        p.setPosY(50)
+                        this.updateState = true
+                        this.usersChanged = true
+                        setTimeout(() => {
+                            this.updateState = true
+                            this.usersChanged = true
+                            p.setPosX(98 - (p.getWidth() / 2))
+                            p.setPosY(85)
+                        }, 2000)
+                        this.scoreBlue++
+
+                    }
+                    else {
+                        this.scoreRed++
+                        p.setPosX(-200)
+                        p.setPosY(50)
+                        this.updateState = true
+                        this.usersChanged = true
+                        setTimeout(() => {
+                            this.updateState = true
+                            this.usersChanged = true
+                            p.setPosX(2 + (p.getWidth() / 2))
+                            p.setPosY(85)
+                        }, 2000)
+                    }
+
                 }
             })
         })
@@ -452,47 +560,7 @@ class Game {
                 countDown(5)
             }
             if (usersInGunGameArea > 0 && usersInGunGameArea === this.players.length && !this.startOverGunGame && !this.gunGameInProgress && !this.gameInProgress && !this.countDownStarted) {
-                this.countDownStarted = true
-                this.startOverGunGame = true
-                const countDown = (count) => {
-                    if (count < 0) {
-                        this.gunGameInProgress = true
-                        this.gameInProgressChanged = true
-                        this.usersDead = []
-                        this.countDownStarted = false
-                        this.countDownNumber = -1
-                        this.timer = 60
-                        this.usersIdiotboks = []
-
-                        const setTimer = (t) => {
-                            if (t > -1) {
-                                this.timer = t
-                                this.timerChanged = true
-                                setTimeout(() => setTimer(t - 1), 1000);
-                            }
-                            else {
-                                this.timerChanged = true
-                            }
-                        }
-
-                        setTimer(this.timer)
-
-                        setTimeout(() => {
-                            this.gunGameInProgress = false
-                            this.gameInProgressChanged = true
-                            this.bullets = []
-                            this.bulletsChanged = true
-                            this.timer = -1
-                            this.timerChanged = true
-                        }, 61000)
-                    }
-                    else {
-                        setTimeout(() => countDown(count - 1), 1000);
-                    }
-                    this.updateState = true
-                    this.countDownNumber = count
-                }
-                countDown(5)
+                this.startGunGame()
             }
 
             if (this.numbersDeleteEvent !== usersInDeleteArea) {
@@ -606,18 +674,126 @@ class Game {
         }
     }
 
+    placeWalls() {
+
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 5, 60, 2, 40, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 5, 59, 10, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 13, 39, 2, 8, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 8, 38, 12, 2, true, 10))
+
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 94, 60, 2, 40, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 86, 59, 10, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 86, 39, 2, 8, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 81, 38, 12, 2, true, 10))
+      
+
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 49, 0, 2, 15, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 49, 20, 2, 40, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 35, 19, 30, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 40, 30, 2, 50, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 58, 30, 2, 50, true, 10))
+        
+        
+
+        this.newMessages = true
+        this.updateState = true
+    }
+
+    startGunGame() {
+        this.countDownStarted = true
+        this.startOverGunGame = true
+
+        const countDown = (count) => {
+
+            // spillet begynner
+            if (count < 0) {
+                this.gunGameInProgress = true
+                this.gameInProgressChanged = true
+                this.usersDead = []
+                this.countDownStarted = false
+                this.countDownNumber = -1
+                this.timer = 60
+                this.usersIdiotboks = []
+                this.updateState = true
+                this.usersChanged = true
+                this.scoreBlue = 0
+                this.scoreRed = 0
+                this.gunScoreChanged = true
+
+                this.messages = []
+                this.placeWalls()
+
+                let decideTeam = 0
+                this.players.forEach(p => {
+                    decideTeam++
+                    p.setHeight(p.getHeight() / 1.5)
+                    p.setWidth(p.getWidth() / 1.5)
+                    if (decideTeam % 2 === 0) {
+                        // team blue
+                        p.setColor("#0000FF")
+                        p.setTeam("blue")
+                        p.setPosX(1 + (p.getWidth() / 2))
+                        p.setPosY(48 + decideTeam)
+                    }
+                    else {
+                        // team red
+                        p.setColor("#FF0000")
+                        p.setTeam("red")
+                        p.setPosX(97 - (p.getWidth() / 2))
+                        p.setPosY(48 + decideTeam)
+                    }
+                })
+
+                setTimeout(() => {
+                    // spillet er ferdig
+                    this.gunGameInProgress = false
+                    this.gameInProgressChanged = true
+                    this.bullets = []
+                    this.bulletsChanged = true
+                    this.timer = -1
+                    this.timerChanged = true
+                    this.updateState = true
+                    this.usersChanged = true
+                    this.messages = []
+                    this.newMessages = true
+
+                    this.players.forEach(p => {
+                        p.setHeight(4.5)
+                        p.setWidth(3.5)
+                        p.setColor(p.getOriginalColor())
+                    })
+
+                    if (this.scoreRed > this.scoreBlue) this.teamWon = "Red"
+                    else if (this.scoreRed < this.scoreBlue) this.teamWon = "Blue"
+                    else this.teamWon = "Draw"
+                    this.teamWonChanged = true
+
+
+                }, 60000)
+
+                const setTimer = (t) => {
+                    if (t > -1) {
+                        this.timer = t
+                        this.timerChanged = true
+                        setTimeout(() => setTimer(t - 1), 1000);
+                    }
+                    else this.timerChanged = true
+                }
+                setTimer(this.timer)
+            }
+            //tell ned
+            else {
+                setTimeout(() => countDown(count - 1), 1000);
+            }
+            this.updateState = true
+            this.countDownNumber = count
+        }
+        countDown(3)
+    }
+
     updateGunGame() {
         this.moveBullets()
         const check = this.checkBulletCollission()
-        if (check.length > 0) {
-            this.usersDeadChanged = true
-            this.usersDead = check
-            setTimeout(() => {
-                this.usersDead = []
-                this.usersDeadChanged = true
-                this.updateState = true
-            }, 2000)
-        }
         this.updateState = true
     }
 
@@ -697,6 +873,11 @@ class Game {
                 timer: this.timer,
                 idiotBoxChanged: this.idiotBoxChanged,
                 showIdiotBox: this.showIdiotBox,
+                teamWon: this.teamWon,
+                teamWonChanged: this.teamWonChanged,
+                gunScoreChanged: this.gunScoreChanged,
+                scoreRed: this.scoreRed,
+                scoreBlue: this.scoreBlue,
 
             }
 
@@ -716,6 +897,8 @@ class Game {
             this.newHighscore = false
             this.gameInProgressChanged = false
             this.idiotBoxChanged = false
+            this.teamWonChanged = false
+            this.gunScoreChanged = false
         }
     }
 }

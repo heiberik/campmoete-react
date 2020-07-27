@@ -8,6 +8,7 @@ class Player {
         this.playerWidth = 3.5
         this.playerHeight = 4.5
         this.color = color
+        this.originalColor = color
         this.hit = false
         this.shield = false
         this.up = false
@@ -18,14 +19,21 @@ class Player {
         this.shoot = null
         this.points = 0
         this.restricted = false
+        this.team = ""
     }
 
+    setTeam(t){this.team = t}
+    getTeam(){return this.team}
+    getOriginalColor(){return this.originalColor}
+    setColor(c){this.color = c}
     setRestricted(r){this.restricted = r}
     getRestricted(){return this.restricted}
     getPoints() { return this.points }
     setPoints(p) { this.points = p }
     getHeight() { return this.playerHeight }
     getWidth() { return this.playerWidth }
+    setHeight(h) {this.playerHeight = h}
+    setWidth(w){this.playerWidth = w}
     getShield() { return this.shield }
     getUp() { return this.up }
     getDown() { return this.down }

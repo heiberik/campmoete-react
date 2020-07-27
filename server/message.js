@@ -1,15 +1,18 @@
 class Message {
-    constructor(number, message, color, x, y) {
+    constructor(number, message, color, x, y, w, h, solid, fontSize) {
         this.number = number
         this.message = message
         this.date = Date()
         this.color = color
         this.posX = x
         this.posY = y
-        this.width = 12
-        this.height = 6
+        this.width = w
+        this.height = h
+        this.solid = solid
+        this.fontSize = fontSize
     }
 
+    getSolid(){return this.solid}
     getPosX(){return this.posX}
     getPosY(){return this.posY}
     setPosX(pos){this.posX = pos}
@@ -27,6 +30,7 @@ class Message {
             posY: this.posY,
             width: this.width,
             height: this.height,
+            fontSize: this.fontSize,
         }
     }
 }

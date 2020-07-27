@@ -13,8 +13,8 @@ app.use(express.static('build'))
 //var url = "mongodb://localhost:27017/mydb";
 
 // TODOS:
-// ha en countdown når gungame er ferdig.
 // pillargame: står hvor mange poeng man fikk når spillet er ferdig
+// endre bakgrunnsfarge fortløpende.
 
 
 
@@ -33,11 +33,11 @@ io.on("connection", (socket) => {
     }
 
     socket.on("playerMovement", (pm) => {
-        game.addPlayerMovement(pm)
+        game.addPlayerMovement(pm, socket.id)
     })
 
     socket.on("sendMessage", (message) => {
-        game.addMessage(message)
+        game.addMessage(message, socket.id)
     })
 
     socket.on("setUsername", (data) => {

@@ -9,7 +9,7 @@ const Message = React.memo(({ message }) => {
         zIndex: message.number,
         width: message.width + "vw",
         height: message.height + "vh",
-        fontSize: "15px",
+        fontSize: message.fontSize + "px",
         overflowWrap: "break-word",
         overflow: "hidden",
         fontFamily: "Arial",

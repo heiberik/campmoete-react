@@ -1,5 +1,3 @@
-const Player = require("./player")
-
 class Bullet {
 
     constructor(shot, user, color) {
@@ -17,11 +15,11 @@ class Bullet {
         this.id = Math.floor(Math.random() * 999999999) + user.socketID
         this.owner = user.socketID
         this.color = color
-        this.posX = user.playerPosX
-        this.posY = user.playerPosY
+        this.posX = user.playerPosX + (user.playerWidth/2)
+        this.posY = user.playerPosY + (user.playerHeight/2)
         this.dirX = dirX
         this.dirY = dirY
-        this.radius = .25
+        this.radius = .1
         this.exploded = false
     }
 
