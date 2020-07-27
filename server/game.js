@@ -80,6 +80,10 @@ class Game {
             const newUser = { id: "usernameTaken" }
             socket.emit("sendUser", newUser)
         }
+        else if (this.gunGameInProgress || this.gameInProgress){
+            const newUser = { id: "gameInProgress" }
+            socket.emit("sendUser", newUser)
+        }
         else {
             const newPlayer = new Player(
                 socket.id,
@@ -119,7 +123,7 @@ class Game {
     }
 
     addMessage(message, id) {
-        this.messagesQueue.push({message: message, id: id})
+        this.messagesQueue.push({ message: message, id: id })
     }
 
     getRandomColor() {
@@ -139,12 +143,12 @@ class Game {
             let x = 0
             let newMessage = null
 
-            if (this.gunGameInProgress){
+            if (this.gunGameInProgress) {
                 const p = this.findPlayerId(m.id)
                 const px = p.getPosX()
                 const py = p.getPosY()
                 y = py - 3
-                x = px + (p.getWidth()/2) - 2
+                x = px + (p.getWidth() / 2) - 2
                 newMessage = new Message(
                     this.messages.length,
                     m.message.message,
@@ -158,7 +162,7 @@ class Game {
             }
             else {
                 y = Math.floor(Math.random() * 75) + 10
-                x = Math.floor(Math.random() * 80) + 4  
+                x = Math.floor(Math.random() * 80) + 4
 
                 newMessage = new Message(
                     this.messages.length,
@@ -483,7 +487,7 @@ class Game {
                         setTimeout(() => {
                             this.updateState = true
                             this.usersChanged = true
-                            p.setPosX(2 + (p.getWidth() / 2))
+                            p.setPosX(2 - (p.getWidth() / 2))
                             p.setPosY(85)
                         }, 2000)
                     }
@@ -681,19 +685,18 @@ class Game {
         this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 13, 39, 2, 8, true, 10))
         this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 8, 38, 12, 2, true, 10))
 
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 94, 60, 2, 40, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 86, 59, 10, 2, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 86, 39, 2, 8, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 81, 38, 12, 2, true, 10))
-      
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 93, 60, 2, 40, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 85, 59, 10, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 85, 39, 2, 8, true, 10))
+        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 80, 38, 12, 2, true, 10))
+
 
         this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 49, 0, 2, 15, true, 10))
         this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 49, 20, 2, 40, true, 10))
         this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 35, 19, 30, 2, true, 10))
         this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 40, 30, 2, 50, true, 10))
         this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 58, 30, 2, 50, true, 10))
-        
-        
+
 
         this.newMessages = true
         this.updateState = true
@@ -719,6 +722,8 @@ class Game {
                 this.scoreBlue = 0
                 this.scoreRed = 0
                 this.gunScoreChanged = true
+                this.moveSpeed1 = .2
+                this.moveSpeed2 = .1
 
                 this.messages = []
                 this.placeWalls()
@@ -746,6 +751,8 @@ class Game {
 
                 setTimeout(() => {
                     // spillet er ferdig
+                    this.moveSpeed1 = .3
+                    this.moveSpeed2 = .15
                     this.gunGameInProgress = false
                     this.gameInProgressChanged = true
                     this.bullets = []

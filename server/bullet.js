@@ -35,8 +35,8 @@ class Bullet {
     getRadius(){return this.radius}
 
     moveBullet(){
-        this.posX = this.posX + this.dirX
-        this.posY = this.posY + this.dirY
+        this.posX = this.posX + this.dirX/1.5
+        this.posY = this.posY + this.dirY/1.5
     }
 
     getJSON() {

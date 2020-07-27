@@ -80,6 +80,9 @@ const App = () => {
                     setNotMessage("Username taken!")
                     setMessageText("")
                 }
+                else if (u.id === "gameInProgress"){
+                    setNotMessage("Game currently in progress. Try again in a few seconds!")
+                }
                 else {
                     setMessageText("")
                     setUser(u)
