@@ -62,6 +62,7 @@ class Game {
         this.timerChanged = false
         this.idiotBoxChanged = false
 
+        
 
         setInterval(() => {
             this.handlePlayerMovements()
@@ -85,6 +86,7 @@ class Game {
             socket.emit("sendUser", newUser)
         }
         else {
+            //this.startGunGame()
             const newPlayer = new Player(
                 socket.id,
                 player.username,
@@ -597,7 +599,7 @@ class Game {
         this.movePillars()
         const check = this.checkCollissions()
 
-        if (check.length > 0) {
+        if (check.length > 0 || this.players.length === 0) {
 
             check.forEach(username => {
                 const p = this.findPlayerUsername(username)
@@ -609,7 +611,7 @@ class Game {
             this.idiotBoxChanged = true
 
 
-            if (this.players.length === this.usersIdiotboks.length) {
+            if (this.players.length === this.usersIdiotboks.length || this.players.length === 0) {
 
                 this.gameInProgress = false
                 this.gameInProgressChanged = true
@@ -680,22 +682,25 @@ class Game {
 
     placeWalls() {
 
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 5, 60, 2, 40, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 5, 59, 10, 2, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 13, 39, 2, 8, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 8, 38, 12, 2, true, 10))
+        // team blue
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", 5, 60, 2, 40, true, 10))
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", 5, 59, 10, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", 13, 39, 2, 8, true, 10))
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", 8, 38, 12, 2, true, 10))
 
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 93, 60, 2, 40, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 85, 59, 10, 2, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 85, 39, 2, 8, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 80, 38, 12, 2, true, 10))
+        //team red
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", 93, 60, 2, 40, true, 10))
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", 85, 59, 10, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", 85, 39, 2, 8, true, 10))
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", 80, 38, 12, 2, true, 10))
 
-
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 49, 0, 2, 15, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 49, 20, 2, 40, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 35, 19, 30, 2, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 40, 30, 2, 50, true, 10))
-        this.messages.push(new Message(this.messages.length, "", this.getRandomColor(), 58, 30, 2, 50, true, 10))
+        // middle stuff
+        const c = this.getRandomColor()
+        this.messages.push(new Message(this.messages.length, "", c, 49, 0, 2, 15, true, 10))
+        this.messages.push(new Message(this.messages.length, "", c, 49, 20, 2, 40, true, 10))
+        this.messages.push(new Message(this.messages.length, "", c, 49, 19, 16, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", c, 35, 30, 2, 50, true, 10))
+        this.messages.push(new Message(this.messages.length, "", c, 63, 30, 2, 50, true, 10))
 
 
         this.newMessages = true
