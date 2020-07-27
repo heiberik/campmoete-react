@@ -63,11 +63,8 @@ class Game {
             this.updateGames()
             this.handleMessageQueue()
             this.updateNumberAreas()
-        }, 1000 / 60);
-
-        setInterval(() => {
             this.emitGameState()
-        }, 1000 / 80);
+        }, 1000 / 60);
     }
 
 
