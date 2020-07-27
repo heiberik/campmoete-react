@@ -8,8 +8,8 @@ const Bullets = React.memo(({ messagesService }) => {
 
     useEffect(() => {
 
-        const bulletsList = []
-        
+        let bulletsList = []
+
         messagesService.getGameState((gameState) => {
             if (gameState.bulletsChanged) {
                 bulletsList.push(gameState.bullets)
@@ -18,14 +18,19 @@ const Bullets = React.memo(({ messagesService }) => {
 
         const changeGameState = () => {
             const bullts = bulletsList.shift()
-            if (bullts) {
+            if (bulletsList.length > 60) {
+                const bulletsLast = bulletsList[bulletsList.length - 1]
+                bulletsList = []
+                window.requestAnimationFrame(() => setBullets(bulletsLast))
+            }
+            else if (bullts) {
                 window.requestAnimationFrame(() => setBullets(bullts))
             }
         }
 
         setInterval(() => {
             changeGameState()
-        }, 1000 / 65);
+        }, 1000 / 60);
 
     }, [messagesService])
 

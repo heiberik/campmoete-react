@@ -20,9 +20,9 @@ class Game {
         this.numbersDeleteEvent = 0
         this.numbersGameEvent = 0
         this.numbersGunGameEvent = 0
-        this.moveSpeed1 = .4
-        this.moveSpeed2 = .2
-        this.pillarSpeed = .3
+        this.moveSpeed1 = .3
+        this.moveSpeed2 = .15
+        this.pillarSpeed = .25
         this.countDownNumber = -2
         this.timer = -1
         this.showIdiotBox = false
@@ -59,14 +59,15 @@ class Game {
 
 
         setInterval(() => {
-
             this.handlePlayerMovements()
             this.updateGames()
             this.handleMessageQueue()
             this.updateNumberAreas()
-            this.emitGameState()
-
         }, 1000 / 60);
+
+        setInterval(() => {
+            this.emitGameState()
+        }, 1000 / 50);
     }
 
 
@@ -95,12 +96,17 @@ class Game {
             this.newMessages = true
             this.scoreChanged = true
             this.numbersAreaChanged = true
+            this.scoreChanged = true
+            this.pillarsChanged = true
+            this.freezeGameChanged = true
+            this.bulletsChanged = true
+            this.gameInProgressChanged = true
+            this.idiotBoxChanged = true
         }
     }
 
     removePlayer(socket) {
         this.players = this.players.filter(user => user.getID() !== socket.id)
-        console.log("user disconnected")
         this.updateState = true
         this.usersChanged = true
         delete this.playersShootCooldown[socket.id]
@@ -162,8 +168,6 @@ class Game {
                 this.findPlayerId(id).getJSON(),
                 this.getRandomColor())
 
-            console.log(newBullet)
-
             this.bullets.push(newBullet)
 
             this.playersShootCooldown[id] = true
@@ -205,15 +209,11 @@ class Game {
         })
         this.userMoves = []
 
-        let checkMovement = false
-        this.players.forEach(p => {
-            if (p.checkIfMoving()) checkMovement = true
-        })
-        if (!checkMovement) return
-
         this.players.forEach(p => {
 
+            if (!p.checkIfMoving()) return
             if (this.freezeGame) return
+
             let newPosX = p.getPosX()
             let newPosY = p.getPosY()
 
@@ -238,18 +238,15 @@ class Game {
             else if (p.getLeft()) newPosX = newPosX - this.moveSpeed1
             else if (p.getRight()) newPosX = newPosX + this.moveSpeed1
 
-            if (newPosX > 99) newPosX = newPosX - this.moveSpeed1
-            if (newPosX < -2) newPosX = newPosX + this.moveSpeed1
-            if (newPosY > 99) newPosY = newPosY - this.moveSpeed1
-            if (newPosY < -2) newPosY = newPosY + this.moveSpeed1
-            
+            if (newPosX > 99 || newPosX < -2 || newPosY > 99 || newPosY < -2) return
+
             if (p.getRestricted()) {
                 const width = p.getWidth()
                 const height = p.getHeight()
-                if (newPosX < 84) newPosX = newPosX + this.moveSpeed1
-                if (newPosX + width > 99) newPosX = newPosX - this.moveSpeed1
-                if (newPosY < 75) newPosY = newPosY + this.moveSpeed1
-                if (newPosY + height > 90) newPosY = newPosY - this.moveSpeed1
+                if (newPosX < 84) return
+                if (newPosX + width > 99) return
+                if (newPosY < 75) return
+                if (newPosY + height > 90) return
             }
 
             if (this.gunGameInProgress) {
@@ -261,7 +258,6 @@ class Game {
             p.setShield()
             p.setPosX(newPosX)
             p.setPosY(newPosY)
-
             this.updateState = true
             this.usersChanged = true
 
@@ -297,7 +293,6 @@ class Game {
                     m.setPosY(messageY - this.moveSpeed1)
                     this.newMessages = true
                 }
-
             })
         })
     }
@@ -437,7 +432,7 @@ class Game {
                 this.startOverDelete = true
                 this.newMessages = true
             }
-            if (usersInGameArea > 0 && usersInGameArea === this.players.length && !this.startOverGame && !this.gameInProgress && !this.countDownStarted) {
+            if (usersInGameArea > 0 && usersInGameArea === this.players.length && !this.startOverGame && !this.gameInProgress && !this.countDownStarted && !this.gunGameInProgress) {
                 this.countDownStarted = true
                 this.startOverGame = true
                 const countDown = (count) => {
@@ -459,7 +454,7 @@ class Game {
                 }
                 countDown(5)
             }
-            if (usersInGunGameArea > 0 && usersInGunGameArea === this.players.length && !this.startOverGunGame && !this.gunGameInProgress && !this.countDownStarted) {
+            if (usersInGunGameArea > 0 && usersInGunGameArea === this.players.length && !this.startOverGunGame && !this.gunGameInProgress && !this.gameInProgress && !this.countDownStarted) {
                 this.countDownStarted = true
                 this.startOverGunGame = true
                 const countDown = (count) => {
@@ -518,118 +513,125 @@ class Game {
         }
     }
 
-    updateGames() {
-
-        if (this.gameInProgress && !this.freezeGame) {
-
-            this.progressTick++
-            if (this.progressTick % this.progressTickSpeed === 0) {
-                this.makePillar()
-                if (this.progressTickSpeed > 120) {
-                    this.progressTickSpeed -= 2
-                }
-            }
-
-            this.pillarsChanged = true
-            this.updateState = true
-
-            this.movePillars()
-            const check = this.checkCollissions()
-
-            if (check.length > 0) {
-
-                check.forEach(username => {
-                    const p = this.findPlayerUsername(username)
-                    this.usersIdiotboks.push(p)
-                    p.setRestricted(true)
-                })
-
-                this.showIdiotBox = true
-                this.idiotBoxChanged = true
-
-
-                if (this.players.length === this.usersIdiotboks.length) {
-
-                    this.gameInProgress = false
-                    this.gameInProgressChanged = true
-                    this.startOver = false
-                    this.progressTick = 0
-                    this.scoreChanged = true
-                    this.freezeGame = true
-                    this.updateState = true
-                    this.freezeGameChanged = true
-                    if (this.currentScore > this.highscore) {
-                        this.highscore = this.currentScore
-                        this.highScoreUsername = check[0]
-                        this.newHighscore = true
-                    }
-                    this.currentScore = 0
-
-                    setTimeout(() => {
-                        
-                        this.updateState = true
-                        this.usersChanged = true
-                        this.showIdiotBox = false
-                        this.idiotBoxChanged = true
-                        this.usersIdiotboks.forEach(p => {
-                            p.setRestricted(false)
-                        })
-                    }, 4000)
-
-                    setTimeout(() => {
-                        check.forEach(username => {
-                            const p = this.findPlayerUsername(username)
-                            if (!p) return
-                            p.setPosX(91.5 - (p.getWidth() / 2))
-                            p.setPosY(82.5 + this.usersIdiotboks.length - (p.getHeight() / 2))
-                        })
-                        this.freezeGame = false
-                        this.freezeGameChanged = true
-                        this.usersChanged = true
-                        this.updateState = true
-                        this.pillars = []
-                        this.pillarsChanged = true
-                    }, 2000)
-                }
-                else {
-
-                    this.freezeGame = true
-                    this.freezeGameChanged = true
-
-                    setTimeout(() => {
-                        check.forEach(username => {
-                            const p = this.findPlayerUsername(username)
-                            p.setRestricted(true)
-                            p.setPosX(91.5 - (p.getWidth() / 2))
-                            p.setPosY(82.5 + this.usersIdiotboks.length - (p.getHeight() / 2))
-                        })
-                        this.usersChanged = true
-                        this.updateState = true
-                    }, 1500)
-
-                    setTimeout(() => {
-                        this.freezeGame = false
-                        this.freezeGameChanged = true
-                        this.updateState = true
-                    }, 3000)
-                }
-                this.usersChanged = true
+    updatePillarGame() {
+        this.progressTick++
+        if (this.progressTick % this.progressTickSpeed === 0) {
+            this.makePillar()
+            if (this.progressTickSpeed > 120) {
+                this.progressTickSpeed -= 2
             }
         }
 
-        if (this.gunGameInProgress) {
-            this.moveBullets()
-            const check = this.checkBulletCollission()
-            if (check.length > 0) {
-                this.usersDeadChanged = true
-                this.usersDead = check
+        this.pillarsChanged = true
+        this.updateState = true
+
+        this.movePillars()
+        const check = this.checkCollissions()
+
+        if (check.length > 0) {
+
+            check.forEach(username => {
+                const p = this.findPlayerUsername(username)
+                this.usersIdiotboks.push(p)
+                p.setRestricted(true)
+            })
+
+            this.showIdiotBox = true
+            this.idiotBoxChanged = true
+
+
+            if (this.players.length === this.usersIdiotboks.length) {
+
+                this.gameInProgress = false
+                this.gameInProgressChanged = true
+                this.startOver = false
+                this.progressTick = 0
+                this.scoreChanged = true
+                this.freezeGame = true
+                this.updateState = true
+                this.freezeGameChanged = true
+                if (this.currentScore > this.highscore) {
+                    this.highscore = this.currentScore
+                    this.highScoreUsername = check[0]
+                    this.newHighscore = true
+                }
+                this.currentScore = 0
+
                 setTimeout(() => {
-                    this.usersDead = []
-                    this.usersDeadChanged = true
+
                     this.updateState = true
+                    this.usersChanged = true
+                    this.showIdiotBox = false
+                    this.idiotBoxChanged = true
+                    this.usersIdiotboks.forEach(p => {
+                        p.setRestricted(false)
+                    })
+                }, 4000)
+
+                setTimeout(() => {
+                    check.forEach(username => {
+                        const p = this.findPlayerUsername(username)
+                        if (!p) return
+                        p.setPosX(91.5 - (p.getWidth() / 2))
+                        p.setPosY(82.5 + this.usersIdiotboks.length - (p.getHeight() / 2))
+                    })
+                    this.freezeGame = false
+                    this.freezeGameChanged = true
+                    this.usersChanged = true
+                    this.updateState = true
+                    this.pillars = []
+                    this.pillarsChanged = true
                 }, 2000)
             }
-            this.updateState = true
+            else {
+
+                this.freezeGame = true
+                this.freezeGameChanged = true
+
+                setTimeout(() => {
+                    check.forEach(username => {
+                        const p = this.findPlayerUsername(username)
+                        p.setRestricted(true)
+                        p.setPosX(91.5 - (p.getWidth() / 2))
+                        p.setPosY(82.5 + this.usersIdiotboks.length - (p.getHeight() / 2))
+                    })
+                    this.usersChanged = true
+                    this.updateState = true
+                }, 1500)
+
+                setTimeout(() => {
+                    this.freezeGame = false
+                    this.freezeGameChanged = true
+                    this.updateState = true
+                }, 3000)
+            }
+            this.usersChanged = true
+        }
+    }
+
+    updateGunGame() {
+        this.moveBullets()
+        const check = this.checkBulletCollission()
+        if (check.length > 0) {
+            this.usersDeadChanged = true
+            this.usersDead = check
+            setTimeout(() => {
+                this.usersDead = []
+                this.usersDeadChanged = true
+                this.updateState = true
+            }, 2000)
+        }
+        this.updateState = true
+    }
+
+    updateGames() {
+
+        if (this.gameInProgress && !this.freezeGame) {
+            this.updatePillarGame()
+        }
+
+        if (this.gunGameInProgress && !this.freezeGame) {
+            this.updateGunGame()
         }
     }
 

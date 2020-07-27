@@ -49,6 +49,8 @@ io.on("connection", (socket) => {
     })
 
     socket.on("disconnect", () => {
+
+        console.log("user disconnected")
         game.removePlayer(socket)
         totalConnected--
         if (totalConnected === 0){

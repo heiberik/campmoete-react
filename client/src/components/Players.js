@@ -135,23 +135,20 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
 
         const handleMovementFromServer = () => {
             const usersServer = usersServerList.shift()
-            if (usersServerList.length > 180) {
+            if (usersServerList.length > 60) {
                 const usersLast = usersServerList[usersServerList.length - 1]
                 usersServerList = []
                 window.requestAnimationFrame(() => setUsers(usersLast))
             }
-            if (usersServer) {
+            else if (usersServer) {
                 window.requestAnimationFrame(() => setUsers(usersServer))
             }
         }
 
         setInterval(() => {
             sendMovementToServer()
-        }, 1000 / 50)
-
-        setInterval(() => {
             handleMovementFromServer()
-        }, 1000 / 65)
+        }, 1000 / 60)
 
     }, [messagesService, userOriginal])
 
