@@ -67,7 +67,7 @@ class Game {
 
         setInterval(() => {
             this.emitGameState()
-        }, 1000 / 50);
+        }, 1000 / 80);
     }
 
 
