@@ -63,6 +63,7 @@ class Game {
 
         setInterval(() => {
 
+            
             this.handlePlayerMovements()
             this.updateGames()
             this.handleMessageQueue()
@@ -196,8 +197,8 @@ class Game {
                     "black",
                     Math.floor(Math.random() * 80) + 4,
                     Math.floor(Math.random() * 75) + 10,
-                    16,
-                    8,
+                    14,
+                    7,
                     false,
                     14, true)
             }
