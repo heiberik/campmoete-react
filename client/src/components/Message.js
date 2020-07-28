@@ -8,7 +8,9 @@ const Message = React.memo(({ message }) => {
         left: message.posX + "vw",
         zIndex: message.number,
         width: message.width + "vw",
+        maxWidth: message.width + "vw",
         height: message.height + "vh",
+        maxHeight: message.height + "vh",
         fontSize: message.fontSize + "px",
         overflowWrap: "break-word",
         overflow: "hidden",
@@ -21,6 +23,10 @@ const Message = React.memo(({ message }) => {
         background: message.color,
         color: message.colorText,
         cursor: "default",
+        padding: "1vw",
+        WebkitBoxSizing: "border-box",
+        mozBoxSizing: "border-box",
+        boxSizing: "border-box",
     }
 
     return (

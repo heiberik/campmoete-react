@@ -196,8 +196,8 @@ class Game {
                     "black",
                     Math.floor(Math.random() * 80) + 4,
                     Math.floor(Math.random() * 75) + 10,
-                    12,
-                    6,
+                    16,
+                    8,
                     false,
                     14, true)
             }
