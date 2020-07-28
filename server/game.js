@@ -63,7 +63,6 @@ class Game {
 
         setInterval(() => {
 
-            
             this.handlePlayerMovements()
             this.updateGames()
             this.handleMessageQueue()

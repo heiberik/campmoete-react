@@ -12,8 +12,9 @@ html, body {
 }
 
 * {    
-    -webkit-user-select: text;
+    
     -webkit-user-select: none;
+    -webkit-user-select: text;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
