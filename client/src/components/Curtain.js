@@ -10,6 +10,7 @@ const Curtain = React.memo(({ messagesService }) => {
         messagesService.getGameState((gameState) => {
             if (gameState.gameInProgressChanged && gameState.gunGameInProgress){
                 curtainUp(0.001)
+                curtain.current.style.visibility = "visible"
             }
         })
 
@@ -22,13 +23,16 @@ const Curtain = React.memo(({ messagesService }) => {
         const curtainDown = (o) => {
             curtain.current.style.opacity = o
             if (o > 0) setTimeout(() => {curtainDown(o-0.01)}, 1)
-            else return 
+            else {
+                curtain.current.style.visibility = "hidden"
+            }
         }
 
     },[messagesService])
 
     const style = {
         position: "absolute",
+        visibility: "hidden",
         top: "0px",
         left: "0px",
         width: "100%",
