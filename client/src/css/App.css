@@ -10,3 +10,9 @@ html, body {
     margin: 0px;
     padding: 0px;
 }
+
+*:not(input.field) {    
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
