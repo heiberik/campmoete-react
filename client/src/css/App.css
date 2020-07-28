@@ -12,7 +12,9 @@ html, body {
 }
 
 *:not(input.field) {    
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
