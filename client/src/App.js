@@ -16,6 +16,7 @@ import Score from "./components/Score"
 import Background from "./components/Background"
 import Skammekroken from "./components/Skammekroken"
 import Bullets from "./components/Bullets"
+import Curtain from "./components/Curtain"
 
 import "./css/App.css"
 
@@ -147,6 +148,7 @@ const App = () => {
             <Skammekroken messagesService={messagesService} />
             <Bullets messagesService={messagesService} />
             <TooSmallScreen windowSize={windowSize} color1="#e66465" color2="#800080" />
+            <Curtain messagesService={messagesService} />
         </div>
     )
 }

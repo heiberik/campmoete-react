@@ -14,7 +14,6 @@ app.use(express.static('build'))
 
 // TODOS:
 // pillargame: står hvor mange poeng man fikk når spillet er ferdig
-// endre bakgrunnsfarge fortløpende.
 
 
 

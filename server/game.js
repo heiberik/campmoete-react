@@ -268,6 +268,8 @@ class Game {
 
             let newPosX = p.getPosX()
             let newPosY = p.getPosY()
+            const originalX = newPosX
+            const originalY = newPosY
 
             if (p.getUp() && p.getLeft()) {
                 newPosX = newPosX - this.moveSpeed2
@@ -307,17 +309,11 @@ class Game {
                 }
             }
 
-            p.setShield()
-            p.setPosX(newPosX)
-            p.setPosY(newPosY)
-
-            this.updateState = true
-            this.usersChanged = true
-
             const x = newPosX
             const y = newPosY
             const width = p.getWidth()
             const height = p.getHeight()
+            const hit = []
 
             this.messages.forEach(m => {
 
@@ -326,81 +322,96 @@ class Game {
                 const mHeight = m.getHeight()
                 const mWidth = m.getWidth()
 
+                let messageMoved = false
+
                 // fra venstre
                 if (x + width >= messageX && x + width <= messageX + 1 && y + height >= messageY && y <= messageY + mHeight) {
                     if (m.getSolid()) {
-                        this.resetPlayerMove(p)
+                        hit.push("left")
+                    } else {
+                        if (!messageMoved) {
+                            m.setPosX(messageX + this.moveSpeed1)
+                            this.newMessages = true
+                            messageMoved = true
+                        }
                     }
-                    else {
-                        m.setPosX(messageX + this.moveSpeed1)
-                        this.newMessages = true
-                    }
-
                 }
                 //fra høyre
-                else if (x <= messageX + mWidth && x >= messageX + mWidth - 1 && y + height >= messageY && y <= messageY + mHeight) {
+                if (x <= messageX + mWidth && x >= messageX + mWidth - 1 && y + height >= messageY && y <= messageY + mHeight) {
                     if (m.getSolid()) {
-                        this.resetPlayerMove(p)
+                        hit.push("right")
+                    } else {
+                        if (!messageMoved) {
+                            m.setPosX(messageX - this.moveSpeed1)
+                            this.newMessages = true
+                            messageMoved = true
+                        }
                     }
-                    else {
-                        m.setPosX(messageX - this.moveSpeed1)
-                        this.newMessages = true
-                    }
-
                 }
                 //fra top
-                else if (x + width >= messageX && x <= messageX + mWidth && y + height >= messageY && y + height <= messageY + 1) {
+                if (x + width >= messageX && x <= messageX + mWidth && y + height >= messageY && y + height <= messageY + 1) {
                     if (m.getSolid()) {
-                        this.resetPlayerMove(p)
+                        hit.push("top")
+                    } else {
+                        if (!messageMoved) {
+                            m.setPosY(messageY + this.moveSpeed1)
+                            this.newMessages = true
+                            messageMoved = true
+                        }
                     }
-                    else {
-                        m.setPosY(messageY + this.moveSpeed1)
-                        this.newMessages = true
-                    }
-
                 }
                 // fra bunn
-                else if (x + width >= messageX && x <= messageX + mWidth && y <= messageY + mHeight && y >= messageY + mHeight - 1) {
+                if (x + width >= messageX && x <= messageX + mWidth && y <= messageY + mHeight && y >= messageY + mHeight - 1) {
                     if (m.getSolid()) {
-                        this.resetPlayerMove(p)
+                        hit.push("bot")
+                    } else {
+                        if (!messageMoved) {
+                            m.setPosY(messageY - this.moveSpeed1)
+                            this.newMessages = true
+                            messageMoved = true
+                        }
                     }
-                    else {
-                        m.setPosY(messageY - this.moveSpeed1)
-                        this.newMessages = true
-                    }
-
                 }
             })
+
+
+            if (hit.length > 0) {
+                if (originalX !== newPosX && originalY !== newPosY) {
+                    if (hit.length === 1) {
+                        if (hit[0] === "left") newPosX = newPosX - this.moveSpeed2
+                        else if (hit[0] === "right") newPosX = newPosX + this.moveSpeed2
+                        else if (hit[0] === "top") newPosY = newPosY - this.moveSpeed2
+                        else if (hit[0] === "bot") newPosY = newPosY + this.moveSpeed2
+                    }
+                    else {
+                        if (hit.includes("left")) newPosX = newPosX - this.moveSpeed2
+                        if (hit.includes("right")) newPosX = newPosX + this.moveSpeed2
+                        if (hit.includes("top")) newPosY = newPosY - this.moveSpeed2
+                        if (hit.includes("bot")) newPosY = newPosY + this.moveSpeed2
+                    }
+                }
+                else {
+                    if (hit.length === 1) {
+                        if (hit[0] === "left") newPosX = newPosX - this.moveSpeed1
+                        else if (hit[0] === "right") newPosX = newPosX + this.moveSpeed1
+                        else if (hit[0] === "top") newPosY = newPosY - this.moveSpeed1
+                        else if (hit[0] === "bot") newPosY = newPosY + this.moveSpeed1
+                    }
+                    else {
+                        if (hit.includes("left")) newPosX = newPosX - this.moveSpeed2
+                        if (hit.includes("right")) newPosX = newPosX + this.moveSpeed2
+                        if (hit.includes("top")) newPosY = newPosY - this.moveSpeed2
+                        if (hit.includes("bot")) newPosY = newPosY + this.moveSpeed2
+                    }
+                }
+            }
+
+            p.setShield()
+            p.setPosX(newPosX)
+            p.setPosY(newPosY)
+            this.updateState = true
+            this.usersChanged = true
         })
-    }
-
-    resetPlayerMove(p) {
-        let newPosX = p.getPosX()
-        let newPosY = p.getPosY()
-
-        if (p.getUp() && p.getLeft()) {
-            newPosX = newPosX + this.moveSpeed2
-            newPosY = newPosY + this.moveSpeed2
-        }
-        else if (p.getUp() && p.getRight()) {
-            newPosX = newPosX - this.moveSpeed2
-            newPosY = newPosY + this.moveSpeed2
-        }
-        else if (p.getDown() && p.getLeft()) {
-            newPosX = newPosX + this.moveSpeed2
-            newPosY = newPosY - this.moveSpeed2
-        }
-        else if (p.getDown() && p.getRight()) {
-            newPosX = newPosX - this.moveSpeed2
-            newPosY = newPosY - this.moveSpeed2
-        }
-        else if (p.getUp()) newPosY = newPosY + this.moveSpeed1
-        else if (p.getDown()) newPosY = newPosY - this.moveSpeed1
-        else if (p.getLeft()) newPosX = newPosX + this.moveSpeed1
-        else if (p.getRight()) newPosX = newPosX - this.moveSpeed1
-
-        p.setPosX(newPosX)
-        p.setPosY(newPosY)
     }
 
     makePillar() {
@@ -434,7 +445,7 @@ class Game {
 
             this.players.forEach(p => {
 
-                if (!p.getRestricted()){
+                if (!p.getRestricted()) {
 
                     const x = p.getPosX()
                     const y = p.getPosY()
@@ -457,7 +468,7 @@ class Game {
                 const mHeight = m.getHeight()
                 const mWidth = m.getWidth()
 
-                if (px - (pWidth / 2) <= messageX + mWidth && px + (pWidth / 2) >= messageX + mWidth - 1 && (messageY <= top || (messageY+mHeight) >= bot)) {
+                if (px - (pWidth / 2) <= messageX + mWidth && px + (pWidth / 2) >= messageX + mWidth - 1 && (messageY <= top || (messageY + mHeight) >= bot)) {
                     m.setPosX(messageX - this.pillarSpeed)
                     this.newMessages = true
                 }
@@ -664,20 +675,16 @@ class Game {
 
             if (this.players.length === this.usersIdiotboks.length || this.players.length === 0) {
 
-                this.gameInProgress = false
-                this.gameInProgressChanged = true
-                this.startOver = false
-                this.progressTick = 0
-                this.scoreChanged = true
                 this.freezeGame = true
                 this.updateState = true
                 this.freezeGameChanged = true
+
                 if (this.currentScore > this.highscore) {
                     this.highscore = this.currentScore
                     this.highScoreUsername = check[0]
                     this.newHighscore = true
+                    this.scoreChanged = true
                 }
-                this.currentScore = 0
 
                 setTimeout(() => {
 
@@ -691,6 +698,16 @@ class Game {
                 }, 4000)
 
                 setTimeout(() => {
+
+                    this.gameInProgress = false
+                    this.gameInProgressChanged = true
+                    this.startOver = false
+                    this.progressTick = 0
+                    this.scoreChanged = true
+                    this.freezeGame = true
+                    this.updateState = true
+                    this.freezeGameChanged = true
+                    this.currentScore = 0
                     check.forEach(username => {
                         const p = this.findPlayerUsername(username)
                         if (!p) return
@@ -734,14 +751,12 @@ class Game {
     placeWallsMap1() {
 
         // team blue
-        this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 5, 60, 2, 40, true, 10, false))
-        this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 5, 59, 10, 2, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 5, 60, 10, 40, true, 10, false))
         this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 13, 39, 2, 10, true, 10, false))
         this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 5, 38, 10, 2, true, 10, false))
 
         //team red
-        this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 93, 60, 2, 40, true, 10, false))
-        this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 85, 59, 10, 2, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 85, 60, 10, 40, true, 10, false))
         this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 85, 39, 2, 10, true, 10, false))
         this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 85, 38, 10, 2, true, 10, false))
 
@@ -759,91 +774,121 @@ class Game {
         this.updateState = true
     }
 
+    minimizePlayer(p, targetWidth, targetHeight, currentWidth, currentHeight) {
+
+        this.usersChanged = true
+        this.updateState = true
+
+        if (currentWidth < targetWidth){
+            p.setWidth(targetWidth)
+            p.setHeight(targetHeight)
+        }
+        else {
+            p.setWidth(currentWidth)
+            p.setHeight(currentHeight)
+            setTimeout(() => {this.minimizePlayer(p, targetWidth, targetHeight, currentWidth-0.02, currentHeight-0.025)}, 1000 / 60)
+        }
+        
+    }
+
     startGunGame() {
         this.countDownStarted = true
         this.startOverGunGame = true
 
         const countDown = (count) => {
-
             // spillet begynner
             if (count < 0) {
+
                 this.gunGameInProgress = true
                 this.gameInProgressChanged = true
-                this.usersDead = []
-                this.countDownStarted = false
-                this.countDownNumber = -1
-                this.timer = 120
-                this.usersIdiotboks = []
                 this.updateState = true
-                this.usersChanged = true
-                this.scoreBlue = 0
-                this.scoreRed = 0
-                this.gunScoreChanged = true
-                this.moveSpeed1 = .2
-                this.moveSpeed2 = .1
-
-                this.messages = []
-                this.placeWallsMap1()
-
-                let decideTeam = 0
-                this.players.forEach(p => {
-                    decideTeam++
-                    p.setHeight(p.getHeight() / 1.5)
-                    p.setWidth(p.getWidth() / 1.5)
-                    if (decideTeam % 2 === 0) {
-                        // team blue
-                        p.setColor("#0000FF")
-                        p.setTeam("blue")
-                        p.setPosX(1 + (p.getWidth() / 2))
-                        p.setPosY(48 + decideTeam)
-                    }
-                    else {
-                        // team red
-                        p.setColor("#FF0000")
-                        p.setTeam("red")
-                        p.setPosX(97 - (p.getWidth() / 2))
-                        p.setPosY(48 + decideTeam)
-                    }
-                })
+                this.freezeGame = true
+                this.freezeGameChanged = true
 
                 setTimeout(() => {
-                    // spillet er ferdig
-                    this.moveSpeed1 = .3
-                    this.moveSpeed2 = .15
-                    this.gunGameInProgress = false
-                    this.gameInProgressChanged = true
-                    this.bullets = []
-                    this.bulletsChanged = true
-                    this.timer = -1
-                    this.timerChanged = true
+
+                    this.usersDead = []
+                    this.countDownStarted = false
+                    this.countDownNumber = -1
+                    this.timer = 120
+                    this.usersIdiotboks = []
                     this.updateState = true
                     this.usersChanged = true
-                    this.messages = []
-                    this.newMessages = true
+                    this.scoreBlue = 0
+                    this.scoreRed = 0
+                    this.gunScoreChanged = true
+                    this.moveSpeed1 = .2
+                    this.moveSpeed2 = .1
 
+                    this.messages = []
+                    this.placeWallsMap1()
+
+                    let decideTeam = 0
                     this.players.forEach(p => {
-                        p.setHeight(4.5)
-                        p.setWidth(3.5)
-                        p.setColor(p.getOriginalColor())
+                        decideTeam++
+                        if (decideTeam % 2 === 0) {
+                            // team blue
+                            p.setColor("#0000FF")
+                            p.setTeam("blue")
+                            p.setPosX(1 + (p.getWidth() / 2))
+                            p.setPosY(48 + decideTeam)
+                        }
+                        else {
+                            // team red
+                            p.setColor("#FF0000")
+                            p.setTeam("red")
+                            p.setPosX(97 - (p.getWidth() / 2))
+                            p.setPosY(48 + decideTeam)
+                        }
+                        setTimeout(() => {
+                            this.minimizePlayer(p, p.getWidth() / 1.5, p.getHeight() / 1.5, p.getWidth(), p.getHeight())
+                        }, 1000)
+                        
                     })
 
-                    if (this.scoreRed > this.scoreBlue) this.teamWon = "Red"
-                    else if (this.scoreRed < this.scoreBlue) this.teamWon = "Blue"
-                    else this.teamWon = "Draw"
-                    this.teamWonChanged = true
+                    setTimeout(() => {
+                        this.freezeGame = false
+                        this.freezeGameChanged = true
+                    }, 2500)
 
-
-                }, 120000)
-
-                const setTimer = (t) => {
-                    if (t > -1) {
-                        this.timer = t
+                    setTimeout(() => {
+                        // spillet er ferdig
+                        this.moveSpeed1 = .3
+                        this.moveSpeed2 = .15
+                        this.gunGameInProgress = false
+                        this.gameInProgressChanged = true
+                        this.bullets = []
+                        this.bulletsChanged = true
+                        this.timer = -1
                         this.timerChanged = true
-                        setTimeout(() => setTimer(t - 1), 1000);
+                        this.updateState = true
+                        this.usersChanged = true
+                        this.messages = []
+                        this.newMessages = true
+
+                        this.players.forEach(p => {
+                            p.setHeight(4.5)
+                            p.setWidth(3.5)
+                            p.setColor(p.getOriginalColor())
+                        })
+
+                        if (this.scoreRed > this.scoreBlue) this.teamWon = "Red"
+                        else if (this.scoreRed < this.scoreBlue) this.teamWon = "Blue"
+                        else this.teamWon = "Draw"
+                        this.teamWonChanged = true
+
+                    }, 120000)
+
+                    const setTimer = (t) => {
+                        if (t > -1) {
+                            this.timer = t
+                            this.timerChanged = true
+                            setTimeout(() => setTimer(t - 1), 1000);
+                        }
+                        else this.timerChanged = true
                     }
-                    else this.timerChanged = true
-                }
-                setTimer(this.timer)
+                    setTimer(this.timer)
+                }, 1000)
             }
             //tell ned
             else {

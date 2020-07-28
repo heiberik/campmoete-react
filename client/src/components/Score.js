@@ -1,6 +1,8 @@
 import React from "react"
 import { useState, useEffect } from 'react'
 
+import "../css/Anims.css"
+
 const Score = React.memo(({ messagesService }) => {
 
     const [newHighScore, setNewHighScore] = useState(false)
@@ -11,6 +13,7 @@ const Score = React.memo(({ messagesService }) => {
     const [gunGameScore, setGunGameScore] = useState([0, 0])
     const [newKill, setNewKill] = useState("")
     const [teamWon, setTeamWon] = useState("")
+    const [showScorePillar, setShowScorePillar] = useState(false)
 
     useEffect(() => {
         messagesService.getGameState((gameState) => {
@@ -25,8 +28,18 @@ const Score = React.memo(({ messagesService }) => {
             }
 
             if (gameState.gameInProgressChanged) {
-                setPillarGameInProgress(gameState.gameInProgress)
-                setGunGameInProgress(gameState.gunGameInProgress)
+                setTimeout(() => {
+                    setPillarGameInProgress(gameState.gameInProgress)
+                    setGunGameInProgress(gameState.gunGameInProgress)
+                }, 1000)
+            }
+
+            if (gameState.freezeGameChanged) {
+                if (gameState.freezeGame)
+                    setShowScorePillar(true)
+                setTimeout(() => {
+                    setShowScorePillar(false)
+                }, 3000)
             }
 
             if (gameState.timerChanged) {
@@ -86,12 +99,26 @@ const Score = React.memo(({ messagesService }) => {
         textAlign: "center",
         position: "absolute",
         transform: "translateX(-50%)",
-        fontSize: "3rem",
+        fontSize: "4rem",
         width: "100%",
         fontWeight: "bold",
         fontFamily: "Arial",
         color: "red",
-        top: "10rem",
+        top: "30vh",
+        left: "50vw",
+        zIndex: "9999"
+    }
+
+    const newScoreStyle = {
+        textAlign: "center",
+        position: "absolute",
+        transform: "translateX(-50%)",
+        fontSize: "5rem",
+        width: "100%",
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        color: "white",
+        top: "30vh",
         left: "50vw",
         zIndex: "9999"
     }
@@ -149,7 +176,7 @@ const Score = React.memo(({ messagesService }) => {
     if (newHighScore) {
         return (
             <>
-                <div style={newHighScoreStyle}> NEW HIGHSCORE!</div>
+                <div style={newHighScoreStyle}> NEW HIGHSCORE {scoreCurrentHigh[1]}</div>
                 <div style={scoreStyle}> Current Score: {scoreCurrentHigh[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {scoreCurrentHigh[1]}</div>
             </>
         )
@@ -171,6 +198,14 @@ const Score = React.memo(({ messagesService }) => {
             <>
                 <div style={draw}> DRAW </div>
                 <div style={scoreStyle}> &emsp;  </div>
+            </>
+        )
+    }
+    else if (pillarGameInProgress && showScorePillar) {
+        return (
+            <>
+                <div style={scoreStyle}> Current Score: {scoreCurrentHigh[0]} &emsp;&emsp;&emsp;&emsp; Highest Score: {scoreCurrentHigh[1]}</div>
+                <div style={newScoreStyle}> {scoreCurrentHigh[0]} </div>
             </>
         )
     }
@@ -214,7 +249,7 @@ const Score = React.memo(({ messagesService }) => {
     }
     else if (scoreCurrentHigh[2] !== "") {
         return (
-            <div style={scoreStyle}> Highest Score: {scoreCurrentHigh[1]} by {scoreCurrentHigh[2]}</div>
+            <div style={scoreStyle}> Highest Score in Pillar Game: {scoreCurrentHigh[1]} by {scoreCurrentHigh[2]}</div>
         )
     }
 

@@ -44,7 +44,7 @@ const Background = React.memo(({ color1, color2, usernameChosen }) => {
 
             const componentToHex = (c) => {
                 var hex = c.toString(16);
-                return hex.length == 1 ? "0" + hex : hex;
+                return hex.length === 1 ? "0" + hex : hex;
             }
 
             const rgbToHex = (r, g, b) => {
@@ -55,7 +55,7 @@ const Background = React.memo(({ color1, color2, usernameChosen }) => {
             setInterval(() => {
                 colorInner = changeColors(colorInner)
                 background.current.style.background = "radial-gradient(" + colorInner + ", " + colorOuter + ")"
-            }, 1000 / 60)
+            }, 1000 / 30)
             
         }
 
