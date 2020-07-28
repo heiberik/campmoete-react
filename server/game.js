@@ -27,7 +27,6 @@ class Game {
         this.timer = -1
         this.showIdiotBox = false
 
-
         // pillar game
         this.scoreChanged = false
         this.highscore = 0
@@ -62,14 +61,14 @@ class Game {
         this.timerChanged = false
         this.idiotBoxChanged = false
 
-        
-
         setInterval(() => {
+
             this.handlePlayerMovements()
             this.updateGames()
             this.handleMessageQueue()
             this.updateNumberAreas()
             this.emitGameState()
+
         }, 1000 / 60);
     }
 
@@ -81,7 +80,7 @@ class Game {
             const newUser = { id: "usernameTaken" }
             socket.emit("sendUser", newUser)
         }
-        else if (this.gunGameInProgress || this.gameInProgress){
+        else if (this.gunGameInProgress || this.gameInProgress) {
             const newUser = { id: "gameInProgress" }
             socket.emit("sendUser", newUser)
         }
@@ -137,6 +136,15 @@ class Game {
         return color
     }
 
+    getRandomColorAll() {
+        var letters = '0123456789ABCDEF'
+        var color = '#'
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color
+    }
+
     handleMessageQueue() {
 
         this.messagesQueue.forEach(m => {
@@ -149,33 +157,49 @@ class Game {
                 const p = this.findPlayerId(m.id)
                 const px = p.getPosX()
                 const py = p.getPosY()
-                y = py - 3
-                x = px + (p.getWidth() / 2) - 2
-                newMessage = new Message(
-                    this.messages.length,
-                    m.message.message,
-                    this.getRandomColor(),
-                    x,
-                    y,
-                    4,
-                    2,
-                    false,
-                    8)
+                if (p.getTeam() === "red") {
+                    y = py + (p.getHeight() / 2) - 3
+                    x = px + (p.getWidth() / 2) - 5
+                    newMessage = new Message(
+                        this.messages.length,
+                        m.message.message,
+                        "#FF0000",
+                        "black",
+                        x,
+                        y,
+                        3,
+                        6,
+                        false,
+                        10, false)
+                }
+                else {
+                    y = py + (p.getHeight() / 2) - 3
+                    x = px + (p.getWidth() / 2) + 2
+                    newMessage = new Message(
+                        this.messages.length,
+                        m.message.message,
+                        "#0000FF",
+                        "white",
+                        x,
+                        y,
+                        3,
+                        6,
+                        false,
+                        10, false)
+                }
             }
             else {
-                y = Math.floor(Math.random() * 75) + 10
-                x = Math.floor(Math.random() * 80) + 4
-
                 newMessage = new Message(
                     this.messages.length,
                     m.message.message,
                     this.getRandomColor(),
-                    x,
-                    y,
+                    "black",
+                    Math.floor(Math.random() * 80) + 4,
+                    Math.floor(Math.random() * 75) + 10,
                     12,
                     6,
                     false,
-                    14)
+                    14, true)
             }
 
             this.messages.push(newMessage)
@@ -194,7 +218,7 @@ class Game {
             const newBullet = new Bullet(
                 shot,
                 this.findPlayerId(id).getJSON(),
-                this.getRandomColor())
+                this.getRandomColorAll())
 
             this.bullets.push(newBullet)
 
@@ -398,25 +422,48 @@ class Game {
     }
 
     checkCollissions() {
+
         let ud = []
 
-        this.players.forEach(p => {
+        this.pillars.forEach(pillar => {
 
-            if (p.getRestricted()) return
-            const x = p.getPosX()
-            const y = p.getPosY()
-            const width = p.getWidth()
-            const height = p.getHeight()
+            const px = pillar.getPosX()
+            const top = pillar.getTop()
+            const bot = pillar.getBottom()
+            const pWidth = pillar.getWidth()
 
-            this.pillars.forEach(pillar => {
-                const pWidth = pillar.getWidth()
-                if (x + width >= pillar.getPosX() - (pWidth / 2) && x <= pillar.getPosX() + (pWidth / 2)) {
-                    if (y <= pillar.getTop() || y + height >= pillar.getBottom()) {
-                        ud.push(p.getUsername())
+            this.players.forEach(p => {
+
+                if (!p.getRestricted()){
+
+                    const x = p.getPosX()
+                    const y = p.getPosY()
+                    const width = p.getWidth()
+                    const height = p.getHeight()
+
+                    if (x + width >= px - (pWidth / 2) && x <= px + (pWidth / 2)) {
+                        if (y <= top || y + height >= bot) {
+                            ud.push(p.getUsername())
+                            this.usersChanged = true
+                        }
                     }
                 }
             })
+
+            this.messages.forEach(m => {
+
+                const messageX = m.getPosX()
+                const messageY = m.getPosY()
+                const mHeight = m.getHeight()
+                const mWidth = m.getWidth()
+
+                if (px - (pWidth / 2) <= messageX + mWidth && px + (pWidth / 2) >= messageX + mWidth - 1 && (messageY <= top || (messageY+mHeight) >= bot)) {
+                    m.setPosX(messageX - this.pillarSpeed)
+                    this.newMessages = true
+                }
+            })
         })
+
 
         return ud
     }
@@ -443,6 +490,10 @@ class Game {
 
                 if (x > mX - r && x < mX + width + r && y > mY - r && y < mY + height + r) {
                     b.setExploded(true)
+                    if (m.getChangable()) {
+                        m.setColor(b.getColor())
+                        this.newMessages = true
+                    }
                     this.bulletsChanged = true
                     this.updateState = true
                 }
@@ -538,7 +589,7 @@ class Game {
                 } else this.startOverGunGame = false
             })
 
-            if (usersInDeleteArea > 0 && usersInDeleteArea === this.players.length && !this.startOverDelete) {
+            if (usersInDeleteArea > 0 && usersInDeleteArea === this.players.length && !this.startOverDelete && !this.gunGameInProgress) {
                 this.messages = []
                 this.startOverDelete = true
                 this.newMessages = true
@@ -680,28 +731,29 @@ class Game {
         }
     }
 
-    placeWalls() {
+    placeWallsMap1() {
 
         // team blue
-        this.messages.push(new Message(this.messages.length, "", "#0000FF", 5, 60, 2, 40, true, 10))
-        this.messages.push(new Message(this.messages.length, "", "#0000FF", 5, 59, 10, 2, true, 10))
-        this.messages.push(new Message(this.messages.length, "", "#0000FF", 13, 39, 2, 8, true, 10))
-        this.messages.push(new Message(this.messages.length, "", "#0000FF", 8, 38, 12, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 5, 60, 2, 40, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 5, 59, 10, 2, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 13, 39, 2, 10, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", "#0000FF", "black", 5, 38, 10, 2, true, 10, false))
 
         //team red
-        this.messages.push(new Message(this.messages.length, "", "#FF0000", 93, 60, 2, 40, true, 10))
-        this.messages.push(new Message(this.messages.length, "", "#FF0000", 85, 59, 10, 2, true, 10))
-        this.messages.push(new Message(this.messages.length, "", "#FF0000", 85, 39, 2, 8, true, 10))
-        this.messages.push(new Message(this.messages.length, "", "#FF0000", 80, 38, 12, 2, true, 10))
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 93, 60, 2, 40, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 85, 59, 10, 2, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 85, 39, 2, 10, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", "#FF0000", "black", 85, 38, 10, 2, true, 10, false))
 
         // middle stuff
-        const c = this.getRandomColor()
-        this.messages.push(new Message(this.messages.length, "", c, 49, 0, 2, 15, true, 10))
-        this.messages.push(new Message(this.messages.length, "", c, 49, 20, 2, 40, true, 10))
-        this.messages.push(new Message(this.messages.length, "", c, 49, 19, 16, 2, true, 10))
-        this.messages.push(new Message(this.messages.length, "", c, 35, 30, 2, 50, true, 10))
-        this.messages.push(new Message(this.messages.length, "", c, 63, 30, 2, 50, true, 10))
-
+        const c = "#010004"
+        this.messages.push(new Message(this.messages.length, "", c, "black", 47, 33, 6, 37, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", c, "black", 30, 78, 40, 6, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", c, "black", 30, 19, 40, 6, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", c, "black", 60, 33, 10, 20, true, 10, true))
+        this.messages.push(new Message(this.messages.length, "", c, "black", 30, 50, 10, 20, true, 10, true))
+        this.messages.push(new Message(this.messages.length, "", c, "black", 52, 62, 18, 8, true, 10, false))
+        this.messages.push(new Message(this.messages.length, "", c, "black", 30, 33, 18, 8, true, 10, false))
 
         this.newMessages = true
         this.updateState = true
@@ -720,7 +772,7 @@ class Game {
                 this.usersDead = []
                 this.countDownStarted = false
                 this.countDownNumber = -1
-                this.timer = 60
+                this.timer = 120
                 this.usersIdiotboks = []
                 this.updateState = true
                 this.usersChanged = true
@@ -731,7 +783,7 @@ class Game {
                 this.moveSpeed2 = .1
 
                 this.messages = []
-                this.placeWalls()
+                this.placeWallsMap1()
 
                 let decideTeam = 0
                 this.players.forEach(p => {
@@ -781,7 +833,7 @@ class Game {
                     this.teamWonChanged = true
 
 
-                }, 60000)
+                }, 120000)
 
                 const setTimer = (t) => {
                     if (t > -1) {
@@ -890,7 +942,6 @@ class Game {
                 gunScoreChanged: this.gunScoreChanged,
                 scoreRed: this.scoreRed,
                 scoreBlue: this.scoreBlue,
-
             }
 
             this.sockets.forEach(s => {

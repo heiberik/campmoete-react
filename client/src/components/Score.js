@@ -33,7 +33,7 @@ const Score = React.memo(({ messagesService }) => {
                 setTimer(gameState.timer)
             }
 
-            if (gameState.teamWonChanged){
+            if (gameState.teamWonChanged) {
                 setTeamWon(gameState.teamWon)
                 setTimeout(() => {
                     setTeamWon("")
@@ -154,10 +154,25 @@ const Score = React.memo(({ messagesService }) => {
             </>
         )
     }
-    else if (teamWon !== ""){
-        if (teamWon === "Red") return <div style={redKill}> RED TEAM WON </div>
-        if (teamWon === "Blue") return <div style={blueKill}> BLUE TEAM WON </div>
-        if (teamWon === "Draw") return <div style={draw}> DRAW </div>
+    else if (teamWon !== "") {
+        if (teamWon === "Red") return (
+            <>
+                <div style={redKill}> RED TEAM WON </div>
+                <div style={scoreStyle}> &emsp;  </div>
+            </>
+        )
+        if (teamWon === "Blue") return (
+            <>
+                <div style={blueKill}> BLUE TEAM WON </div>
+                <div style={scoreStyle}> &emsp;  </div>
+            </>
+        )
+        if (teamWon === "Draw") return (
+            <>
+                <div style={draw}> DRAW </div>
+                <div style={scoreStyle}> &emsp;  </div>
+            </>
+        )
     }
     else if (pillarGameInProgress) {
         return (

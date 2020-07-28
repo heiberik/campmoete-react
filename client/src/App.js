@@ -38,7 +38,7 @@ const App = () => {
         })
     }, [])
 
-    
+
     const sendMessageHandler = (event) => {
         event.preventDefault()
         if (messageText.replace(/\s+/g, '') !== "") {
@@ -80,7 +80,7 @@ const App = () => {
                     setNotMessage("Username taken!")
                     setMessageText("")
                 }
-                else if (u.id === "gameInProgress"){
+                else if (u.id === "gameInProgress") {
                     setNotMessage("Game currently in progress. Try again in a few seconds!")
                 }
                 else {
@@ -106,7 +106,11 @@ const App = () => {
         return (
             <div style={style}>
                 <Header text="CAMPMØTE" />
-                <Background color1="#e66465" color2="purple" />
+                <Background
+                    color1="#e66465"
+                    color2="#800080"
+                    messagesService={messagesService}
+                    usernameChosen={usernameChosen} />
                 <Notification message={notMessage} messageHandler={setNotMessage} />
                 <WriteMessageBox
                     messageText={messageText}
@@ -114,14 +118,18 @@ const App = () => {
                     messageTextChangedhandler={messageTextChangedhandler}
                     usernameChosen={usernameChosen}
                     setUsernameHandler={setUsernameHandler} />
-                <TooSmallScreen windowSize={windowSize} color1="#e66465" color2="purple" />
+                <TooSmallScreen windowSize={windowSize} color1="#e66465" color2="#800080" />
             </div>
         )
     }
     else return (
         <div style={style}>
             <Header text="CAMPMØTE" />
-            <Background color1="#e66465" color2="purple" />
+            <Background
+                    color1="#e66465"
+                    color2="#800080"
+                    messagesService={messagesService}
+                    usernameChosen={usernameChosen} />
             <Messages messagesService={messagesService} />
             <WriteMessageBox
                 messageText={messageText}
@@ -138,7 +146,7 @@ const App = () => {
             <Score messagesService={messagesService} />
             <Skammekroken messagesService={messagesService} />
             <Bullets messagesService={messagesService} />
-            <TooSmallScreen windowSize={windowSize} color1="#e66465" color2="purple" />
+            <TooSmallScreen windowSize={windowSize} color1="#e66465" color2="#800080" />
         </div>
     )
 }

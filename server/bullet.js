@@ -19,10 +19,11 @@ class Bullet {
         this.posY = user.playerPosY + (user.playerHeight/2)
         this.dirX = dirX
         this.dirY = dirY
-        this.radius = .1
+        this.radius = .15
         this.exploded = false
     }
 
+    getColor(){return this.color}
     getOwner(){return this.owner}
     getExploded(){return this.exploded}
     setExploded(e){this.exploded = e}

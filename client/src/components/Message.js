@@ -19,6 +19,7 @@ const Message = React.memo(({ message }) => {
         borderRadius: "5px",
         borderWidth: "0px",
         background: message.color,
+        color: message.colorText,
         cursor: "default",
     }
 

@@ -4,12 +4,12 @@ const Notification = React.memo(({ message, messageHandler }) => {
 
     const style = {
         position: "absolute",
-        background: "orange",
-        border: "solid black 2px",
+        background: "#ffffff",
+        border: "solid #4B0082 2px",
         borderRadius: "10px",
         top: "10%",
         left: "50%",
-        color: "black",
+        color: "#4B0082",
         fontSize: "18px",
         fontFamily: "Arial",
         fontWeight: "bold",
@@ -21,7 +21,7 @@ const Notification = React.memo(({ message, messageHandler }) => {
     if (message !== ""){
         setTimeout(() => {
             messageHandler("")
-        }, 4000)
+        }, 3000)
 
         return (
             <div style={style}>
