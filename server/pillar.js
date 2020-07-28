@@ -7,7 +7,7 @@ class Pillar {
         this.top = randomNumber1 - 7
         this.bottom = randomNumber1 + 7
         this.color = color
-        this.posX = 105.0
+        this.posX = 115.0
         this.width = 2
     }
 

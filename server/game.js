@@ -530,8 +530,9 @@ class Game {
 
             this.players.forEach(p => {
                 const id = b.getOwner()
+                const owner = this.findPlayerId(id)
                 if (p.getID() === id) return
-                if (p.getTeam() === this.findPlayerId(id).getTeam()) return
+                if (p.getTeam() === owner.getTeam()) return
 
                 const pX = p.getPosX()
                 const pY = p.getPosY()
@@ -540,6 +541,8 @@ class Game {
 
                 if (x > pX - r && x < pX + width + r && y > pY - r && y < pY + height + r) {
                     dead.push(p.getUsername())
+                    p.setDeaths(p.getDeaths() + 1)
+                    owner.setKills(owner.getKills() + 1)
                     b.setExploded(true)
                     p.setHit(true)
                     this.bulletsChanged = true
@@ -843,6 +846,8 @@ class Game {
 
                     let decideTeam = 0
                     this.players.forEach(p => {
+                        p.setDeaths(0)
+                        p.setKills(0)
                         decideTeam++
                         if (decideTeam % 2 === 0) {
                             // team blue
@@ -889,6 +894,14 @@ class Game {
                             p.setWidth(3.5)
                             p.setColor(p.getOriginalColor())
                         })
+
+                        setTimeout(() => {
+                            this.players.forEach(p => {
+                                p.setKills(-1)
+                                p.setDeaths(-1)
+                            })
+                        }, 4000)
+                        
 
                         if (this.scoreRed > this.scoreBlue) this.teamWon = "Red"
                         else if (this.scoreRed < this.scoreBlue) this.teamWon = "Blue"

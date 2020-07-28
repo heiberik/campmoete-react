@@ -6,7 +6,6 @@ const User = React.memo(({ user }) => {
         display: "flex",
         flexFirection: "row-reverse",
         alignItems: "center",
-        marginBottom: "2px",
     }
 
     const styleUsername = {
@@ -16,6 +15,17 @@ const User = React.memo(({ user }) => {
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
         cursor: "default",
+    }
+
+    const styleScore = {
+        color: "#33FDFF",
+        fontSize: "15px",
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        cursor: "default",
+        marginRight: "5px",
     }
 
     const styleLatencyGreen = {
@@ -62,31 +72,65 @@ const User = React.memo(({ user }) => {
         marginRight: "8px",
     }
 
-    if (user.latency < 100){
-        return (
+    if (user.kills >= 0){
+        if (user.latency < 100){
+            return (
+                <div style={style}>
+                    <div style={styleBox}></div>
+                    <div style={styleScore}> K{user.kills}/{user.deaths}D</div>
+                    <div style={styleUsername}> {user.username} </div>
+                    <div style={styleLatencyGreen}> {user.latency} </div>
+                </div>
+            )
+        }
+        else if (user.latency >= 100 && user.latency < 200){
+            return (
+                <div style={style}>
+                    <div style={styleBox}></div>
+                    <div style={styleScore}> K{user.kills}/{user.deaths}D</div>
+                    <div style={styleUsername}> {user.username} </div>
+                    <div style={styleLatencyYellow}> {user.latency} </div>
+                </div>
+            )
+        }
+        else return (
             <div style={style}>
                 <div style={styleBox}></div>
+                <div style={styleScore}> K{user.kills}/{user.deaths}D</div>
                 <div style={styleUsername}> {user.username} </div>
-                <div style={styleLatencyGreen}> {user.latency} </div>
+                <div style={styleLatencyRed}> {user.latency} </div>
             </div>
         )
     }
-    else if (user.latency >= 100 && user.latency < 200){
-        return (
+    else {
+        if (user.latency < 100){
+            return (
+                <div style={style}>
+                    <div style={styleBox}></div>
+                    <div style={styleUsername}> {user.username} </div>
+                    <div style={styleLatencyGreen}> {user.latency} </div>
+                </div>
+            )
+        }
+        else if (user.latency >= 100 && user.latency < 200){
+            return (
+                <div style={style}>
+                    <div style={styleBox}></div>
+                    <div style={styleUsername}> {user.username} </div>
+                    <div style={styleLatencyYellow}> {user.latency} </div>
+                </div>
+            )
+        }
+        else return (
             <div style={style}>
                 <div style={styleBox}></div>
                 <div style={styleUsername}> {user.username} </div>
-                <div style={styleLatencyYellow}> {user.latency} </div>
+                <div style={styleLatencyRed}> {user.latency} </div>
             </div>
         )
     }
-    else return (
-        <div style={style}>
-            <div style={styleBox}></div>
-            <div style={styleUsername}> {user.username} </div>
-            <div style={styleLatencyRed}> {user.latency} </div>
-        </div>
-    )
+
+    
     
 })
 

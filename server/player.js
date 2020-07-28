@@ -21,8 +21,14 @@ class Player {
         this.points = 0
         this.restricted = false
         this.team = ""
+        this.kills = -1
+        this.deaths = -1
     }
-
+    
+    setKills(k){this.kills = k}
+    getKills(){return this.kills}
+    setDeaths(d){this.deaths = d}
+    getDeaths(){return this.deaths}
     setLatency(l){this.latency = l}
     setTeam(t){this.team = t}
     getTeam(){return this.team}
@@ -89,6 +95,8 @@ class Player {
             hit: this.hit,
             shield: this.space,
             latency: this.latency,
+            kills: this.kills,
+            deaths: this.deaths,
         }
     }
 }
