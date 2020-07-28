@@ -13,6 +13,7 @@ class Player {
         this.shield = false
         this.up = false
         this.down = false
+        this.latency = 0
         this.left = false
         this.right = false
         this.space = false
@@ -22,6 +23,7 @@ class Player {
         this.team = ""
     }
 
+    setLatency(l){this.latency = l}
     setTeam(t){this.team = t}
     getTeam(){return this.team}
     getOriginalColor(){return this.originalColor}
@@ -86,6 +88,7 @@ class Player {
             color: this.color,
             hit: this.hit,
             shield: this.space,
+            latency: this.latency,
         }
     }
 }

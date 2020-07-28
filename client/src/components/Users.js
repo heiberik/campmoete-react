@@ -7,14 +7,7 @@ const Users = React.memo(({ users, userOriginal, messagesService }) => {
     const [usersSorted, setUsersSorted] = useState([])
 
     useEffect(() => {
-        setUsersSorted(usersS => {
-            if (usersS.length === users.length) {
-                return usersS
-            }
-            else {
-                return users.sort((a, b) => a.username.localeCompare(b.username))
-            }
-        })
+        setUsersSorted(users.sort((a, b) => a.username.localeCompare(b.username)))
     }, [users])
 
     const style = {

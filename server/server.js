@@ -43,7 +43,8 @@ io.on("connection", (socket) => {
         game.addPlayer(data, socket)
     })
 
-    socket.on("pingServer", () => {
+    socket.on("pingServer", (latency) => {
+        game.addLatency(latency, socket.id)
         socket.emit("pongServer")
     })
 

@@ -1,20 +1,6 @@
 import React from "react"
-import { useState, useEffect } from 'react'
 
-const User = ({ user, latency, messagesService }) => {
-
-    const [latencyVisual, setLatencyVisual] = useState(0)
-
-    useEffect(() => {
-        if (latency){
-            messagesService.getPongServer((time) => {
-                setLatencyVisual(time)
-            })
-            setInterval(() => {
-                messagesService.pingServer()
-            }, 2000)
-        }
-    }, [latency, messagesService])
+const User = React.memo(({ user }) => {
 
     const style = {
         display: "flex",
@@ -32,9 +18,34 @@ const User = ({ user, latency, messagesService }) => {
         cursor: "default",
     }
 
-    const styleLatency = {
+    const styleLatencyGreen = {
+        color: "#2ade2a",
+        fontSize: "12px",
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        cursor: "default",
+        margin: "auto",
+        marginLeft: "5px",
+    }
+
+    const styleLatencyYellow = {
         color: "yellow",
-        fontSize: "10px",
+        fontSize: "12px",
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        cursor: "default",
+        margin: "auto",
+        marginLeft: "5px",
+    }
+
+    const styleLatencyRed = {
+        color: "red",
+        fontSize: "12px",
+        fontWeight: "bold",
         fontFamily: "Arial",
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
@@ -51,21 +62,32 @@ const User = ({ user, latency, messagesService }) => {
         marginRight: "8px",
     }
 
-    if (latency){
+    if (user.latency < 100){
         return (
             <div style={style}>
                 <div style={styleBox}></div>
                 <div style={styleUsername}> {user.username} </div>
-                <div style={styleLatency}> {latencyVisual} </div>
+                <div style={styleLatencyGreen}> {user.latency} </div>
             </div>
-        ) 
+        )
+    }
+    else if (user.latency >= 100 && user.latency < 200){
+        return (
+            <div style={style}>
+                <div style={styleBox}></div>
+                <div style={styleUsername}> {user.username} </div>
+                <div style={styleLatencyYellow}> {user.latency} </div>
+            </div>
+        )
     }
     else return (
         <div style={style}>
             <div style={styleBox}></div>
             <div style={styleUsername}> {user.username} </div>
+            <div style={styleLatencyRed}> {user.latency} </div>
         </div>
     )
-}
+    
+})
 
 export default User

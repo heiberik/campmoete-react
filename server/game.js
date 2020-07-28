@@ -16,6 +16,7 @@ class Game {
         this.messagesQueue = []
         this.usersDead = []
         this.usersIdiotboks = []
+        this.latencyQueue = []
         this.usersDeadChanged = false
         this.numbersDeleteEvent = 0
         this.numbersGameEvent = 0
@@ -62,13 +63,15 @@ class Game {
         this.idiotBoxChanged = false
 
         setInterval(() => {
+            this.handleLatencyQueue()
+        }, 5000)
 
+        setInterval(() => {
             this.handlePlayerMovements()
             this.updateGames()
             this.handleMessageQueue()
             this.updateNumberAreas()
             this.emitGameState()
-
         }, 1000 / 60);
     }
 
@@ -117,6 +120,21 @@ class Game {
         this.updateState = true
         this.usersChanged = true
         delete this.playersShootCooldown[socket.id]
+    }
+
+    addLatency(latency, id) {
+        this.latencyQueue.push({ latency: latency.latency, id: id })
+    }
+
+    handleLatencyQueue() {
+        this.latencyQueue.forEach(l => {
+            const p = this.findPlayerId(l.id)
+            if (!p) return
+            p.setLatency(l.latency)
+        })
+        this.updateState = true
+        this.usersChanged = true
+        this.latencyQueue = []
     }
 
     addPlayerMovement(pm) {
@@ -779,16 +797,16 @@ class Game {
         this.usersChanged = true
         this.updateState = true
 
-        if (currentWidth < targetWidth){
+        if (currentWidth < targetWidth) {
             p.setWidth(targetWidth)
             p.setHeight(targetHeight)
         }
         else {
             p.setWidth(currentWidth)
             p.setHeight(currentHeight)
-            setTimeout(() => {this.minimizePlayer(p, targetWidth, targetHeight, currentWidth-0.02, currentHeight-0.025)}, 1000 / 60)
+            setTimeout(() => { this.minimizePlayer(p, targetWidth, targetHeight, currentWidth - 0.02, currentHeight - 0.025) }, 1000 / 60)
         }
-        
+
     }
 
     startGunGame() {
@@ -843,7 +861,7 @@ class Game {
                         setTimeout(() => {
                             this.minimizePlayer(p, p.getWidth() / 1.5, p.getHeight() / 1.5, p.getWidth(), p.getHeight())
                         }, 1000)
-                        
+
                     })
 
                     setTimeout(() => {

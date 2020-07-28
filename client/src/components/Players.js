@@ -145,6 +145,11 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
             }
         }
 
+        messagesService.pingServer()
+        setInterval(() => {
+            messagesService.pingServer()
+        }, 5000)
+
         setInterval(() => {
             sendMovementToServer()
             handleMovementFromServer()

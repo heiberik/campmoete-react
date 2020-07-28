@@ -34,16 +34,15 @@ const getGameState = (callback) => {
 }
 
 let time 
+let latency = 0
 const pingServer = () => {
     time = new Date()
-    socket.emit("pingServer", {heh: "heh"})
+    socket.emit("pingServer", {latency: latency})
 }
 
-const getPongServer = (callback) => {
-    socket.on("pongServer", (data) => {
-        callback(new Date() - time)
-    })
-}
+socket.on("pongServer", (data) => {
+    latency = new Date() - time
+})
 
 
 export default {
@@ -54,5 +53,4 @@ export default {
     sendPlayerMovement: sendPlayerMovement,
     getGameState: getGameState,
     pingServer: pingServer,
-    getPongServer: getPongServer,
 }
