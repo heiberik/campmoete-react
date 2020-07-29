@@ -6,6 +6,7 @@ const User = React.memo(({ user }) => {
         display: "flex",
         flexFirection: "row-reverse",
         alignItems: "center",
+        marginBottom: "5px",
     }
 
     const styleUsername = {
@@ -18,56 +19,62 @@ const User = React.memo(({ user }) => {
     }
 
     const styleScore = {
-        color: "#33FDFF",
-        fontSize: "15px",
+        color: "white",
+        fontSize: "13px",
         fontWeight: "bold",
         fontFamily: "Arial",
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
         cursor: "default",
-        marginRight: "5px",
+        marginRight: "8px",
+        marginLeft: "-28px",
+        textAlign: "center",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "21px",
+        marginTop: "1px",
     }
 
     const styleLatencyGreen = {
         color: "#2ade2a",
-        fontSize: "12px",
+        fontSize: "10px",
         fontWeight: "bold",
         fontFamily: "Arial",
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
         cursor: "default",
         margin: "auto",
-        marginLeft: "5px",
+        marginLeft: "8px",
     }
 
     const styleLatencyYellow = {
         color: "yellow",
-        fontSize: "12px",
+        fontSize: "10px",
         fontWeight: "bold",
         fontFamily: "Arial",
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
         cursor: "default",
         margin: "auto",
-        marginLeft: "5px",
+        marginLeft: "8px",
     }
 
     const styleLatencyRed = {
         color: "red",
-        fontSize: "12px",
+        fontSize: "10px",
         fontWeight: "bold",
         fontFamily: "Arial",
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
         cursor: "default",
         margin: "auto",
-        marginLeft: "5px",
+        marginLeft: "8px",
     }
 
     const styleBox = {
-        width: "15px",
-        height: "15px",
-        borderRadius: "8px",
+        width: "20px",
+        height: "20px",
+        borderRadius: "10px",
         background: user.color,
         marginRight: "8px",
     }
@@ -77,7 +84,7 @@ const User = React.memo(({ user }) => {
             return (
                 <div style={style}>
                     <div style={styleBox}></div>
-                    <div style={styleScore}> K{user.kills}/{user.deaths}D</div>
+                    <div style={styleScore}> {user.kills} </div>
                     <div style={styleUsername}> {user.username} </div>
                     <div style={styleLatencyGreen}> {user.latency} </div>
                 </div>
@@ -87,7 +94,7 @@ const User = React.memo(({ user }) => {
             return (
                 <div style={style}>
                     <div style={styleBox}></div>
-                    <div style={styleScore}> K{user.kills}/{user.deaths}D</div>
+                    <div style={styleScore}> {user.kills} </div>
                     <div style={styleUsername}> {user.username} </div>
                     <div style={styleLatencyYellow}> {user.latency} </div>
                 </div>
@@ -96,7 +103,7 @@ const User = React.memo(({ user }) => {
         else return (
             <div style={style}>
                 <div style={styleBox}></div>
-                <div style={styleScore}> K{user.kills}/{user.deaths}D</div>
+                <div style={styleScore}> {user.kills} </div>
                 <div style={styleUsername}> {user.username} </div>
                 <div style={styleLatencyRed}> {user.latency} </div>
             </div>

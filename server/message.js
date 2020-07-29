@@ -12,8 +12,13 @@ class Message {
         this.solid = solid
         this.fontSize = fontSize
         this.changable = changable
+        this.username = ""
+        this.userColor = ""
     }
 
+    setUserColor(c){this.userColor = c}
+    setUsername(u){this.username = u}
+    getUsername(){return this.username}
     getChangable(){return this.changable}
     getColor(){return this.color}
     setColor(c){this.color = c}
@@ -37,6 +42,8 @@ class Message {
             width: this.width,
             height: this.height,
             fontSize: this.fontSize,
+            username: this.username,
+            userColor: this.userColor,
         }
     }
 }

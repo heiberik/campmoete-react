@@ -89,10 +89,10 @@ const Score = React.memo(({ messagesService }) => {
         fontWeight: "bold",
         fontFamily: "Arial",
         color: "white",
-        top: "4rem",
+        top: "0 ",
         left: "50vw",
         zIndex: "9999",
-        padding: ".3rem"
+        height: "3vh"
     }
 
     const newHighScoreStyle = {
@@ -222,7 +222,7 @@ const Score = React.memo(({ messagesService }) => {
             &emsp;&emsp;{timer}&emsp;&emsp;
                 <p style={blueStyle}>{gunGameScore[1]} Blue Team</p>
                 </div>
-                <div style={redKill}> +1 </div>
+                <div style={redKill}> + </div>
             </>
         )
     }
@@ -234,7 +234,7 @@ const Score = React.memo(({ messagesService }) => {
             &emsp;&emsp;{timer}&emsp;&emsp;
                 <p style={blueStyle}>{gunGameScore[1]} Blue Team</p>
                 </div>
-                <div style={blueKill}> +1 </div>
+                <div style={blueKill}> + </div>
             </>
         )
     }

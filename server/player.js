@@ -6,7 +6,7 @@ class Player {
         this.playerPosX = posX
         this.playerPosY = posY
         this.playerWidth = 3.5
-        this.playerHeight = 4.5
+        this.playerHeight = 5.0
         this.color = color
         this.originalColor = color
         this.hit = false
@@ -20,11 +20,14 @@ class Player {
         this.shoot = null
         this.points = 0
         this.restricted = false
+        this.boxCD = false
         this.team = ""
         this.kills = -1
         this.deaths = -1
     }
     
+    getBoxCD(){return this.boxCD}
+    setBoxCD(b){this.boxCD = b}
     setKills(k){this.kills = k}
     getKills(){return this.kills}
     setDeaths(d){this.deaths = d}
@@ -34,6 +37,7 @@ class Player {
     getTeam(){return this.team}
     getOriginalColor(){return this.originalColor}
     setColor(c){this.color = c}
+    getColor(){return this.color}
     setRestricted(r){this.restricted = r}
     getRestricted(){return this.restricted}
     getPoints() { return this.points }

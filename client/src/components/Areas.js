@@ -10,6 +10,8 @@ const Areas = React.memo(({ messagesService }) => {
     const [numbersDeleteEvent, setNumbersDeleteEvent] = useState([])
     const [numbersGameEvent, setNumbersGameEvent] = useState([])
     const [numbersGunGameEvent, setNumbersGunGameEvent] = useState([])
+    const [gunGame, setGunGame] = useState(false)
+    const [pillarGame, setPillarGame] = useState(false)
 
 
     useEffect(() => {
@@ -19,10 +21,17 @@ const Areas = React.memo(({ messagesService }) => {
                 setNumbersDeleteEvent(gameState.numbersDeleteEvent)
                 setNumbersGunGameEvent(gameState.numbersGunGameEvent)
             }
+            if (gameState.gameInProgressChanged){
+                setTimeout(() => {
+                    setPillarGame(gameState.gameInProgress)
+                    setGunGame(gameState.gunGameInProgress)
+                }, 1000)
+            }
         })
     }, [messagesService])
 
-    return (
+    if (gunGame || pillarGame) return null
+    else return (
         <div>
             <AreaDelete numbersDeleteEvent={numbersDeleteEvent} />
             <AreaStartGame numbersGameEvent={numbersGameEvent} />

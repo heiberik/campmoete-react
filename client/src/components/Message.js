@@ -25,7 +25,7 @@ const Message = React.memo(({ message }) => {
         cursor: "default",
         padding: "1vw",
         WebkitBoxSizing: "border-box",
-        mozBoxSizing: "border-box",
+        MozBoxSizing: "border-box",
         boxSizing: "border-box",
     }
 

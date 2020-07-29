@@ -20,6 +20,8 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
             right: false,
             space: false,
             shoot: null,
+            q: false, 
+            e: false,
         }
 
         let sendUpdate = false
@@ -47,6 +49,23 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
             }
             else if (e.keyCode === 32) {
                 if (!pm.space) pm.space = true
+            }
+            else if (e.keyCode === 81) {
+                if (!pm.q) pm.q = true
+            }
+            else if (e.keyCode === 69) {
+                if (!pm.e) pm.e = true
+            }
+            else if (e.keyCode === 84) {
+                pm.up = false
+                pm.left = false
+                pm.right = false
+                pm.down = false
+                pm.space = false
+                pm.q = false
+                pm.e = false
+                pm.shoot = null
+                sendUpdate = true
             }
             sendUpdate = true
         }
@@ -130,7 +149,11 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
             if (sendUpdate) {
                 messagesService.sendPlayerMovement(pm)
                 sendUpdate = false
+                pm.q = false
+                pm.e = false
+                pm.t = false
             }
+            
         }
 
         const handleMovementFromServer = () => {
@@ -160,10 +183,7 @@ const Players = React.memo(({ messagesService, userOriginal }) => {
 
     return (
         <>
-            <Users
-                users={users}
-                messagesService={messagesService}
-                userOriginal={userOriginal} />
+            <Users users={users} />
             <ul>
                 {users.map(u => {
                     if (u.socketID !== userOriginal.socketID) {

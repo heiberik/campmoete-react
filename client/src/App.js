@@ -46,8 +46,7 @@ const App = () => {
             messagesService.sendMessage(messageText)
             setMessageText("")
         }
-        else {
-            setNotMessage("Message cannot be empty")
+        else {   
             setMessageText("")
         }
     }
@@ -125,7 +124,6 @@ const App = () => {
     }
     else return (
         <div style={style}>
-            <Header text="CAMPMØTE" />
             <Background
                     color1="#e66465"
                     color2="#800080"

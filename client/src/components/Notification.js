@@ -4,13 +4,13 @@ const Notification = React.memo(({ message, messageHandler }) => {
 
     const style = {
         position: "absolute",
-        background: "#ffffff",
-        border: "solid #4B0082 2px",
+        background: "rgba(255, 255, 255, 0.05)",
+        border: "solid black 2px",
         borderRadius: "10px",
         top: "10%",
         left: "50%",
-        color: "#4B0082",
-        fontSize: "18px",
+        color: "black",
+        fontSize: "16px",
         fontFamily: "Arial",
         fontWeight: "bold",
         padding: "30px",
